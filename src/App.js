@@ -17,6 +17,7 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import Terminal from "./components/Terminal"
 import Preloader from './components/Preloader';
+import Projects from './components/Projects';
 const SceneThree = lazy(()=> import('./components/ScenesThree'))
 function App(){
   const [loadScene, setLoadScene] = useState(false)
@@ -26,10 +27,11 @@ function App(){
  
   return( 
     <>
-    {!loadScene && <Terminal handle={handle} />}
+    {/*{!loadScene && <Terminal handle={handle} />}
     <Suspense fallback={<Preloader />}>
-        {loadScene && <SceneThree />}
-    </Suspense>  
+        {loadScene && <Projects />}
+    </Suspense> */ }
+    <Projects />
     </>
   )
 }

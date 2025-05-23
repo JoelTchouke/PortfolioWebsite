@@ -2,8 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import '../App.css';
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import { OrbitControls, useGLTF, Text, Html } from '@react-three/drei';
-import { FontLoader } from 'three/examples/jsm/Addons.js';
-import { FBXLoader } from 'three/examples/jsm/Addons.js';
+
 import '../css/honorScene.css'
 import { useSpring, animated } from '@react-spring/three'; // Import animated from react-spring
 import "../css/aboutme.css"
@@ -149,28 +148,6 @@ function FrameExperiences({ position, scale, imageUrl, name, args, text, action 
       >
         {text}
       </Text>
-    </mesh>
-  );
-}
-
-function RotatingBox() {
-  const meshRef = useRef();
-
-  
-
-  // Add rotation logic here
-  useFrame(() => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.01;
-      meshRef.current.rotation.x += 0.02
-    }
-  });
-
-  return (
-    <mesh ref={meshRef}>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color={"red"} />
-      
     </mesh>
   );
 }

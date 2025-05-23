@@ -1,27 +1,51 @@
-from sympy import symbols, Eq, solve, expand
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_LINE_SPACING
+from docx.oxml import OxmlElement
 
-# Define symbols
-s, A, B, C = symbols('s A B C')
+# Function to create a well-formatted paragraph
+def add_bullet_paragraph(doc, text):
+    p = doc.add_paragraph(style="List Bullet")
+    run = p.add_run(text)
+    run.font.size = Pt(11)
 
-# Problem (a)
-# Numerator and denominator
-numerator_a = s**2 + 17*s + 20
-denominator_a = s * (s + 1) * (s + 5)
+# Create a new document
+doc = Document()
 
-# Partial fraction decomposition for (a)
-partial_a = A / s + B / (s + 1) + C / (s + 5)
-equation_a = Eq(numerator_a, expand(A * (s + 1) * (s + 5) + B * s * (s + 5) + C * s * (s + 1)))
-coeffs_a = solve(equation_a, (A, B, C))
+# Set document margins
+sections = doc.sections
+for section in sections:
+    section.top_margin = Pt(36)
+    section.bottom_margin = Pt(36)
+    section.left_margin = Pt(36)
+    section.right_margin = Pt(36)
 
-# Problem (b)
-# Numerator and denominator
-numerator_b = 2 * s**2 + 10 * s + 16
-denominator_b = (s + 2) * ((s + 3)**2 + 1)
+# Add header
+doc.add_paragraph("Joel Tchouke", style="Heading 1").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+doc.add_paragraph("Software Engineering Internship", style="Normal").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+doc.add_paragraph("yvesjoel.tchouke@mnsu.edu | linkedin.com/in/joel-tchouke-197390280/ | github.com/jolvie | joeltchouke.com", style="Normal").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+doc.add_paragraph("Mankato, MN | (+1) 929-339-7034", style="Normal").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-# Partial fraction decomposition for (b)
-B, C = symbols('B C')  # Redefine for b
-partial_b = A / (s + 2) + (B * s + C) / ((s + 3)**2 + 1)
-equation_b = Eq(numerator_b, expand(A * ((s + 3)**2 + 1) + (B * s + C) * (s + 2)))
-coeffs_b = solve(equation_b, (A, B, C))
+# Add sections
+doc.add_paragraph("SUMMARY OF QUALIFICATIONS", style="Heading 2")
+add_bullet_paragraph(doc, "Proficient in full-stack development with expertise in React, Django, Firebase, and C++, solving real-world problems efficiently.")
+add_bullet_paragraph(doc, "Strong problem-solving skills demonstrated through cross-platform applications and AI-driven feature implementations.")
+add_bullet_paragraph(doc, "Experienced in leading teams, collaborating with clients, and mentoring students in software engineering and cybersecurity.")
 
-print(coeffs_a, coeffs_b)
+doc.add_paragraph("EDUCATION", style="Heading 2")
+doc.add_paragraph("Minnesota State University, Mankato", style="Normal").bold = True
+doc.add_paragraph("Computer Engineering | Honors Student | Dean’s List | Physics minor | 2026\nGPA: 3.7/4.0", style="Normal")
+
+doc.add_paragraph("SKILLS / COURSES", style="Heading 2")
+skills = [
+    "C++, C#, Java, Python, Go, JavaScript, React.js, Node.js, Django, MongoDB, MySQL, SQLAlchemy, Machine Learning, TensorFlow, Pytorch, Panda, Git, HTML/CSS, TypeScript,Postgres, AWS SQS, Firebase, .NET, REST API, MatLab, Splunk",
+    "Object Oriented Programming, Algorithms, Relational Database Design & SQL, Computer Systems, Linear Algebra, Discrete Mathematics, Applied Probability and Statistics, Computer Architecture",
+    ".Net, WinRT, C++, C#, CICD"
+]
+for skill in skills:
+    add_bullet_paragraph(doc, skill)
+
+# Save the document
+file_path = "/mnt/data/Joel_Tchouke_Resume.docx"
+doc.save(file_path)
+file_path
