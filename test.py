@@ -21,7 +21,7 @@ for section in sections:
     section.right_margin = Pt(36)
 
 # Add header
-doc.add_paragraph("Joel Tchouke", style="Heading 1").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+doc.add_paragraph("Joel Tes beau chouke", style="Heading 1").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 doc.add_paragraph("Software Engineering Internship", style="Normal").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 doc.add_paragraph("yvesjoel.tchouke@mnsu.edu | linkedin.com/in/joel-tchouke-197390280/ | github.com/jolvie | joeltchouke.com", style="Normal").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 doc.add_paragraph("Mankato, MN | (+1) 929-339-7034", style="Normal").alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
