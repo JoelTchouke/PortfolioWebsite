@@ -1,0 +1,259 @@
+
+.return_scene_button{
+    position:'absolute' ; 
+}
+/* helpNavigation.css */
+.help-modal {
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.help-content {
+    background: white;
+    color: black;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    text-align: center;
+}
+
+.help-content h2 {
+    margin-top: 0;
+}
+
+.help-content ul {
+    text-align: left;
+    margin: 20px 0;
+}
+
+.help-content li {
+    margin-bottom: 10px;
+}
+
+.close-button, .help-button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.close-button:hover, .help-button:hover {
+    background-color: #0056b3;
+}
+.buttonS {
+    margin-right: 10px;
+    background: white;
+    border-radius: 40px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.buttonS:hover {
+    color: white;
+    background: black;
+    transform: scale(1.1); /* Slight zoom-in effect */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Adds a shadow */
+}
+
+.buttonS:active {
+    transform: scale(0.95); /* Shrink effect on click */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+}
+
+
+/* Overlay */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Popup */
+  .popup {
+    background-color: #fff;
+    border-radius: 8px;
+    max-width: 900px;
+    text-align: center;
+    width: 80%;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    animation: popupAnim 0.3s forwards;
+  }
+  
+  /* Header */
+  .popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .popup-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .close-btn {
+    font-size: 24px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+  
+  .close-btn:hover {
+    color: #ff4757;
+  }
+  
+  /* Body */
+  .popup-body {
+    padding-top: 15px;
+    font-size: 16px;
+    color: #555;
+    text-align: justify;
+    text-justify: inter-word;
+  }
+  
+  .cta-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #1e90ff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .cta-btn:hover {
+    background-color: #0073e6;
+  }
+  
+  /* Open button */
+  .open-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #2ed573;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .open-btn:hover {
+    background-color: #1e9f4e;
+  }
+  
+  /* Animation */
+  @keyframes popupAnim {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  /* Container */
+.honors-container {
+  background-color: transparent;
+  color: #fff;
+  padding: 40px;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Titles */
+.honors-title,
+.why-honors-title {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center; 
+}
+
+/* Description */
+.honors-description {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 1.1rem;
+  color: #dcdcdc;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+/* Why Honors Section */
+.why-honors-section {
+  margin-top: 40px;
+  text-align: center;
+  min-width: 1200px;
+}
+
+/* Buttons */
+.why-honors-buttons {
+  margin-top: 20px;
+}
+
+.why-honors-btn {
+  background-color: #1e90ff;
+  color: #fff;
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.why-honors-btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Content Area */
+.why-honors-content {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #1e90ff;
+  border-radius: 8px;
+  max-width: 1000px;
+  margin: 20px auto;
+  background-color: #121212;
+  color: #dcdcdc;
+  font-size: 1rem;
+}
+
+
+
+
+.particle-background {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+}

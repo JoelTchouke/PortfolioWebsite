@@ -1,0 +1,47 @@
+.terminal{
+    background-color: rgb(30, 12, 12);
+    color: green;
+    padding: 10px;
+    min-height: 100vh;
+    font-size: 16px;
+    font-family: monospace;
+}
+.terminal ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.terminal p{
+    margin: 0;
+}
+
+.terminal textarea{
+    background: transparent;
+    color: green;
+    font-size: inherit;
+    width: 70%;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    border: none;
+    overflow: auto;
+    outline: none;
+    margin-left: 5px;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    resize: none; /*remove the resize handle on the bottom right*/
+}
+.terminal .previous_instructions{
+    width: 100%;
+}
+.terminal_content{
+    display: flex;
+    align-items: flex-start;
+}
+.terminal_content p{
+    margin: 0;
+}
