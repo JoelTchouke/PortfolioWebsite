@@ -22,6 +22,8 @@ const fragmentShader = `
   uniform vec2 uResolution;
   uniform sampler2D uTrailTexture;
 
+  const mat2 m = mat2(0.8, 0.6, -0.6, 0.8);
+
   float smin(float a, float b, float k) {
     float h = max(k - abs(a - b), 0.0) / k;
     return min(a, b) - h * h * h * k * (1.0 / 6.0);
@@ -31,10 +33,69 @@ const fragmentShader = `
     return length(p - c) - r;
   }
 
+  float noise(in vec2 p) {
+    return sin(p.x) * sin(p.y);
+  }
+
+  float fbm(vec2 p) {
+    float f = 0.5000 * noise(p); p *= 2.02;
+    f += 0.2500 * noise(p); p *= 2.03;
+    f += 0.1250 * noise(p); p *= 2.01;
+    f += 0.0625 * noise(p); p *= 2.04;
+    return f / 0.9375;
+  }
+
+  float fbm6(vec2 p) {
+    float f = 0.0;
+    f += 0.250000 * (0.5 + 0.5 * noise(p)); p = m * p * 2.03;
+    f += 0.125000 * (0.5 + 0.5 * noise(p)); p = m * p * 2.01;
+    f += 0.062500 * (0.5 + 0.5 * noise(p)); p = m * p * 2.04;
+    f += 0.031250 * (0.5 + 0.5 * noise(p)); p = m * p * 2.01;
+    f += 0.500000 * (0.5 + 0.5 * noise(p)); p = m * p * 2.02;
+    f += 0.015625 * (0.5 + 0.5 * noise(p));
+    return f / 0.96875;
+  }
+
+  float pattern(in vec2 p, float t) {
+    vec2 q = vec2(
+      fbm(p + vec2(0.0, 0.0)),
+      fbm(p + vec2(5.2, 1.3) * (t + 100.0) * 0.01)
+    );
+
+    vec2 r = vec2(
+      fbm(p + 4.0 * q + vec2(1.7, 9.2)),
+      fbm(p + 4.0 * q + vec2(8.3, 2.8))
+    );
+
+    return fbm6(p + 4.0 * r);
+  }
+
   float liquidField(vec2 p, float t) {
-    // Each blob sits near an edge of the visible area and drifts with large
-    // amplitude so it visibly enters, merges with neighbours, and retreats —
-    // two incommensurate frequencies per axis keep the path non-repeating.
+    // --- FBM-driven flow inspired by the reference shader you liked ---
+    vec2 flow1 = vec2(
+      fbm(p * 1.15 + vec2(t * 0.18, -t * 0.10)),
+      fbm(p * 1.15 + vec2(4.0 - t * 0.12, 2.0 + t * 0.14))
+    );
+
+    vec2 flow2 = vec2(
+      pattern(p * 0.95 + vec2(0.0, t * 0.05), t),
+      pattern(p * 0.95 + vec2(3.0, -t * 0.04), t)
+    );
+
+    flow1 = (flow1 - 0.25) * 0.22;
+    flow2 = (flow2 - 0.5) * 0.18;
+
+    vec2 pp = p;
+
+    // controlled warping so it feels fluid without destroying the trail
+    pp += flow1;
+    pp += flow2;
+
+    // directional smear to mimic the stretched flowing look
+    pp.x += 0.08 * sin(pp.y * 2.2 + t * 0.45);
+    pp.y += 0.04 * sin(pp.x * 1.9 - t * 0.30);
+
+    // original big liquid masses, kept so the trail still has a stable surface
     vec2 c1 = vec2(-0.55 + sin(t * 0.37) * 0.38 + cos(t * 0.19) * 0.13,
                     0.18 + cos(t * 0.28) * 0.32 + sin(t * 0.15) * 0.10);
     vec2 c2 = vec2( 0.52 + cos(t * 0.31) * 0.36 + sin(t * 0.22) * 0.11,
@@ -52,19 +113,26 @@ const fragmentShader = `
     float r4 = 0.46 + cos(t * 0.11) * 0.04;
     float r5 = 0.50 + sin(t * 0.15) * 0.04;
 
-    float d1 = blob(p, c1, r1);
-    float d2 = blob(p, c2, r2);
-    float d3 = blob(p, c3, r3);
-    float d4 = blob(p, c4, r4);
-    float d5 = blob(p, c5, r5);
+    float d1 = blob(pp, c1, r1);
+    float d2 = blob(pp, c2, r2);
+    float d3 = blob(pp, c3, r3);
+    float d4 = blob(pp, c4, r4);
+    float d5 = blob(pp, c5, r5);
 
-    // Large k values → very smooth, organic merging as blobs approach
-    float m = smin(d1, d2, 0.55);
-    m = smin(m, d3, 0.50);
-    m = smin(m, d4, 0.44);
-    m = smin(m, d5, 0.40);
+    float mField = smin(d1, d2, 0.55);
+    mField = smin(mField, d3, 0.50);
+    mField = smin(mField, d4, 0.44);
+    mField = smin(mField, d5, 0.40);
 
-    return m;
+    // use the reference-style pattern only as contour character, not the base shape
+    float patLarge = pattern(pp * 1.35, t);
+    float patFine  = fbm6(pp * 3.0 - vec2(t * 0.04, -t * 0.03));
+
+    // subtle contour modulation
+    mField += (patLarge - 0.5) * 0.10;
+    mField += (patFine  - 0.5) * 0.035;
+
+    return mField;
   }
 
   void main() {
@@ -88,6 +156,7 @@ const fragmentShader = `
 
     vec2 trailGrad = vec2(trailR - trailL, trailT - trailB);
 
+    // leave trail behavior structurally untouched
     vec2 q = p;
     q -= trailGrad * 1.8;
     q += trailGrad.yx * vec2(-0.10, 0.10);
@@ -101,20 +170,14 @@ const fragmentShader = `
     vec3 normal = normalize(vec3(-fx * 24.0, -fy * 24.0, 1.0));
     vec3 viewDir = vec3(0.0, 0.0, 1.0);
 
-    // Two lights — each produces a curved band following the blob surface
-    // Keep both well to the side so they never point at the viewer and create a cone
     vec3 light1 = normalize(vec3(-0.70,  0.75, 0.65));
     vec3 light2 = normalize(vec3( 0.65, -0.55, 0.58));
 
-    // Moderate specular power → wide organic bands, not a pin-point spotlight
     float specPow = 72.0;
     float spec1 = pow(max(dot(reflect(-light1, normal), viewDir), 0.0), specPow);
     float spec2 = pow(max(dot(reflect(-light2, normal), viewDir), 0.0), specPow * 1.15);
 
-    // Soft diffuse — gives subtle body shading so blob reads as 3-D volume
     float diffuse = max(dot(normal, light1), 0.0);
-
-    // Fresnel: brightens the silhouette edge of each blob
     float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.5);
 
     float body  = 1.0 - smoothstep(0.00, 0.18, f);
@@ -132,41 +195,20 @@ const fragmentShader = `
 
     vec3 color = bg;
 
-    // Near-black base with just enough diffuse for volume
     color = mix(color, darkMetal, body);
     color = mix(color, midMetal, diffuse * inner * 0.22);
 
-    // Two wide curved highlight bands — these are the organic surface texture
     color += silver   * spec1 * inner * 0.88;
     color += hotWhite * spec2 * inner * 0.60;
 
-    // Silhouette glow
     color += silver * fresnel * edge * 0.35;
 
-    // Mouse interaction
     color -= groove * 0.18 * body;
     color += rim * 0.07 * edge;
 
     gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
   }
 `;
-
-// "O" in JOEL → outlined stroke treatment
-// "K" in TCHOUKE → 3-D cube rotation
-const HERO_LETTERS = [
-  { char: 'J',      mod: '' },
-  { char: 'O',      mod: 'letter--outline' },
-  { char: 'E',      mod: '' },
-  { char: 'L',      mod: '' },
-  { char: '\u00A0', mod: 'letter--space' },
-  { char: 'T',      mod: '' },
-  { char: 'C',      mod: '' },
-  { char: 'H',      mod: '' },
-  { char: 'O',      mod: '' },
-  { char: 'U',      mod: '' },
-  { char: 'K',      mod: 'letter--cubeK' },
-  { char: 'E',      mod: '' },
-];
 
 function LiquidPlane() {
   const materialRef = useRef();
@@ -345,15 +387,6 @@ function Main() {
       );
     };
 
-    // ── K cube rotation ───────────────────────────────────────────────────────
-    gsap.to('.letterCube', {
-      rotationY: 360,
-      duration: 4,
-      repeat: -1,
-      ease: 'none',
-      transformPerspective: 500,
-    });
-
     // Initialise on first link after layout is painted
     requestAnimationFrame(() => snap(links[0], true));
 
@@ -399,7 +432,7 @@ function Main() {
         <span className="navBracket navBracket--right">]</span>
       </nav>
 
-      <h1 className="heroName" aria-label="Joel Tchouke">Joel Tchouke</h1>
+      <h1 className="heroName">JOEL TCHOUKE</h1>
     </main>
   );
 }
