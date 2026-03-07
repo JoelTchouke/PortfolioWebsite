@@ -129,18 +129,42 @@ const fragmentShader = `
     float px = 1.0 / uResolution.x;
     float py = 1.0 / uResolution.y;
 
-    float trailL = texture2D(uTrailTexture, uv - vec2(px * 18.0, 0.0)).r;
-    float trailR = texture2D(uTrailTexture, uv + vec2(px * 18.0, 0.0)).r;
-    float trailB = texture2D(uTrailTexture, uv - vec2(0.0, py * 18.0)).r;
-    float trailT = texture2D(uTrailTexture, uv + vec2(0.0, py * 18.0)).r;
+    float trailC =
+    texture2D(uTrailTexture, uv).r * 0.28 +
+    texture2D(uTrailTexture, uv + vec2(px * 10.0, 0.0)).r * 0.12 +
+    texture2D(uTrailTexture, uv - vec2(px * 10.0, 0.0)).r * 0.12 +
+    texture2D(uTrailTexture, uv + vec2(0.0, py * 10.0)).r * 0.12 +
+    texture2D(uTrailTexture, uv - vec2(0.0, py * 10.0)).r * 0.12 +
+    texture2D(uTrailTexture, uv + vec2(px * 20.0, 0.0)).r * 0.08 +
+    texture2D(uTrailTexture, uv - vec2(px * 20.0, 0.0)).r * 0.08 +
+    texture2D(uTrailTexture, uv + vec2(0.0, py * 20.0)).r * 0.08 +
+    texture2D(uTrailTexture, uv - vec2(0.0, py * 20.0)).r * 0.08;
+
+    float trailL =
+        texture2D(uTrailTexture, uv - vec2(px * 22.0, 0.0)).r * 0.6 +
+        texture2D(uTrailTexture, uv - vec2(px * 12.0, 0.0)).r * 0.4;
+
+    float trailR =
+        texture2D(uTrailTexture, uv + vec2(px * 22.0, 0.0)).r * 0.6 +
+        texture2D(uTrailTexture, uv + vec2(px * 12.0, 0.0)).r * 0.4;
+
+    float trailB =
+        texture2D(uTrailTexture, uv - vec2(0.0, py * 22.0)).r * 0.6 +
+        texture2D(uTrailTexture, uv - vec2(0.0, py * 12.0)).r * 0.4;
+
+    float trailT =
+        texture2D(uTrailTexture, uv + vec2(0.0, py * 22.0)).r * 0.6 +
+        texture2D(uTrailTexture, uv + vec2(0.0, py * 12.0)).r * 0.4;
 
     vec2 trailGrad = vec2(trailR - trailL, trailT - trailB);
 
-    // softer, less twitchy trail deformation
-    vec2 q = p;
-    q -= trailGrad * 1.15;
-    q += trailGrad.yx * vec2(-0.04, 0.04);
+    // soften the gradient itself
+    trailGrad = sign(trailGrad) * pow(abs(trailGrad), vec2(1.35));
 
+    // very calm deformation
+    vec2 q = p;
+    q -= trailGrad * 0.75;
+    
     float f = liquidField(q, t);
 
     float eps = 0.014;
@@ -187,6 +211,17 @@ const fragmentShader = `
     // keep trail response
     color -= groove * 0.11 * body;
     color += rim * 0.035 * edge;
+
+    // Microscopic inclined grid — ~5 px cells, 13° tilt
+    float ca = 0.97437; // cos(13°)
+    float sa = 0.22495; // sin(13°)
+    vec2 gUv = vec2(ca * vUv.x - sa * vUv.y,
+                    sa * vUv.x + ca * vUv.y) * uResolution / 5.0;
+    vec2 gf  = fract(gUv);
+    float lw = 0.08;
+    float gx = smoothstep(0.0, lw, gf.x) * (1.0 - smoothstep(1.0 - lw, 1.0, gf.x));
+    float gy = smoothstep(0.0, lw, gf.y) * (1.0 - smoothstep(1.0 - lw, 1.0, gf.y));
+    color += (1.0 - gx * gy) * 0.028;
 
     gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
   }
