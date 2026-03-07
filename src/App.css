@@ -4,24 +4,30 @@
   font-size: 16px !important;
 }
 
-html, body {
+html {
   font-family: 'Inter', Arial, sans-serif;
   font-size: 16px !important;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 .App {
   text-align: center;
-  height: 100%;
+  min-height: 100vh;
   overflow-x: hidden;
 }
 
-html, body, canvas {
-  min-height: 100vh;
-  overflow-x: hidden;
+canvas {
+  display: block;
 }
 .loading-indicator {
   position: absolute;

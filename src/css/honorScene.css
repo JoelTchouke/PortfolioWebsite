@@ -10,6 +10,9 @@
   color: #f0f0f0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
 
@@ -17,19 +20,16 @@
    SCENE WRAPPER — 3-D honours scene chrome
    ═══════════════════════════════════════════════ */
 
-/* Top bar matching main page */
+/* Floating top chrome — individual pill buttons, no unified bar */
 .scene-topbar {
   position: absolute;
   top: 0; left: 0; right: 0;
   z-index: 200;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 1.25rem 2rem;
-  background: rgba(5, 5, 5, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(240, 240, 240, 0.06);
+  padding: 1.4rem 1.8rem;
+  pointer-events: none;
 }
 
 .scene-topbar__logo {
@@ -37,67 +37,81 @@
   font-size: 1.05rem;
   font-weight: 900;
   letter-spacing: 0.06em;
-  color: #f0f0f0;
+  color: #ffffff;
   user-select: none;
+  pointer-events: auto;
+  background: rgba(12, 12, 12, 0.78);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  padding: 0.45rem 1.1rem;
 }
 
 .scene-topbar__nav {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 0.45rem;
+  pointer-events: auto;
 }
 
 .scene-nav-btn {
-  background: none;
-  border: none;
+  background: rgba(12, 12, 12, 0.78);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 999px;
   font-family: 'Inter', sans-serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.55);
+  color: rgba(255, 255, 255, 0.82);
   cursor: pointer;
-  padding: 0.35rem 1rem;
-  transition: color 0.2s;
+  padding: 0.42rem 1rem;
+  transition: background 0.22s, border-color 0.22s, color 0.22s, box-shadow 0.22s;
 }
 
 .scene-nav-btn:hover {
-  color: #f0f0f0;
+  background: rgba(30, 30, 30, 0.88);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: #ffffff;
 }
 
 .scene-nav-btn--back {
-  border: 1px solid rgba(240, 240, 240, 0.22);
-  color: rgba(240, 240, 240, 0.7);
-  margin-left: 1rem;
-  padding: 0.35rem 1rem;
-  transition: border-color 0.22s, color 0.22s;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
 }
 
 .scene-nav-btn--back:hover {
-  border-color: rgba(240, 240, 240, 0.7);
-  color: #f0f0f0;
+  background: rgba(30, 30, 30, 0.88);
+  border-color: rgba(255, 255, 255, 0.36);
 }
 
 /* "Exit frame focus" button (floats below topbar) */
 .scene-exit-btn {
   position: absolute;
   top: 5.2rem;
-  left: 2rem;
-  background: none;
-  border: 1px solid rgba(240, 240, 240, 0.22);
+  right: 1.8rem;
+  background: rgba(12, 12, 12, 0.78);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 999px;
   font-family: 'Inter', sans-serif;
   font-size: 0.62rem;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.65);
+  color: rgba(255, 255, 255, 0.82);
   cursor: pointer;
-  padding: 0.45rem 1rem;
+  padding: 0.42rem 1rem;
   z-index: 200;
-  transition: border-color 0.22s, color 0.22s;
+  transition: background 0.22s, border-color 0.22s, color 0.22s;
 }
 
 .scene-exit-btn:hover {
-  border-color: rgba(240, 240, 240, 0.7);
-  color: #f0f0f0;
+  background: rgba(30, 30, 30, 0.88);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: #ffffff;
 }
 
 

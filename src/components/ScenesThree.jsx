@@ -15,47 +15,6 @@ import finder from '../img/finder.png';
 
 const FrameFocusContext = createContext();
 
-// ── Soft button click (filtered noise + low thud) ────────────────────────────
-function playPsClick() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const now = ctx.currentTime;
-
-    // 1. Short noise burst — the "click" transient
-    const samples = Math.floor(ctx.sampleRate * 0.022);
-    const buf  = ctx.createBuffer(1, samples, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < samples; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / samples, 2);
-    }
-    const noise  = ctx.createBufferSource();
-    noise.buffer = buf;
-    const filter = ctx.createBiquadFilter();
-    filter.type            = 'bandpass';
-    filter.frequency.value = 1800;
-    filter.Q.value         = 1.2;
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.28, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.022);
-    noise.connect(filter);
-    filter.connect(noiseGain);
-    noiseGain.connect(ctx.destination);
-    noise.start(now);
-
-    // 2. Low thud — gives the button its weight
-    const osc  = ctx.createOscillator();
-    const oGain = ctx.createGain();
-    osc.connect(oGain);
-    oGain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(180, now);
-    osc.frequency.exponentialRampToValueAtTime(60, now + 0.04);
-    oGain.gain.setValueAtTime(0.18, now);
-    oGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
-    osc.start(now);
-    osc.stop(now + 0.04);
-  } catch (_) {}
-}
 
 // ── Scene loader overlay ─────────────────────────────────────────────────────
 function SceneLoader() {
@@ -143,7 +102,7 @@ function CameraControl({ target }) {
 }
 
 // ── Frame mesh ────────────────────────────────────────────────────────────────
-function FrameExperiences({ position, scale, imageUrl, name, args, text }) {
+function FrameExperiences({ position, scale, imageUrl, name, args, text, noFog, label, onHover }) {
   const textRef  = useRef();
   const texture  = useLoader(THREE.TextureLoader, imageUrl);
   const [textVisible, setTextVisible] = useState(0);
@@ -162,11 +121,11 @@ function FrameExperiences({ position, scale, imageUrl, name, args, text }) {
       name={name}
       scale={scale}
       position={position}
-      onPointerOver={() => { document.body.style.cursor = 'pointer'; }}
-      onPointerOut={() =>  { document.body.style.cursor = 'auto'; }}
+      onPointerOver={() => { document.body.style.cursor = 'pointer'; onHover && onHover(label || null); }}
+      onPointerOut={() =>  { document.body.style.cursor = 'auto';    onHover && onHover(null); }}
     >
       <boxGeometry args={args} />
-      <meshStandardMaterial map={texture} />
+      <meshStandardMaterial map={texture} fog={!noFog} />
       <Text ref={textRef} position={[0, -1.5, 0]} scale={0.4} color="black" fillOpacity={textVisible}>
         {text}
       </Text>
@@ -175,7 +134,7 @@ function FrameExperiences({ position, scale, imageUrl, name, args, text }) {
 }
 
 // ── Main 3-D scene ────────────────────────────────────────────────────────────
-function Scene({ setClicked }) {
+function Scene({ setClicked, setHovered }) {
   const room     = useGLTF('/3DModels/scene.gltf');
   const sceneRef = useRef();
   const { targetFocus, setTargetFocus } = useContext(FrameFocusContext);
@@ -183,26 +142,21 @@ function Scene({ setClicked }) {
   const handleClick = (event) => {
     switch (event.object.name) {
       case 'Window_Books_0':
-        playPsClick();
         setTargetFocus('books');
         break;
       case 'frame0':
-        playPsClick();
         if (targetFocus === 'frames') setClicked('frame0');
         setTargetFocus('frames');
         break;
       case 'frame1':
-        playPsClick();
         if (targetFocus === 'frames') setClicked('frame1');
         setTargetFocus('frames');
         break;
       case 'frame2':
-        playPsClick();
         if (targetFocus === 'frames') setClicked('frame2');
         setTargetFocus('frames');
         break;
       case 'frame3':
-        playPsClick();
         if (targetFocus === 'frames') setClicked('frame3');
         setTargetFocus('frames');
         break;
@@ -222,10 +176,10 @@ function Scene({ setClicked }) {
         <meshStandardMaterial color="black" />
       </mesh>
       <FrameExperiences args={[1,1,1]}       scale={7.1}  name="frame1" position={[0,0,-10.7]}    imageUrl={JoelImg} />
-      <FrameExperiences text="𝑅𝑒𝓈𝑒𝒶𝓇𝒸𝒽"    args={[0.1,2,2]}   name="frame1" position={[-7.1,0,2.5]}  imageUrl="/3DModels/textures/research_illustration.jpeg" />
-      <FrameExperiences text="𝑳𝒆𝒂𝒅𝒆𝒓𝒔𝒉𝒊𝒑"   args={[0.1,2,2]}   name="frame2" position={[-7.1,0,0]}    imageUrl="/3DModels/textures/leadership_illustration.jpg" />
-      <FrameExperiences                      args={[0.1,2,3.55]} name="frame0" position={[-7.1,2.5,0]}  imageUrl="/3DModels/textures/honors.jpeg" />
-      <FrameExperiences text="Ìñ†êr¢µl†µrål" args={[0.1,2,2]}   name="frame3" position={[-7.1,0,-2.5]} imageUrl="/3DModels/textures/intercultural.jpg" />
+      <FrameExperiences text="𝑅𝑒𝓈𝑒𝒶𝓇𝒸𝒽"    args={[0.1,2,2]}   name="frame1" position={[-7.1,0,2.5]}  imageUrl="/3DModels/textures/research_illustration.jpeg"  label="Research"               onHover={setHovered} />
+      <FrameExperiences text="𝑳𝒆𝒂𝒅𝒆𝒓𝒔𝒉𝒊𝒑"   args={[0.1,2,2]}   name="frame2" position={[-7.1,0,0]}    imageUrl="/3DModels/textures/leadership_illustration.jpg" label="Leadership"              onHover={setHovered} />
+      <FrameExperiences                      args={[0.1,2,3.55]} name="frame0" position={[-7.1,2.5,0]}  imageUrl="/3DModels/textures/honors.jpeg"                  label="Honors Program"         onHover={setHovered} />
+      <FrameExperiences text="Ìñ†êr¢µl†µrål" args={[0.1,2,2]}   name="frame3" position={[-7.1,0,-2.5]} imageUrl="/3DModels/textures/intercultural.jpg"            label="Intercultural Engagement" onHover={setHovered} />
     </group>
   );
 }
@@ -416,6 +370,37 @@ function Intercultural({ handleClick }) {
   );
 }
 
+// ── Mobile gate ───────────────────────────────────────────────────────────────
+function MobileGate({ onNavigate }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: '#050505',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '2rem', textAlign: 'center',
+    }}>
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.55rem', letterSpacing: '0.26em', textTransform: 'uppercase', color: 'rgba(240,240,240,0.3)', marginBottom: '1.4rem' }}>
+        Joel Tchouke · Honors
+      </p>
+      <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(2.4rem, 10vw, 4rem)', fontWeight: 300, color: 'rgba(240,240,240,0.9)', margin: '0 0 1.6rem', lineHeight: 1.1 }}>
+        Desktop<br />Only
+      </h1>
+      <hr style={{ border: 'none', borderTop: '1px solid rgba(240,240,240,0.08)', width: '100%', maxWidth: 320, margin: '0 0 1.8rem' }} />
+      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.88rem', lineHeight: 1.8, color: 'rgba(240,240,240,0.45)', fontWeight: 300, maxWidth: 320, margin: '0 0 2.4rem' }}>
+        This experience uses a 3D scene that requires a desktop browser to explore.
+      </p>
+      {onNavigate && (
+        <button
+          onClick={() => onNavigate('main')}
+          style={{ background: 'none', border: '1px solid rgba(240,240,240,0.22)', fontFamily: 'Inter, sans-serif', fontSize: '0.62rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(240,240,240,0.65)', cursor: 'pointer', padding: '0.55rem 1.3rem' }}
+        >
+          ← Back to Main
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ── Root component ────────────────────────────────────────────────────────────
 function SceneThree({ onNavigate }) {
   const [targetFocus, setTargetFocus] = useState('origin');
@@ -424,8 +409,20 @@ function SceneThree({ onNavigate }) {
   const [intro,       setIntro]       = useState(false);
   const [welcome,     setWelcome]     = useState(false);
   const [mission,     setMission]     = useState(false);
+  const [hovered,     setHovered]     = useState(null);
+  const [mousePos,    setMousePos]    = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const onMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
+  const isMobile = window.innerWidth < 768;
 
   const handlePdf = () => setClicked('');
+
+  if (isMobile) return <MobileGate onNavigate={onNavigate} />;
 
   return (
     <FrameFocusContext.Provider value={{ targetFocus, setTargetFocus }}>
@@ -437,19 +434,19 @@ function SceneThree({ onNavigate }) {
         <header className="scene-topbar">
           <span className="scene-topbar__logo">TJ</span>
           <nav className="scene-topbar__nav">
-            <button className="scene-nav-btn" onClick={() => { playPsClick(); setIntro(v => !v); }}>Introduction</button>
-            <button className="scene-nav-btn" onClick={() => { playPsClick(); setWelcome(v => !v); }}>Welcome</button>
-            <button className="scene-nav-btn" onClick={() => { playPsClick(); setMission(v => !v); }}>Mission</button>
-            <button className="scene-nav-btn" onClick={() => { playPsClick(); setHelpClick(v => !v); }}>Help</button>
+            <button className="scene-nav-btn" onClick={() => { setIntro(v => !v); }}>Introduction</button>
+            <button className="scene-nav-btn" onClick={() => { setWelcome(v => !v); }}>Welcome</button>
+            <button className="scene-nav-btn" onClick={() => { setMission(v => !v); }}>Mission</button>
+            <button className="scene-nav-btn" onClick={() => { setHelpClick(v => !v); }}>Help</button>
             {onNavigate && (
-              <button className="scene-nav-btn scene-nav-btn--back" onClick={() => { playPsClick(); onNavigate('main'); }}>← Main</button>
+              <button className="scene-nav-btn scene-nav-btn--back" onClick={() => { onNavigate('main'); }}>← Main</button>
             )}
           </nav>
         </header>
 
         {/* Exit camera focus */}
         {targetFocus !== 'origin' && (
-          <button className="scene-exit-btn" onClick={() => { playPsClick(); setTargetFocus('origin'); }}>← Back</button>
+          <button className="scene-exit-btn" onClick={() => { setTargetFocus('origin'); }}>← Back</button>
         )}
 
         {helpClick   && <HelpView handleClick={() => setHelpClick(v => !v)} />}
@@ -481,12 +478,52 @@ function SceneThree({ onNavigate }) {
           />
         )}
 
-        <Canvas>
+        <Canvas dpr={[1, 1.5]} performance={{ min: 0.5 }} gl={{ antialias: true, powerPreference: 'high-performance' }}>
           <Suspense fallback={null}>
-            <Scene setClicked={setClicked} />
+            <Scene setClicked={setClicked} setHovered={setHovered} />
             <AnimatedText />
           </Suspense>
         </Canvas>
+
+        {/* Fading explore hint */}
+        <div style={{
+          position: 'absolute', bottom: '2.4rem', left: '50%',
+          transform: 'translateX(-50%)',
+          pointerEvents: 'none', zIndex: 100,
+          animation: 'hintFade 1.2s ease 3.5s forwards',
+          opacity: 1,
+          display: 'flex', alignItems: 'center', gap: '0.6rem',
+        }}>
+          <span style={{ width: 18, height: 1, background: 'rgba(240,240,240,0.3)', display: 'inline-block' }} />
+          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.55rem', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'rgba(240,240,240,0.38)' }}>
+            Click frames to explore
+          </span>
+          <span style={{ width: 18, height: 1, background: 'rgba(240,240,240,0.3)', display: 'inline-block' }} />
+        </div>
+        <style>{`@keyframes hintFade { to { opacity: 0; } }`}</style>
+
+        {/* Frame hover tooltip */}
+        {hovered && (
+          <div style={{
+            position: 'fixed',
+            left: mousePos.x + 18,
+            top: mousePos.y - 10,
+            pointerEvents: 'none',
+            zIndex: 300,
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '0.62rem',
+            fontWeight: 400,
+            letterSpacing: '0.13em',
+            textTransform: 'uppercase',
+            color: '#ffffff',
+            background: 'rgba(5, 5, 5, 0.62)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            padding: '0.5rem 1rem',
+          }}>
+            {hovered}
+          </div>
+        )}
 
       </div>
     </FrameFocusContext.Provider>

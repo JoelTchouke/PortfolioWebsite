@@ -67,7 +67,7 @@
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.65);
+  color: rgba(240, 240, 240, 0.80);
 }
 
 .topBar__logo {
@@ -105,7 +105,7 @@
 .heroBody p {
   font-size: 0.88rem;
   line-height: 1.7;
-  color: rgba(240, 240, 240, 0.75);
+  color: rgba(240, 240, 240, 0.88);
   margin: 0 0 1.5rem;
   font-weight: 400;
 }
@@ -153,9 +153,9 @@
   font-size: 0.88rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.75);
+  color: rgba(240, 240, 240, 0.88);
   text-decoration: none;
-  padding: 0 1.2rem;
+  padding: 0 0.7rem;
   transition: color 0.2s;
 }
 
@@ -209,7 +209,7 @@
   .navBracket {
     font-size: 0.72rem;
     letter-spacing: 0.11em;
-    padding: 0 0.7rem;
+    padding: 0 1.1rem;
   }
   .navBracket { padding: 0; }
 }
@@ -221,7 +221,7 @@
     line-height: 1.65;
   }
   .centerNav a {
-    padding: 0 0.38rem;
+    padding: 0 0.75rem;
     font-size: 0.56rem;
   }
 }
@@ -243,4 +243,18 @@
   pointer-events: none;
   line-height: 0.85;
   white-space: nowrap;
+}
+
+.heroName::before {
+  content: '';
+  position: absolute;
+  inset: -55% -12%;
+  background: radial-gradient(
+    ellipse 80% 62% at 50% 90%,
+    rgba(5, 5, 5, 0.62) 0%,
+    rgba(5, 5, 5, 0.22) 48%,
+    transparent 72%
+  );
+  z-index: -1;
+  pointer-events: none;
 }

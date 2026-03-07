@@ -24,15 +24,6 @@ const fragmentShader = `
 
   const mat2 m = mat2(0.8, 0.6, -0.6, 0.8);
 
-  float smin(float a, float b, float k) {
-    float h = max(k - abs(a - b), 0.0) / k;
-    return min(a, b) - h * h * h * k * (1.0 / 6.0);
-  }
-
-  float blob(vec2 p, vec2 c, float r) {
-    return length(p - c) - r;
-  }
-
   float noise(in vec2 p) {
     return sin(p.x) * sin(p.y);
   }
@@ -45,193 +36,39 @@ const fragmentShader = `
     return f / 0.9375;
   }
 
-  float fbm6(vec2 p) {
-    float f = 0.0;
-    f += 0.250000 * (0.5 + 0.5 * noise(p)); p = m * p * 2.03;
-    f += 0.125000 * (0.5 + 0.5 * noise(p)); p = m * p * 2.01;
-    f += 0.062500 * (0.5 + 0.5 * noise(p)); p = m * p * 2.04;
-    f += 0.031250 * (0.5 + 0.5 * noise(p)); p = m * p * 2.01;
-    f += 0.500000 * (0.5 + 0.5 * noise(p)); p = m * p * 2.02;
-    f += 0.015625 * (0.5 + 0.5 * noise(p));
-    return f / 0.96875;
-  }
-
-  float pattern(in vec2 p, float t) {
+  float pattern(in vec2 p) {
     vec2 q = vec2(
       fbm(p + vec2(0.0, 0.0)),
-      fbm(p + vec2(5.2, 1.3) * (t + 100.0) * 0.01)
+      fbm(p + vec2(5.2, 1.3) * (uTime + 100.0) * 0.004)
     );
-
     vec2 r = vec2(
       fbm(p + 4.0 * q + vec2(1.7, 9.2)),
       fbm(p + 4.0 * q + vec2(8.3, 2.8))
     );
-
     return fbm(p + 4.0 * r);
-  }
-
-  float liquidField(vec2 p, float t) {
-    vec2 pp = p;
-
-    // Large-scale only. No visible grain.
-    vec2 warpA = vec2(
-      pattern(pp * 0.55 + vec2(t * 0.035, -t * 0.020), t),
-      pattern(pp * 0.55 + vec2(2.7 - t * 0.025, 1.4 + t * 0.030), t)
-    );
-
-    vec2 warpB = vec2(
-      fbm(pp * 0.85 + vec2(-t * 0.040, t * 0.030)),
-      fbm(pp * 0.85 + vec2(3.1 + t * 0.025, -2.0 - t * 0.020))
-    );
-
-    warpA = (warpA - 0.25) * 0.18;
-    warpB = (warpB - 0.10) * 0.10;
-
-    pp += warpA + warpB;
-
-    // Broad directional shear for cinematic flow
-    pp.x += 0.10 * sin(pp.y * 1.35 + t * 0.32);
-    pp.y += 0.05 * sin(pp.x * 1.10 - t * 0.24);
-
-    // Big off-frame masses — slow organic drift with harmonic layering
-    vec2 c1 = vec2(-1.05 + sin(t * 0.41) * 0.14 + cos(t * 0.17) * 0.06,
-                    0.62 + cos(t * 0.29) * 0.12 + sin(t * 0.13) * 0.04);
-    vec2 c2 = vec2( 0.02 + cos(t * 0.23) * 0.16 + sin(t * 0.37) * 0.05,
-                    0.48 + sin(t * 0.19) * 0.13 + cos(t * 0.11) * 0.04);
-    vec2 c3 = vec2( 1.00 + sin(t * 0.27) * 0.18 + cos(t * 0.43) * 0.06,
-                   -0.12 + cos(t * 0.17) * 0.14 + sin(t * 0.31) * 0.05);
-    vec2 c4 = vec2(-0.62 + cos(t * 0.15) * 0.12 + sin(t * 0.26) * 0.05,
-                   -0.70 + sin(t * 0.13) * 0.10 + cos(t * 0.39) * 0.04);
-
-    float r1 = 0.96 + sin(t * 0.19) * 0.04;
-    float r2 = 0.92 + cos(t * 0.13) * 0.05;
-    float r3 = 0.98 + sin(t * 0.17) * 0.04;
-    float r4 = 0.88 + cos(t * 0.11) * 0.03;
-
-    float d1 = blob(pp * vec2(1.00, 0.90), c1, r1);
-    float d2 = blob(pp * vec2(0.96, 1.04), c2, r2);
-    float d3 = blob(pp * vec2(1.10, 0.78), c3, r3);
-    float d4 = blob(pp * vec2(1.06, 0.82), c4, r4);
-
-    float field = smin(d1, d2, 0.62);
-    field = smin(field, d3, 0.66);
-    field = smin(field, d4, 0.60);
-
-    // Tiny contour softness only. No visible sparkle texture.
-    float contour = pattern(pp * 0.9, t);
-    field += (contour - 0.20) * 0.035;
-
-    return field;
   }
 
   void main() {
     vec2 uv = vUv;
-    vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
-
-    vec2 p = uv - 0.5;
-    p.x *= aspect.x;
-
-    float t = uTime * 0.07;
-
-    float trail = texture2D(uTrailTexture, uv).r;
-
     float px = 1.0 / uResolution.x;
     float py = 1.0 / uResolution.y;
 
-    float trailC =
-    texture2D(uTrailTexture, uv).r * 0.28 +
-    texture2D(uTrailTexture, uv + vec2(px * 10.0, 0.0)).r * 0.12 +
-    texture2D(uTrailTexture, uv - vec2(px * 10.0, 0.0)).r * 0.12 +
-    texture2D(uTrailTexture, uv + vec2(0.0, py * 10.0)).r * 0.12 +
-    texture2D(uTrailTexture, uv - vec2(0.0, py * 10.0)).r * 0.12 +
-    texture2D(uTrailTexture, uv + vec2(px * 20.0, 0.0)).r * 0.08 +
-    texture2D(uTrailTexture, uv - vec2(px * 20.0, 0.0)).r * 0.08 +
-    texture2D(uTrailTexture, uv + vec2(0.0, py * 20.0)).r * 0.08 +
-    texture2D(uTrailTexture, uv - vec2(0.0, py * 20.0)).r * 0.08;
-
-    float trailL =
-        texture2D(uTrailTexture, uv - vec2(px * 22.0, 0.0)).r * 0.6 +
-        texture2D(uTrailTexture, uv - vec2(px * 12.0, 0.0)).r * 0.4;
-
-    float trailR =
-        texture2D(uTrailTexture, uv + vec2(px * 22.0, 0.0)).r * 0.6 +
-        texture2D(uTrailTexture, uv + vec2(px * 12.0, 0.0)).r * 0.4;
-
-    float trailB =
-        texture2D(uTrailTexture, uv - vec2(0.0, py * 22.0)).r * 0.6 +
-        texture2D(uTrailTexture, uv - vec2(0.0, py * 12.0)).r * 0.4;
-
-    float trailT =
-        texture2D(uTrailTexture, uv + vec2(0.0, py * 22.0)).r * 0.6 +
-        texture2D(uTrailTexture, uv + vec2(0.0, py * 12.0)).r * 0.4;
+    float trailL = texture2D(uTrailTexture, uv - vec2(px * 22.0, 0.0)).r * 0.6 +
+                   texture2D(uTrailTexture, uv - vec2(px * 12.0, 0.0)).r * 0.4;
+    float trailR = texture2D(uTrailTexture, uv + vec2(px * 22.0, 0.0)).r * 0.6 +
+                   texture2D(uTrailTexture, uv + vec2(px * 12.0, 0.0)).r * 0.4;
+    float trailB = texture2D(uTrailTexture, uv - vec2(0.0, py * 22.0)).r * 0.6 +
+                   texture2D(uTrailTexture, uv - vec2(0.0, py * 12.0)).r * 0.4;
+    float trailT = texture2D(uTrailTexture, uv + vec2(0.0, py * 22.0)).r * 0.6 +
+                   texture2D(uTrailTexture, uv + vec2(0.0, py * 12.0)).r * 0.4;
 
     vec2 trailGrad = vec2(trailR - trailL, trailT - trailB);
-
-    // soften the gradient itself
     trailGrad = sign(trailGrad) * pow(abs(trailGrad), vec2(1.35));
 
-    // very calm deformation
-    vec2 q = p;
-    q -= trailGrad * 0.75;
-    
-    float f = liquidField(q, t);
+    vec2 p = -1.0 + 2.0 * uv;
+    p -= trailGrad * 0.75;
 
-    float eps = 0.014;
-    float fx = liquidField(q + vec2(eps, 0.0), t) - liquidField(q - vec2(eps, 0.0), t);
-    float fy = liquidField(q + vec2(0.0, eps), t) - liquidField(q - vec2(0.0, eps), t);
-
-    // Softer normals to avoid sparkle
-    vec3 normal = normalize(vec3(-fx * 10.0, -fy * 10.0, 1.0));
-    vec3 viewDir = vec3(0.0, 0.0, 1.0);
-
-    // Wide lighting, not pin-point highlights
-    vec3 light1 = normalize(vec3(-0.80,  0.35, 0.58));
-    vec3 light2 = normalize(vec3( 0.78, -0.22, 0.52));
-
-    float spec1 = pow(max(dot(reflect(-light1, normal), viewDir), 0.0), 22.0);
-    float spec2 = pow(max(dot(reflect(-light2, normal), viewDir), 0.0), 18.0);
-
-    float diffuse = max(dot(normal, light1), 0.0);
-    float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 2.8);
-
-    float body  = 1.0 - smoothstep(0.00, 0.22, f);
-    float inner = 1.0 - smoothstep(-0.14, 0.03, f);
-    float edge  = 1.0 - smoothstep(0.0, 0.04, abs(f));
-
-    float groove = smoothstep(0.03, 0.58, trail);
-    float rim    = smoothstep(0.06, 0.22, trail) - smoothstep(0.30, 0.78, trail);
-
-    vec3 bg        = vec3(0.0,   0.0,   0.0);
-    vec3 darkMetal = vec3(0.010, 0.010, 0.012);
-    vec3 midMetal  = vec3(0.060, 0.060, 0.070);
-    vec3 silver    = vec3(0.82,  0.82,  0.86);
-    vec3 hotWhite  = vec3(0.98,  0.98,  1.00);
-
-    vec3 color = bg;
-
-    color = mix(color, darkMetal, body);
-    color = mix(color, midMetal, diffuse * inner * 0.18);
-
-    color += silver   * spec1 * inner * 0.90;
-    color += hotWhite * spec2 * inner * 0.55;
-
-    color += silver * fresnel * edge * 0.30;
-
-    // keep trail response
-    color -= groove * 0.11 * body;
-    color += rim * 0.035 * edge;
-
-    // Microscopic inclined grid — ~5 px cells, 13° tilt
-    float ca = 0.97437; // cos(13°)
-    float sa = 0.22495; // sin(13°)
-    vec2 gUv = vec2(ca * vUv.x - sa * vUv.y,
-                    sa * vUv.x + ca * vUv.y) * uResolution / 5.0;
-    vec2 gf  = fract(gUv);
-    float lw = 0.08;
-    float gx = smoothstep(0.0, lw, gf.x) * (1.0 - smoothstep(1.0 - lw, 1.0, gf.x));
-    float gy = smoothstep(0.0, lw, gf.y) * (1.0 - smoothstep(1.0 - lw, 1.0, gf.y));
-    color += (1.0 - gx * gy) * 0.028;
-
+    vec3 color = 0.05 - vec3(pattern(p));
     gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
   }
 `;
@@ -244,25 +81,16 @@ function LiquidPlane() {
   const trailCtxRef = useRef(null);
   const trailTextureRef = useRef(null);
 
-  const pointerRef = useRef({
-    x: 0.5,
-    y: 0.5,
-    lastX: 0.5,
-    lastY: 0.5,
-    initialized: false,
-  });
+  const pointerRef = useRef({ x: 0.5, y: 0.5, lastX: 0.5, lastY: 0.5, initialized: false });
 
   useEffect(() => {
     const canvas = trailCanvasRef.current;
     canvas.width = 1536;
     canvas.height = 1536;
-
     const ctx = canvas.getContext("2d");
     trailCtxRef.current = ctx;
-
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     const texture = new THREE.CanvasTexture(canvas);
     texture.minFilter = THREE.LinearFilter;
     texture.magFilter = THREE.LinearFilter;
@@ -275,17 +103,14 @@ function LiquidPlane() {
     const handlePointerMove = (e) => {
       const x = e.clientX / window.innerWidth;
       const y = e.clientY / window.innerHeight;
-
       if (!pointerRef.current.initialized) {
         pointerRef.current.lastX = x;
         pointerRef.current.lastY = y;
         pointerRef.current.initialized = true;
       }
-
       pointerRef.current.x = x;
       pointerRef.current.y = y;
     };
-
     window.addEventListener("pointermove", handlePointerMove);
     return () => window.removeEventListener("pointermove", handlePointerMove);
   }, []);
@@ -306,7 +131,6 @@ function LiquidPlane() {
     const canvas = trailCanvasRef.current;
     const pointer = pointerRef.current;
 
-    // slower relaxation
     ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = "rgba(0, 0, 0, 0.025)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -315,17 +139,13 @@ function LiquidPlane() {
     const y = pointer.y * canvas.height;
     const lx = pointer.lastX * canvas.width;
     const ly = pointer.lastY * canvas.height;
-
     const dx = x - lx;
     const dy = y - ly;
     const speed = Math.sqrt(dx * dx + dy * dy);
 
     if (speed > 0.05) {
       ctx.globalCompositeOperation = "lighter";
-
-      // around 3x bigger than before
       const lineWidth = Math.min(140, 42 + speed * 0.65);
-
       ctx.strokeStyle = "rgba(255,255,255,0.13)";
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -334,13 +154,11 @@ function LiquidPlane() {
       ctx.moveTo(lx, ly);
       ctx.lineTo(x, y);
       ctx.stroke();
-
       const grad = ctx.createRadialGradient(x, y, 0, x, y, lineWidth * 2.2);
       grad.addColorStop(0, "rgba(255,255,255,0.13)");
       grad.addColorStop(0.32, "rgba(255,255,255,0.08)");
       grad.addColorStop(0.68, "rgba(255,255,255,0.03)");
       grad.addColorStop(1, "rgba(0,0,0,0)");
-
       ctx.fillStyle = grad;
       ctx.beginPath();
       ctx.arc(x, y, lineWidth * 2.2, 0, Math.PI * 2);
@@ -356,7 +174,6 @@ function LiquidPlane() {
     ctx.filter = "none";
 
     trailTextureRef.current.needsUpdate = true;
-
     materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
     materialRef.current.uniforms.uResolution.value.set(size.width, size.height);
     materialRef.current.uniforms.uTrailTexture.value = trailTextureRef.current;
@@ -379,6 +196,38 @@ function Main({ onNavigate }) {
   const navRef  = useRef();
 
   useEffect(() => {
+    // ── GSAP section scroll ───────────────────────────────────────────────────
+    const sections = [
+      document.querySelector('.mainPageDiv'),
+      document.getElementById('about'),
+    ];
+    let current = 0;
+    let scrolling = false;
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      if (scrolling) return;
+      const dir = e.deltaY > 0 ? 1 : -1;
+      const next = Math.max(0, Math.min(sections.length - 1, current + dir));
+      if (next === current) return;
+      scrolling = true;
+      current = next;
+      const target = sections[next].offsetTop;
+      const proxy = { y: window.scrollY };
+      gsap.to(proxy, {
+        y: target,
+        duration: 1.0,
+        ease: 'power3.inOut',
+        onUpdate: () => window.scrollTo(0, proxy.y),
+        onComplete: () => { scrolling = false; },
+      });
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false });
+    return () => window.removeEventListener('wheel', onWheel);
+  }, []);
+
+  useEffect(() => {
     // ── Moving bracket nav indicator ─────────────────────────────────────────
     const navEl = navRef.current;
     const bL    = navEl.querySelector('.navBracket--left');
@@ -392,8 +241,9 @@ function Main({ onNavigate }) {
       const nr  = navEl.getBoundingClientRect();
       const lr  = link.getBoundingClientRect();
       const dur = instant ? 0 : 0.32;
-      gsap.to(bL, { x: lr.left  - nr.left - bL.offsetWidth - 0.2, duration: dur, ease: 'power3.out' });
-      gsap.to(bR, { x: lr.right - nr.left + 0.2,                  duration: dur, ease: 'power3.out' });
+      const pad = parseFloat(getComputedStyle(link).paddingLeft);
+      gsap.to(bL, { x: lr.left  - nr.left - bL.offsetWidth + pad * 0.5, duration: dur, ease: 'power3.out' });
+      gsap.to(bR, { x: lr.right - nr.left - pad * 0.5,                  duration: dur, ease: 'power3.out' });
       links.forEach(l =>
         gsap.to(l, { color: l === link ? 'rgba(240,240,240,1)' : 'rgba(240,240,240,0.55)', duration: 0.2 })
       );
@@ -407,6 +257,7 @@ function Main({ onNavigate }) {
   }, []);
 
   return (
+    <>
     <main className="mainPageDiv">
       <div className="shaderBg">
         <Canvas dpr={[1, 2]} gl={{ antialias: true }} camera={{ position: [0, 0, 1] }}>
@@ -443,6 +294,14 @@ function Main({ onNavigate }) {
 
       <h1 className="heroName">JOEL TCHOUKE</h1>
     </main>
+
+    <section id="about" style={{
+      minHeight: '100vh',
+      background: '#050505',
+      position: 'relative',
+    }} />
+
+    </>
   );
 }
 

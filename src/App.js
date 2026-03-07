@@ -4,6 +4,7 @@ import './App.css';
 import gsap from 'gsap';
 import Preloader from './components/Preloader';
 import Main from './components/Main';
+import NotFound from './components/NotFound';
 const ScenesThree = lazy(() => import('./components/ScenesThree'));
 
 function AppInner({ done }) {
@@ -56,6 +57,7 @@ function AppInner({ done }) {
             <ScenesThree onNavigate={navigate} />
           </Suspense>
         } />
+        <Route path="*" element={<NotFound onNavigate={navigate} />} />
       </Routes>
       <div ref={curtainRef} style={{
         position: 'fixed', inset: 0,
