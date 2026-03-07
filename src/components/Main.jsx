@@ -69,6 +69,18 @@ const fragmentShader = `
     p -= trailGrad * 0.75;
 
     vec3 color = 0.05 - vec3(pattern(p));
+
+    // Microscopic inclined grid — ~5 px cells, 13° tilt
+    float ca = 0.97437;
+    float sa = 0.22495;
+    vec2 gUv = vec2(ca * uv.x - sa * uv.y,
+                    sa * uv.x + ca * uv.y) * uResolution / 5.0;
+    vec2 gf  = fract(gUv);
+    float lw = 0.08;
+    float gx = smoothstep(0.0, lw, gf.x) * (1.0 - smoothstep(1.0 - lw, 1.0, gf.x));
+    float gy = smoothstep(0.0, lw, gf.y) * (1.0 - smoothstep(1.0 - lw, 1.0, gf.y));
+    color += (1.0 - gx * gy) * 0.028;
+
     gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
   }
 `;

@@ -251,8 +251,8 @@
   inset: -55% -12%;
   background: radial-gradient(
     ellipse 80% 62% at 50% 90%,
-    rgba(5, 5, 5, 0.62) 0%,
-    rgba(5, 5, 5, 0.22) 48%,
+    rgba(5, 5, 5, 0.88) 0%,
+    rgba(5, 5, 5, 0.48) 48%,
     transparent 72%
   );
   z-index: -1;
