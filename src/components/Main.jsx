@@ -1,5 +1,6 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
+import gsap from "gsap";
 import * as THREE from "three";
 import "./../css/main.css";
 
@@ -150,6 +151,23 @@ const fragmentShader = `
   }
 `;
 
+// "O" in JOEL → outlined stroke treatment
+// "K" in TCHOUKE → 3-D cube rotation
+const HERO_LETTERS = [
+  { char: 'J',      mod: '' },
+  { char: 'O',      mod: 'letter--outline' },
+  { char: 'E',      mod: '' },
+  { char: 'L',      mod: '' },
+  { char: '\u00A0', mod: 'letter--space' },
+  { char: 'T',      mod: '' },
+  { char: 'C',      mod: '' },
+  { char: 'H',      mod: '' },
+  { char: 'O',      mod: '' },
+  { char: 'U',      mod: '' },
+  { char: 'K',      mod: 'letter--cubeK' },
+  { char: 'E',      mod: '' },
+];
+
 function LiquidPlane() {
   const materialRef = useRef();
   const { size } = useThree();
@@ -290,8 +308,65 @@ function LiquidPlane() {
 }
 
 function Main() {
+  const dotRef  = useRef();
+  const ringRef = useRef();
+  const navRef  = useRef();
+
+  useEffect(() => {
+    const dot  = dotRef.current;
+    const ring = ringRef.current;
+    const moveX = gsap.quickTo(dot,  'x', { duration: 0.08, ease: 'power3' });
+    const moveY = gsap.quickTo(dot,  'y', { duration: 0.08, ease: 'power3' });
+    const ringX = gsap.quickTo(ring, 'x', { duration: 0.28, ease: 'power3' });
+    const ringY = gsap.quickTo(ring, 'y', { duration: 0.28, ease: 'power3' });
+    const onMove = (e) => {
+      moveX(e.clientX); moveY(e.clientY);
+      ringX(e.clientX); ringY(e.clientY);
+    };
+    window.addEventListener('mousemove', onMove);
+
+    // ── Moving bracket nav indicator ─────────────────────────────────────────
+    const navEl = navRef.current;
+    const bL    = navEl.querySelector('.navBracket--left');
+    const bR    = navEl.querySelector('.navBracket--right');
+    const links = [...navEl.querySelectorAll('a')];
+
+    // Let GSAP own all transforms so it can freely animate x + yPercent together
+    gsap.set([bL, bR], { yPercent: -50 });
+
+    const snap = (link, instant = false) => {
+      const nr  = navEl.getBoundingClientRect();
+      const lr  = link.getBoundingClientRect();
+      const dur = instant ? 0 : 0.32;
+      gsap.to(bL, { x: lr.left  - nr.left - bL.offsetWidth - 0.2, duration: dur, ease: 'power3.out' });
+      gsap.to(bR, { x: lr.right - nr.left + 0.2,                  duration: dur, ease: 'power3.out' });
+      links.forEach(l =>
+        gsap.to(l, { color: l === link ? 'rgba(240,240,240,1)' : 'rgba(240,240,240,0.55)', duration: 0.2 })
+      );
+    };
+
+    // ── K cube rotation ───────────────────────────────────────────────────────
+    gsap.to('.letterCube', {
+      rotationY: 360,
+      duration: 4,
+      repeat: -1,
+      ease: 'none',
+      transformPerspective: 500,
+    });
+
+    // Initialise on first link after layout is painted
+    requestAnimationFrame(() => snap(links[0], true));
+
+    links.forEach(link => link.addEventListener('mouseenter', () => snap(link)));
+    navEl.addEventListener('mouseleave', () => snap(links[0]));
+
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
   return (
     <main className="mainPageDiv">
+      <div className="cursor"     ref={dotRef}  />
+      <div className="cursorRing" ref={ringRef} />
       <div className="shaderBg">
         <Canvas dpr={[1, 2]} gl={{ antialias: true }} camera={{ position: [0, 0, 1] }}>
           <LiquidPlane />
@@ -299,8 +374,8 @@ function Main() {
       </div>
 
       <header className="topBar">
-        <span className="topBar__item">JOEL@JOELTCHOUKE.COM</span>
-        <span className="topBar__item">MTL, CA</span>
+        <span className="topBar__item">TCHOUKEJOEL@GMAIL.COM</span>
+        <span className="topBar__item">MANKATO, MN</span>
         <div className="topBar__logo">TJ</div>
         <span className="topBar__item">AVAILABLE FOR WORK</span>
         <a href="#contact" className="topBar__item topBar__contact">CONTACT ↗</a>
@@ -308,21 +383,23 @@ function Main() {
 
       <div className="heroBody">
         <p>
-          Creative developer &amp; designer.<br />
-          I build <strong>handcrafted digital experiences</strong><br />
-          with motion and interaction.
+            Curious about how things work — and how they could work better.<br />
+            I build <strong>systems, software, and ideas</strong><br />
+            that move from concept to reality.
         </p>
         <a href="#works" className="ctaBtn">VIEW WORK →</a>
       </div>
 
-      <nav className="centerNav">
-        <a href="#works">[ WORKS ]</a>
+      <nav className="centerNav" ref={navRef}>
+        <span className="navBracket navBracket--left">[</span>
+        <a href="#works">WORKS</a>
         <a href="#about">ABOUT</a>
         <a href="#projects">PROJECTS</a>
         <a href="#contact">CONTACT</a>
+        <span className="navBracket navBracket--right">]</span>
       </nav>
 
-      <h1 className="heroName">JOEL TCHOUKE</h1>
+      <h1 className="heroName" aria-label="Joel Tchouke">Joel Tchouke</h1>
     </main>
   );
 }
