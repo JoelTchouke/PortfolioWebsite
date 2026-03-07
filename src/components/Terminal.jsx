@@ -6,7 +6,7 @@ const HostContext = createContext()
 
 function Terminal({handle}){
     const [inputValue, SetInputValue] = useState('')
-    const [elements, setElements] = useState([<p>Enter something</p>])
+    const [elements, setElements] = useState([<p>Enter something and press "Enter"</p>])
     const [host, setHost] = useState('Joel')
     const bottomRef = useRef(null)
   
@@ -172,13 +172,11 @@ function Terminal({handle}){
   //Command prompts
   const Help = () => {
     const commands = [
+      { command: 'start', description: 'Access the website by typing start' },
       { command: 'help', description: 'Displays this help message with all available commands' },
       { command: 'whoami', description: 'Displays the current user name' },
       { command: 'clear', description: 'Clears the terminal screen' },
       { command: 'su', description: 'Log in as root' },
-      { command: 'date', description: 'Shows the current date and time' },
-      { command: 'ls', description: 'Lists files and directories in the current location' },
-      { command: 'echo', description: 'Outputs the entered text' },
       { command: 'exit', description: 'Closes the terminal session' },
       // Add other commands here as needed
     ];
