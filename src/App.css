@@ -1,12 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;600;700;800;900&display=swap');
+
+:root {
+  font-size: 16px !important;
+}
+
+html, body {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 16px !important;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .App {
   text-align: center;
   height: 100%;
   overflow-x: hidden;
 }
-html,body, canvas {
+
+html, body, canvas {
   min-height: 100vh;
   overflow-x: hidden;
-
 }
 .loading-indicator {
   position: absolute;

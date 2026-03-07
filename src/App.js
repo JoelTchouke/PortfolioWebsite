@@ -1,35 +1,83 @@
-import { createContext, useContext, useEffect, useRef, useState, Suspense, lazy } from 'react';
+import { useEffect, useRef, useState, Suspense, lazy } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
-import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Text, Html } from '@react-three/drei';
-import { FontLoader } from 'three/examples/jsm/Addons.js';
-import { FBXLoader } from 'three/examples/jsm/Addons.js';
-import './css/honorScene.css'
-import { useSpring, animated } from '@react-spring/three'; // Import animated from react-spring
-import "./css/aboutme.css"
-import JoelImg from "./img/JoelT.png"
-import * as THREE from 'three';
-
-//pdf
-import { Worker, Viewer } from "@react-pdf-viewer/core";
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
-import "@react-pdf-viewer/core/lib/styles/index.css";
-import "@react-pdf-viewer/default-layout/lib/styles/index.css";
-import Terminal from "./components/Terminal"
+import gsap from 'gsap';
 import Preloader from './components/Preloader';
 import Main from './components/Main';
-const SceneThree = lazy(()=> import('./components/ScenesThree'))
-function App(){
-  const [loadScene, setLoadScene] = useState(false)
-  const handle =()=>{
-    setLoadScene(true)
-  }
- 
-  return( 
+const ScenesThree = lazy(() => import('./components/ScenesThree'));
+
+function AppInner({ done }) {
+  const curtainRef = useRef(null);
+  const dotRef     = useRef(null);
+  const ringRef    = useRef(null);
+  const nav = useNavigate();
+
+  useEffect(() => {
+    const dot  = dotRef.current;
+    const ring = ringRef.current;
+    const moveX = gsap.quickTo(dot,  'x', { duration: 0.08, ease: 'power3' });
+    const moveY = gsap.quickTo(dot,  'y', { duration: 0.08, ease: 'power3' });
+    const ringX = gsap.quickTo(ring, 'x', { duration: 0.28, ease: 'power3' });
+    const ringY = gsap.quickTo(ring, 'y', { duration: 0.28, ease: 'power3' });
+    const onMove = (e) => {
+      moveX(e.clientX); moveY(e.clientY);
+      ringX(e.clientX); ringY(e.clientY);
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
+  const navigate = (dest) => {
+    const curtain = curtainRef.current;
+    const path = dest === 'main' ? '/' : `/${dest}`;
+    gsap.timeline()
+      .fromTo(curtain,
+        { scaleY: 0, transformOrigin: 'bottom' },
+        { scaleY: 1, duration: 0.42, ease: 'power3.inOut' }
+      )
+      .add(() => nav(path))
+      .to(curtain, {
+        scaleY: 0,
+        transformOrigin: 'top',
+        duration: 0.42,
+        ease: 'power3.inOut',
+        delay: 0.06,
+      });
+  };
+
+  return (
     <>
-      <Main />
+      <div className="cursor"     ref={dotRef}  />
+      <div className="cursorRing" ref={ringRef} />
+      <Routes>
+        <Route path="/" element={<Main onNavigate={navigate} />} />
+        <Route path="/honors" element={
+          <Suspense fallback={null}>
+            <ScenesThree onNavigate={navigate} />
+          </Suspense>
+        } />
+      </Routes>
+      <div ref={curtainRef} style={{
+        position: 'fixed', inset: 0,
+        background: '#050505',
+        transform: 'scaleY(0)',
+        transformOrigin: 'bottom',
+        zIndex: 9500,
+        pointerEvents: 'none',
+      }} />
     </>
-  )
+  );
 }
 
-export default App
+function App() {
+  const [done, setDone] = useState(false);
+
+  return (
+    <BrowserRouter>
+      {!done && <Preloader onComplete={() => setDone(true)} />}
+      <AppInner done={done} />
+    </BrowserRouter>
+  );
+}
+
+export default App;

@@ -93,16 +93,25 @@ const fragmentShader = `
     pp.x += 0.10 * sin(pp.y * 1.35 + t * 0.32);
     pp.y += 0.05 * sin(pp.x * 1.10 - t * 0.24);
 
-    // Big off-frame masses instead of many little blobs
-    vec2 c1 = vec2(-1.10 + sin(t * 0.20) * 0.10,  0.42 + cos(t * 0.16) * 0.10);
-    vec2 c2 = vec2( 1.06 + cos(t * 0.18) * 0.10,  0.26 + sin(t * 0.14) * 0.08);
-    vec2 c3 = vec2(-0.18 + sin(t * 0.13) * 0.08, -0.98 + cos(t * 0.11) * 0.08);
-    vec2 c4 = vec2( 0.22 + cos(t * 0.12) * 0.06,  1.02 + sin(t * 0.10) * 0.06);
+    // Big off-frame masses — slow organic drift with harmonic layering
+    vec2 c1 = vec2(-1.05 + sin(t * 0.41) * 0.14 + cos(t * 0.17) * 0.06,
+                    0.62 + cos(t * 0.29) * 0.12 + sin(t * 0.13) * 0.04);
+    vec2 c2 = vec2( 0.02 + cos(t * 0.23) * 0.16 + sin(t * 0.37) * 0.05,
+                    0.48 + sin(t * 0.19) * 0.13 + cos(t * 0.11) * 0.04);
+    vec2 c3 = vec2( 1.00 + sin(t * 0.27) * 0.18 + cos(t * 0.43) * 0.06,
+                   -0.12 + cos(t * 0.17) * 0.14 + sin(t * 0.31) * 0.05);
+    vec2 c4 = vec2(-0.62 + cos(t * 0.15) * 0.12 + sin(t * 0.26) * 0.05,
+                   -0.70 + sin(t * 0.13) * 0.10 + cos(t * 0.39) * 0.04);
 
-    float d1 = blob(pp * vec2(1.00, 0.90), c1, 0.96);
-    float d2 = blob(pp * vec2(0.96, 1.04), c2, 0.92);
-    float d3 = blob(pp * vec2(1.10, 0.78), c3, 0.98);
-    float d4 = blob(pp * vec2(1.06, 0.82), c4, 0.88);
+    float r1 = 0.96 + sin(t * 0.19) * 0.04;
+    float r2 = 0.92 + cos(t * 0.13) * 0.05;
+    float r3 = 0.98 + sin(t * 0.17) * 0.04;
+    float r4 = 0.88 + cos(t * 0.11) * 0.03;
+
+    float d1 = blob(pp * vec2(1.00, 0.90), c1, r1);
+    float d2 = blob(pp * vec2(0.96, 1.04), c2, r2);
+    float d3 = blob(pp * vec2(1.10, 0.78), c3, r3);
+    float d4 = blob(pp * vec2(1.06, 0.82), c4, r4);
 
     float field = smin(d1, d2, 0.62);
     field = smin(field, d3, 0.66);
@@ -122,7 +131,7 @@ const fragmentShader = `
     vec2 p = uv - 0.5;
     p.x *= aspect.x;
 
-    float t = uTime * 0.11;
+    float t = uTime * 0.07;
 
     float trail = texture2D(uTrailTexture, uv).r;
 
@@ -366,24 +375,10 @@ function LiquidPlane() {
   );
 }
 
-function Main() {
-  const dotRef  = useRef();
-  const ringRef = useRef();
+function Main({ onNavigate }) {
   const navRef  = useRef();
 
   useEffect(() => {
-    const dot  = dotRef.current;
-    const ring = ringRef.current;
-    const moveX = gsap.quickTo(dot,  'x', { duration: 0.08, ease: 'power3' });
-    const moveY = gsap.quickTo(dot,  'y', { duration: 0.08, ease: 'power3' });
-    const ringX = gsap.quickTo(ring, 'x', { duration: 0.28, ease: 'power3' });
-    const ringY = gsap.quickTo(ring, 'y', { duration: 0.28, ease: 'power3' });
-    const onMove = (e) => {
-      moveX(e.clientX); moveY(e.clientY);
-      ringX(e.clientX); ringY(e.clientY);
-    };
-    window.addEventListener('mousemove', onMove);
-
     // ── Moving bracket nav indicator ─────────────────────────────────────────
     const navEl = navRef.current;
     const bL    = navEl.querySelector('.navBracket--left');
@@ -409,14 +404,10 @@ function Main() {
 
     links.forEach(link => link.addEventListener('mouseenter', () => snap(link)));
     navEl.addEventListener('mouseleave', () => snap(links[0]));
-
-    return () => window.removeEventListener('mousemove', onMove);
   }, []);
 
   return (
     <main className="mainPageDiv">
-      <div className="cursor"     ref={dotRef}  />
-      <div className="cursorRing" ref={ringRef} />
       <div className="shaderBg">
         <Canvas dpr={[1, 2]} gl={{ antialias: true }} camera={{ position: [0, 0, 1] }}>
           <LiquidPlane />
@@ -445,6 +436,7 @@ function Main() {
         <a href="#works">WORKS</a>
         <a href="#about">ABOUT</a>
         <a href="#projects">PROJECTS</a>
+        <a href="#honors" onClick={(e) => { e.preventDefault(); onNavigate('honors'); }}>HONORS</a>
         <a href="#contact">CONTACT</a>
         <span className="navBracket navBracket--right">]</span>
       </nav>
