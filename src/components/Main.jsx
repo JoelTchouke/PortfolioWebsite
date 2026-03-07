@@ -67,72 +67,52 @@ const fragmentShader = `
       fbm(p + 4.0 * q + vec2(8.3, 2.8))
     );
 
-    return fbm6(p + 4.0 * r);
+    return fbm(p + 4.0 * r);
   }
 
   float liquidField(vec2 p, float t) {
-    // --- FBM-driven flow inspired by the reference shader you liked ---
-    vec2 flow1 = vec2(
-      fbm(p * 1.15 + vec2(t * 0.18, -t * 0.10)),
-      fbm(p * 1.15 + vec2(4.0 - t * 0.12, 2.0 + t * 0.14))
-    );
-
-    vec2 flow2 = vec2(
-      pattern(p * 0.95 + vec2(0.0, t * 0.05), t),
-      pattern(p * 0.95 + vec2(3.0, -t * 0.04), t)
-    );
-
-    flow1 = (flow1 - 0.25) * 0.22;
-    flow2 = (flow2 - 0.5) * 0.18;
-
     vec2 pp = p;
 
-    // controlled warping so it feels fluid without destroying the trail
-    pp += flow1;
-    pp += flow2;
+    // Large-scale only. No visible grain.
+    vec2 warpA = vec2(
+      pattern(pp * 0.55 + vec2(t * 0.035, -t * 0.020), t),
+      pattern(pp * 0.55 + vec2(2.7 - t * 0.025, 1.4 + t * 0.030), t)
+    );
 
-    // directional smear to mimic the stretched flowing look
-    pp.x += 0.08 * sin(pp.y * 2.2 + t * 0.45);
-    pp.y += 0.04 * sin(pp.x * 1.9 - t * 0.30);
+    vec2 warpB = vec2(
+      fbm(pp * 0.85 + vec2(-t * 0.040, t * 0.030)),
+      fbm(pp * 0.85 + vec2(3.1 + t * 0.025, -2.0 - t * 0.020))
+    );
 
-    // original big liquid masses, kept so the trail still has a stable surface
-    vec2 c1 = vec2(-0.55 + sin(t * 0.37) * 0.38 + cos(t * 0.19) * 0.13,
-                    0.18 + cos(t * 0.28) * 0.32 + sin(t * 0.15) * 0.10);
-    vec2 c2 = vec2( 0.52 + cos(t * 0.31) * 0.36 + sin(t * 0.22) * 0.11,
-                   -0.12 + sin(t * 0.24) * 0.30 + cos(t * 0.13) * 0.09);
-    vec2 c3 = vec2(-0.08 + sin(t * 0.21) * 0.40 + cos(t * 0.35) * 0.10,
-                   -0.28 + cos(t * 0.18) * 0.34 + sin(t * 0.27) * 0.08);
-    vec2 c4 = vec2( 0.68 + cos(t * 0.17) * 0.34 + sin(t * 0.26) * 0.10,
-                    0.32 + sin(t * 0.14) * 0.28 + cos(t * 0.33) * 0.08);
-    vec2 c5 = vec2(-0.75 + sin(t * 0.13) * 0.32 + cos(t * 0.21) * 0.09,
-                   -0.35 + cos(t * 0.16) * 0.26 + sin(t * 0.30) * 0.07);
+    warpA = (warpA - 0.25) * 0.18;
+    warpB = (warpB - 0.10) * 0.10;
 
-    float r1 = 0.56 + sin(t * 0.19) * 0.05;
-    float r2 = 0.62 + cos(t * 0.13) * 0.06;
-    float r3 = 0.52 + sin(t * 0.17) * 0.05;
-    float r4 = 0.46 + cos(t * 0.11) * 0.04;
-    float r5 = 0.50 + sin(t * 0.15) * 0.04;
+    pp += warpA + warpB;
 
-    float d1 = blob(pp, c1, r1);
-    float d2 = blob(pp, c2, r2);
-    float d3 = blob(pp, c3, r3);
-    float d4 = blob(pp, c4, r4);
-    float d5 = blob(pp, c5, r5);
+    // Broad directional shear for cinematic flow
+    pp.x += 0.10 * sin(pp.y * 1.35 + t * 0.32);
+    pp.y += 0.05 * sin(pp.x * 1.10 - t * 0.24);
 
-    float mField = smin(d1, d2, 0.55);
-    mField = smin(mField, d3, 0.50);
-    mField = smin(mField, d4, 0.44);
-    mField = smin(mField, d5, 0.40);
+    // Big off-frame masses instead of many little blobs
+    vec2 c1 = vec2(-1.10 + sin(t * 0.20) * 0.10,  0.42 + cos(t * 0.16) * 0.10);
+    vec2 c2 = vec2( 1.06 + cos(t * 0.18) * 0.10,  0.26 + sin(t * 0.14) * 0.08);
+    vec2 c3 = vec2(-0.18 + sin(t * 0.13) * 0.08, -0.98 + cos(t * 0.11) * 0.08);
+    vec2 c4 = vec2( 0.22 + cos(t * 0.12) * 0.06,  1.02 + sin(t * 0.10) * 0.06);
 
-    // use the reference-style pattern only as contour character, not the base shape
-    float patLarge = pattern(pp * 1.35, t);
-    float patFine  = fbm6(pp * 3.0 - vec2(t * 0.04, -t * 0.03));
+    float d1 = blob(pp * vec2(1.00, 0.90), c1, 0.96);
+    float d2 = blob(pp * vec2(0.96, 1.04), c2, 0.92);
+    float d3 = blob(pp * vec2(1.10, 0.78), c3, 0.98);
+    float d4 = blob(pp * vec2(1.06, 0.82), c4, 0.88);
 
-    // subtle contour modulation
-    mField += (patLarge - 0.5) * 0.10;
-    mField += (patFine  - 0.5) * 0.035;
+    float field = smin(d1, d2, 0.62);
+    field = smin(field, d3, 0.66);
+    field = smin(field, d4, 0.60);
 
-    return mField;
+    // Tiny contour softness only. No visible sparkle texture.
+    float contour = pattern(pp * 0.9, t);
+    field += (contour - 0.20) * 0.035;
+
+    return field;
   }
 
   void main() {
@@ -149,62 +129,64 @@ const fragmentShader = `
     float px = 1.0 / uResolution.x;
     float py = 1.0 / uResolution.y;
 
-    float trailL = texture2D(uTrailTexture, uv - vec2(px * 12.0, 0.0)).r;
-    float trailR = texture2D(uTrailTexture, uv + vec2(px * 12.0, 0.0)).r;
-    float trailB = texture2D(uTrailTexture, uv - vec2(0.0, py * 12.0)).r;
-    float trailT = texture2D(uTrailTexture, uv + vec2(0.0, py * 12.0)).r;
+    float trailL = texture2D(uTrailTexture, uv - vec2(px * 18.0, 0.0)).r;
+    float trailR = texture2D(uTrailTexture, uv + vec2(px * 18.0, 0.0)).r;
+    float trailB = texture2D(uTrailTexture, uv - vec2(0.0, py * 18.0)).r;
+    float trailT = texture2D(uTrailTexture, uv + vec2(0.0, py * 18.0)).r;
 
     vec2 trailGrad = vec2(trailR - trailL, trailT - trailB);
 
-    // leave trail behavior structurally untouched
+    // softer, less twitchy trail deformation
     vec2 q = p;
-    q -= trailGrad * 1.8;
-    q += trailGrad.yx * vec2(-0.10, 0.10);
+    q -= trailGrad * 1.15;
+    q += trailGrad.yx * vec2(-0.04, 0.04);
 
     float f = liquidField(q, t);
 
-    float eps = 0.010;
+    float eps = 0.014;
     float fx = liquidField(q + vec2(eps, 0.0), t) - liquidField(q - vec2(eps, 0.0), t);
     float fy = liquidField(q + vec2(0.0, eps), t) - liquidField(q - vec2(0.0, eps), t);
 
-    vec3 normal = normalize(vec3(-fx * 24.0, -fy * 24.0, 1.0));
+    // Softer normals to avoid sparkle
+    vec3 normal = normalize(vec3(-fx * 10.0, -fy * 10.0, 1.0));
     vec3 viewDir = vec3(0.0, 0.0, 1.0);
 
-    vec3 light1 = normalize(vec3(-0.70,  0.75, 0.65));
-    vec3 light2 = normalize(vec3( 0.65, -0.55, 0.58));
+    // Wide lighting, not pin-point highlights
+    vec3 light1 = normalize(vec3(-0.80,  0.35, 0.58));
+    vec3 light2 = normalize(vec3( 0.78, -0.22, 0.52));
 
-    float specPow = 72.0;
-    float spec1 = pow(max(dot(reflect(-light1, normal), viewDir), 0.0), specPow);
-    float spec2 = pow(max(dot(reflect(-light2, normal), viewDir), 0.0), specPow * 1.15);
+    float spec1 = pow(max(dot(reflect(-light1, normal), viewDir), 0.0), 22.0);
+    float spec2 = pow(max(dot(reflect(-light2, normal), viewDir), 0.0), 18.0);
 
     float diffuse = max(dot(normal, light1), 0.0);
-    float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 3.5);
+    float fresnel = pow(1.0 - max(dot(normal, viewDir), 0.0), 2.8);
 
-    float body  = 1.0 - smoothstep(0.00, 0.18, f);
-    float inner = 1.0 - smoothstep(-0.10, 0.02, f);
-    float edge  = 1.0 - smoothstep(0.0, 0.03, abs(f));
+    float body  = 1.0 - smoothstep(0.00, 0.22, f);
+    float inner = 1.0 - smoothstep(-0.14, 0.03, f);
+    float edge  = 1.0 - smoothstep(0.0, 0.04, abs(f));
 
     float groove = smoothstep(0.03, 0.58, trail);
     float rim    = smoothstep(0.06, 0.22, trail) - smoothstep(0.30, 0.78, trail);
 
     vec3 bg        = vec3(0.0,   0.0,   0.0);
-    vec3 darkMetal = vec3(0.008, 0.008, 0.010);
-    vec3 midMetal  = vec3(0.048, 0.048, 0.058);
-    vec3 silver    = vec3(0.78,  0.78,  0.82);
-    vec3 hotWhite  = vec3(0.95,  0.96,  1.00);
+    vec3 darkMetal = vec3(0.010, 0.010, 0.012);
+    vec3 midMetal  = vec3(0.060, 0.060, 0.070);
+    vec3 silver    = vec3(0.82,  0.82,  0.86);
+    vec3 hotWhite  = vec3(0.98,  0.98,  1.00);
 
     vec3 color = bg;
 
     color = mix(color, darkMetal, body);
-    color = mix(color, midMetal, diffuse * inner * 0.22);
+    color = mix(color, midMetal, diffuse * inner * 0.18);
 
-    color += silver   * spec1 * inner * 0.88;
-    color += hotWhite * spec2 * inner * 0.60;
+    color += silver   * spec1 * inner * 0.90;
+    color += hotWhite * spec2 * inner * 0.55;
 
-    color += silver * fresnel * edge * 0.35;
+    color += silver * fresnel * edge * 0.30;
 
-    color -= groove * 0.18 * body;
-    color += rim * 0.07 * edge;
+    // keep trail response
+    color -= groove * 0.11 * body;
+    color += rim * 0.035 * edge;
 
     gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
   }
