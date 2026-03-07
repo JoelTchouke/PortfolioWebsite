@@ -291,15 +291,39 @@ function LiquidPlane() {
 
 function Main() {
   return (
-    <div className="mainPageDiv">
+    <main className="mainPageDiv">
       <div className="shaderBg">
         <Canvas dpr={[1, 2]} gl={{ antialias: true }} camera={{ position: [0, 0, 1] }}>
           <LiquidPlane />
         </Canvas>
       </div>
 
-      <h1>Joel Tchouke</h1>
-    </div>
+      <header className="topBar">
+        <span className="topBar__item">JOEL@JOELTCHOUKE.COM</span>
+        <span className="topBar__item">MTL, CA</span>
+        <div className="topBar__logo">TJ</div>
+        <span className="topBar__item">AVAILABLE FOR WORK</span>
+        <a href="#contact" className="topBar__item topBar__contact">CONTACT ↗</a>
+      </header>
+
+      <div className="heroBody">
+        <p>
+          Creative developer &amp; designer.<br />
+          I build <strong>handcrafted digital experiences</strong><br />
+          with motion and interaction.
+        </p>
+        <a href="#works" className="ctaBtn">VIEW WORK →</a>
+      </div>
+
+      <nav className="centerNav">
+        <a href="#works">[ WORKS ]</a>
+        <a href="#about">ABOUT</a>
+        <a href="#projects">PROJECTS</a>
+        <a href="#contact">CONTACT</a>
+      </nav>
+
+      <h1 className="heroName">JOEL TCHOUKE</h1>
+    </main>
   );
 }
 

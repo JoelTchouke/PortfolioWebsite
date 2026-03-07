@@ -1,10 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+
+/* ── Page shell ────────────────────────────── */
 .mainPageDiv {
   position: relative;
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  display: flex;
   background: #050505;
+  font-family: 'Inter', Arial, sans-serif;
+  color: #f0f0f0;
+  user-select: none;
 }
 
 .shaderBg {
@@ -13,10 +18,136 @@
   z-index: 0;
 }
 
-.mainPageDiv h1 {
-  position: relative;
+/* ── Top bar ───────────────────────────────── */
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 2;
-  color: #f2f2f2;
-  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
   pointer-events: none;
+}
+
+.topBar__item {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.65);
+}
+
+.topBar__logo {
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #f0f0f0;
+  line-height: 1;
+}
+
+.topBar__contact {
+  pointer-events: all;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.topBar__contact:hover {
+  color: #f0f0f0;
+}
+
+/* ── Left hero body ────────────────────────── */
+.heroBody {
+  position: absolute;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-60%);
+  z-index: 2;
+  max-width: 290px;
+}
+
+.heroBody p {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: rgba(240, 240, 240, 0.75);
+  margin: 0 0 1.5rem;
+  font-weight: 400;
+}
+
+.heroBody strong {
+  color: #f0f0f0;
+  font-weight: 600;
+}
+
+.ctaBtn {
+  display: inline-block;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f0f0f0;
+  border: 1px solid rgba(240, 240, 240, 0.35);
+  text-decoration: none;
+  pointer-events: all;
+  transition: border-color 0.25s;
+}
+
+.ctaBtn:hover {
+  border-color: rgba(240, 240, 240, 0.85);
+}
+
+/* ── Centre nav ────────────────────────────── */
+.centerNav {
+  position: absolute;
+  left: 50%;
+  bottom: 27%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(0, 0, 0, 0.50);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 0.55rem 0.4rem;
+  white-space: nowrap;
+}
+
+.centerNav a {
+  font-size: 0.68rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.75);
+  text-decoration: none;
+  padding: 0 0.8rem;
+  transition: color 0.2s;
+}
+
+.centerNav a:first-child {
+  color: #f0f0f0;
+  font-weight: 700;
+}
+
+.centerNav a:hover {
+  color: #f0f0f0;
+}
+
+/* ── Massive hero name ─────────────────────── */
+.heroName {
+  position: absolute;
+  bottom: -0.12em;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  margin: 0;
+  text-align: center;
+  font-size: clamp(3.5rem, 12.5vw, 15rem);
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.95);
+  pointer-events: none;
+  line-height: 0.85;
+  white-space: nowrap;
 }
