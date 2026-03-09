@@ -30,13 +30,22 @@ function AppInner({ done }) {
 
   const navigate = (dest) => {
     const curtain = curtainRef.current;
+    const isSectionNav = dest === 'about' || dest === 'projects' || dest === 'main';
     const path = dest === 'main' ? '/' : `/${dest}`;
     gsap.timeline()
       .fromTo(curtain,
         { scaleY: 0, transformOrigin: 'bottom' },
         { scaleY: 1, duration: 0.42, ease: 'power3.inOut' }
       )
-      .add(() => nav(path))
+      .add(() => {
+        if (isSectionNav) {
+          // Update URL without React Router re-render, signal Main to jump
+          window.history.pushState({}, '', path);
+          window.dispatchEvent(new CustomEvent('sectionJump', { detail: dest }));
+        } else {
+          nav(path);
+        }
+      })
       .to(curtain, {
         scaleY: 0,
         transformOrigin: 'top',
@@ -57,6 +66,8 @@ function AppInner({ done }) {
             <ScenesThree onNavigate={navigate} />
           </Suspense>
         } />
+        <Route path="/about"    element={<Main onNavigate={navigate} initialSection={1} />} />
+        <Route path="/projects" element={<Main onNavigate={navigate} initialSection={2} />} />
         <Route path="*" element={<NotFound onNavigate={navigate} />} />
       </Routes>
       <div ref={curtainRef} style={{

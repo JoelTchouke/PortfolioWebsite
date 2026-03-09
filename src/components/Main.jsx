@@ -1,8 +1,17 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useMemo, useRef } from "react";
+import { Component, useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import * as THREE from "three";
 import "./../css/main.css";
+import Jarvis from "./Jarvis";
+import Projects from "./Projects";
+
+class CanvasErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() {}
+  render() { return this.state.failed ? null : this.props.children; }
+}
 
 const vertexShader = `
   varying vec2 vUv;
@@ -65,10 +74,12 @@ const fragmentShader = `
     vec2 trailGrad = vec2(trailR - trailL, trailT - trailB);
     trailGrad = sign(trailGrad) * pow(abs(trailGrad), vec2(1.35));
 
+    float aspect = uResolution.x / uResolution.y;
     vec2 p = -1.0 + 2.0 * uv;
+    p.x *= aspect;
     p -= trailGrad * 0.75;
 
-    vec3 color = 0.05 - vec3(pattern(p));
+    vec3 color = 0.02 - vec3(pattern(p));
 
     // Microscopic inclined grid — ~5 px cells, 13° tilt
     float ca = 0.97437;
@@ -204,39 +215,229 @@ function LiquidPlane() {
   );
 }
 
-function Main({ onNavigate }) {
-  const navRef  = useRef();
+const WORDS = ['Engineer.', 'Builder.', 'Thinker.'];
+
+function TypeWriter() {
+  const [displayed, setDisplayed] = useState('');
+  const [wordIndex, setWordIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    // ── GSAP section scroll ───────────────────────────────────────────────────
+    const word = WORDS[wordIndex];
+    let timeout;
+
+    if (!deleting && displayed === word) {
+      timeout = setTimeout(() => setDeleting(true), 1600);
+    } else if (deleting && displayed === '') {
+      setDeleting(false);
+      setWordIndex((i) => (i + 1) % WORDS.length);
+    } else {
+      const speed = deleting ? 80 : 160;
+      timeout = setTimeout(() => {
+        setDisplayed(deleting ? word.slice(0, displayed.length - 1) : word.slice(0, displayed.length + 1));
+      }, speed);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [displayed, deleting, wordIndex]);
+
+  return (
+    <h2 className="aboutDisplay">
+      {displayed}<span className="aboutDisplay__cursor" />
+    </h2>
+  );
+}
+
+const SLIDE_COUNT = 4;
+const SLIDE_COLORS = ['#050505', '#030511', '#07030b', '#090404'];
+
+function FloatingOrb() {
+  const meshRef = useRef();
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    meshRef.current.rotation.x = state.clock.elapsedTime * 0.18;
+    meshRef.current.rotation.y = state.clock.elapsedTime * 0.32;
+    meshRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.6) * 0.15;
+  });
+  return (
+    <mesh ref={meshRef}>
+      <torusKnotGeometry args={[1, 0.32, 160, 12]} />
+      <meshBasicMaterial color="#b41c10" wireframe opacity={0.45} transparent />
+    </mesh>
+  );
+}
+
+const SECTION_PATHS = ['/', '/about', '/projects'];
+
+function Main({ onNavigate, initialSection = 0 }) {
+  const navRef        = useRef();
+  const sliderRef     = useRef();
+  const underlineRef  = useRef();
+  const scrollToRef   = useRef(null);          // exposes scrollToSection outside effect
+  const currentRef      = useRef(initialSection);
+  const currentSlideRef = useRef(0);
+  const scrollingRef    = useRef(false);
+  const [slideIndex,      setSlideIndex]      = useState(0);
+  const [directNav,       setDirectNav]       = useState(initialSection > 0);
+  const [currentSection,  setCurrentSection]  = useState(initialSection);
+
+  // Deploy underline lines outward from center sphere
+  const deployUnderline = (delay = 0) => {
+    const el = underlineRef.current;
+    if (!el) return;
+    const [left, , right] = el.children;
+    gsap.fromTo([left, right], { scaleX: 0 }, { scaleX: 1, duration: 1.1, delay, ease: 'power3.out' });
+  };
+
+  // Retract underline lines back to center sphere
+  const retractUnderline = () => {
+    const el = underlineRef.current;
+    if (!el) return;
+    const [left, , right] = el.children;
+    gsap.to([left, right], { scaleX: 0, duration: 0.7, ease: 'power3.in' });
+  };
+
+  useEffect(() => {
+    // ── GSAP section scroll + horizontal slides ───────────────────────────────
+    window.history.scrollRestoration = 'manual';
+    if (initialSection === 0) {
+      window.scrollTo(0, 0);
+      deployUnderline(0.6);
+    }
+
     const sections = [
       document.querySelector('.mainPageDiv'),
       document.getElementById('about'),
+      document.getElementById('projects'),
     ];
-    let current = 0;
-    let scrolling = false;
 
-    const onWheel = (e) => {
-      e.preventDefault();
-      if (scrolling) return;
-      const dir = e.deltaY > 0 ? 1 : -1;
-      const next = Math.max(0, Math.min(sections.length - 1, current + dir));
-      if (next === current) return;
-      scrolling = true;
-      current = next;
-      const target = sections[next].offsetTop;
-      const proxy = { y: window.scrollY };
+    const scrollToSection = (idx) => {
+      scrollingRef.current = true;
+      currentRef.current   = idx;
+      setCurrentSection(idx);
+      window.history.pushState({}, '', SECTION_PATHS[idx]);
+      if (idx === 0) setDirectNav(false);
+      const target = sections[idx].offsetTop;
+      const proxy  = { y: window.scrollY };
       gsap.to(proxy, {
-        y: target,
-        duration: 1.0,
-        ease: 'power3.inOut',
-        onUpdate: () => window.scrollTo(0, proxy.y),
-        onComplete: () => { scrolling = false; },
+        y: target, duration: 1.0, ease: 'power3.inOut',
+        onUpdate:  () => window.scrollTo(0, proxy.y),
+        onComplete: () => { scrollingRef.current = false; },
       });
     };
 
+    // Expose so the jump handler and back button can call it
+    scrollToRef.current = scrollToSection;
+
+    const handleDir = (dir) => {
+      if (scrollingRef.current) return;
+      const current      = currentRef.current;
+      const currentSlide = currentSlideRef.current;
+
+      if (current === 1) {
+        const nextSlide = currentSlide + dir;
+        if (nextSlide >= 0 && nextSlide < SLIDE_COUNT) {
+          scrollingRef.current     = true;
+          currentSlideRef.current  = nextSlide;
+          setSlideIndex(nextSlide);
+
+          const slider     = sliderRef.current;
+          const leftPanel  = slider.parentElement;
+          const slideWidth = leftPanel.offsetWidth;
+          const incoming   = slider.children[nextSlide];
+
+          gsap.to(slider, {
+            x: -nextSlide * slideWidth,
+            duration: 1.5, ease: 'power2.inOut',
+            onComplete: () => { scrollingRef.current = false; },
+          });
+          gsap.to(leftPanel, {
+            backgroundColor: SLIDE_COLORS[nextSlide],
+            duration: 1.5, ease: 'power2.inOut',
+          });
+          gsap.fromTo(
+            [...incoming.children],
+            { opacity: 0, x: dir * 24 },
+            { opacity: 1, x: 0, duration: 0.7, stagger: 0.09, delay: 0.55, ease: 'power2.out' }
+          );
+          return;
+        }
+        if (nextSlide < 0) {
+          currentSlideRef.current = 0;
+          setSlideIndex(0);
+          gsap.set(sliderRef.current, { x: 0 });
+          gsap.to(sliderRef.current.parentElement, {
+            backgroundColor: SLIDE_COLORS[0], duration: 1.0, ease: 'power2.inOut',
+          });
+          deployUnderline(0.3);
+          scrollToSection(0);
+        } else {
+          scrollToSection(2);
+        }
+        return;
+      }
+
+      const next = Math.max(0, Math.min(sections.length - 1, current + dir));
+      if (next === current) return;
+      if (next === 1) { currentSlideRef.current = 0; setSlideIndex(0); if (sliderRef.current) gsap.set(sliderRef.current, { x: 0 }); retractUnderline(); }
+      if (next === 0) { deployUnderline(0.3); }
+      scrollToSection(next);
+    };
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      handleDir(e.deltaY > 0 ? 1 : -1);
+    };
+
+    const onKeyDown = (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' ||
+          e.key === ' ' || e.key === 'Enter') {
+        // Don't hijack keys when user is typing in an input/textarea
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        e.preventDefault();
+        if (e.key === 'ArrowDown' || e.key === ' ') handleDir(1);
+        if (e.key === 'ArrowUp')                    handleDir(-1);
+      }
+    };
+
     window.addEventListener('wheel', onWheel, { passive: false });
-    return () => window.removeEventListener('wheel', onWheel);
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
+
+  // ── Handle curtain-jump navigation from nav menu ─────────────
+  useEffect(() => {
+    const handler = (e) => {
+      const dest = e.detail;
+      const idx  = dest === 'about' ? 1 : dest === 'projects' ? 2 : 0;
+      currentRef.current      = idx;
+      currentSlideRef.current = 0;
+      setSlideIndex(0);
+      setCurrentSection(idx);
+      setDirectNav(idx > 0);
+      if (sliderRef.current) gsap.set(sliderRef.current, { x: 0 });
+      const el = idx === 1 ? document.getElementById('about')
+               : idx === 2 ? document.getElementById('projects')
+               : document.querySelector('.mainPageDiv');
+      if (el) window.scrollTo(0, el.offsetTop);
+      if (idx === 0) deployUnderline(0.4);
+    };
+    window.addEventListener('sectionJump', handler);
+    return () => window.removeEventListener('sectionJump', handler);
+  }, []);
+
+  // ── Scroll to initial section on direct URL load ──────────────
+  useEffect(() => {
+    if (initialSection > 0) {
+      const el = initialSection === 1
+        ? document.getElementById('about')
+        : document.getElementById('projects');
+      if (el) window.scrollTo(0, el.offsetTop);
+    }
   }, []);
 
   useEffect(() => {
@@ -272,9 +473,13 @@ function Main({ onNavigate }) {
     <>
     <main className="mainPageDiv">
       <div className="shaderBg">
-        <Canvas dpr={[1, 2]} gl={{ antialias: true }} camera={{ position: [0, 0, 1] }}>
-          <LiquidPlane />
-        </Canvas>
+        {window.__webglSupported && (
+          <CanvasErrorBoundary>
+            <Canvas dpr={[1, 2]} gl={{ antialias: true, failIfMajorPerformanceCaveat: false }} camera={{ position: [0, 0, 1] }}>
+              <LiquidPlane />
+            </Canvas>
+          </CanvasErrorBoundary>
+        )}
       </div>
 
       <header className="topBar">
@@ -291,27 +496,197 @@ function Main({ onNavigate }) {
             I build <strong>systems, software, and ideas</strong><br />
             that move from concept to reality.
         </p>
-        <a href="#works" className="ctaBtn">VIEW WORK →</a>
+        <a href="#works" className="ctaBtn" onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>VIEW WORK →</a>
       </div>
 
       <nav className="centerNav" ref={navRef}>
         <span className="navBracket navBracket--left">[</span>
-        <a href="#works">WORKS</a>
-        <a href="#about">ABOUT</a>
-        <a href="#projects">PROJECTS</a>
+        <a href="#works"    onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>WORKS</a>
+        <a href="#about"    onClick={(e) => { e.preventDefault(); onNavigate('about');    }}>ABOUT</a>
+        <a href="#projects" onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>PROJECTS</a>
         <a href="#honors" onClick={(e) => { e.preventDefault(); onNavigate('honors'); }}>HONORS</a>
         <a href="#contact">CONTACT</a>
         <span className="navBracket navBracket--right">]</span>
       </nav>
 
-      <h1 className="heroName">JOEL TCHOUKE</h1>
+      <div className="heroNameBlock">
+        <div className="heroNameRow">
+          {/* Left blade: curved base at right, tapers to point at left */}
+          <svg className="heroNameLine" viewBox="0 0 300 4" preserveAspectRatio="none">
+            <path d="M298,0.3 A3,1.7 0 0 1 298,3.7 L0,2Z" fill="rgba(240,240,240,0.32)"/>
+          </svg>
+          <h1 className="heroName">JOEL TCHOUKE</h1>
+          {/* Right blade: curved base at left, tapers to point at right */}
+          <svg className="heroNameLine" viewBox="0 0 300 4" preserveAspectRatio="none">
+            <path d="M2,0.3 A3,1.7 0 0 0 2,3.7 L300,2Z" fill="rgba(240,240,240,0.32)"/>
+          </svg>
+        </div>
+        <div className="heroUnderline" ref={underlineRef}>
+          <span className="heroUnderline__line" />
+          <span className="heroUnderline__sphere" />
+          <span className="heroUnderline__line" />
+        </div>
+      </div>
     </main>
 
-    <section id="about" style={{
-      minHeight: '100vh',
-      background: '#050505',
-      position: 'relative',
-    }} />
+    <section id="about" className="aboutSection">
+      <div className="aboutLeft">
+
+        {/* ── Slider ── */}
+        <div className="aboutSlider" ref={sliderRef}>
+
+          {/* Slide 1 — Introduction */}
+          <div className="aboutSlide aboutSlide--intro">
+            <p className="aboutEyebrow">About</p>
+            <TypeWriter />
+            <hr className="aboutRule" />
+            <p className="aboutBio">
+              I'm Joel Tchouke, a software engineer and systems builder based in Mankato, MN.
+              I'm drawn to the intersection of deep technical craft and meaningful product design —
+              building things that don't just work, but feel inevitable.
+            </p>
+            <p className="aboutBio">Currently available for full-time roles and select freelance projects.</p>
+            <div className="aboutSkills">
+              <span>React</span><span>Node.js</span><span>Three.js</span>
+              <span>Python</span><span>Systems Design</span>
+            </div>
+            <p className="slideHint">SCROLL TO EXPLORE →</p>
+          </div>
+
+          {/* Slide 2 — Craft */}
+          <div className="aboutSlide aboutSlide--craft">
+            <div className="craftDecor" />
+            <p className="aboutEyebrow">Craft</p>
+            <h2 className="aboutDisplay">Embedded<br />in everything.</h2>
+            <hr className="aboutRule" />
+            <div className="craftGrid">
+              <div className="craftItem">
+                <span className="craftNum">01</span>
+                <span className="craftName">Embedded Systems</span>
+                <p className="craftDesc">ARM microcontrollers, STM32, ATtiny — firmware at the metal level.</p>
+              </div>
+              <div className="craftItem">
+                <span className="craftNum">02</span>
+                <span className="craftName">Cybersecurity</span>
+                <p className="craftDesc">SIEM analysis, incident triage, network telemetry investigation.</p>
+              </div>
+              <div className="craftItem">
+                <span className="craftNum">03</span>
+                <span className="craftName">Hardware Design</span>
+                <p className="craftDesc">PCB layout with KiCad, power management, sensor integration.</p>
+              </div>
+              <div className="craftItem">
+                <span className="craftNum">04</span>
+                <span className="craftName">Web Engineering</span>
+                <p className="craftDesc">React, Three.js, WebGL — interfaces at the edge of hardware.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 3 — Life */}
+          <div className="aboutSlide aboutSlide--life">
+            <div className="lifeCanvas3D">
+              {window.__webglSupported && (
+                <CanvasErrorBoundary>
+                  <Canvas camera={{ position: [0, 0, 4] }} gl={{ antialias: true, failIfMajorPerformanceCaveat: false }}>
+                    <FloatingOrb />
+                  </Canvas>
+                </CanvasErrorBoundary>
+              )}
+            </div>
+            <p className="aboutEyebrow">Life</p>
+            <h2 className="aboutDisplay">Beyond the<br />machine.</h2>
+            <hr className="aboutRule" />
+            <div className="hobbiesRow">
+              <div className="hobbyCard">
+                <div className="hobbyImg">
+                  <img src="/images/hobby-music.jpg" alt="Music" />
+                  <span className="hobbyImg__tag">Music</span>
+                </div>
+                <p className="hobbyText">Joel is a musician — creative expression through sound and rhythm.</p>
+              </div>
+              <div className="hobbyCard">
+                <div className="hobbyImg">
+                  <img src="/images/hobby-chess.jpg" alt="Chess" />
+                  <span className="hobbyImg__tag">Chess</span>
+                </div>
+                <p className="hobbyText">Strategy and patience — the infinite game of calculated thinking.</p>
+              </div>
+            </div>
+            <div className="lifeBgWords" aria-hidden="true">
+              <span>MUSIC</span><span>CHESS</span>
+            </div>
+          </div>
+
+          {/* Slide 4 — Experience */}
+          <div className="aboutSlide aboutSlide--xp">
+            <p className="aboutEyebrow">Experience</p>
+            <h2 className="aboutDisplay">Where I've<br />been.</h2>
+            <hr className="aboutRule" />
+            <div className="timeline">
+              <div className="tlItem">
+                <span className="tlYear">2024</span>
+                <div className="tlBody">
+                  <span className="tlRole">Embedded Software Intern</span>
+                  <span className="tlOrg">AGCO</span>
+                  <p className="tlDesc">Embedded C/C++, ARM microcontrollers, sensor integration on production agricultural systems.</p>
+                </div>
+              </div>
+              <div className="tlItem">
+                <span className="tlYear">2023</span>
+                <div className="tlBody">
+                  <span className="tlRole">SOC Analyst</span>
+                  <span className="tlOrg">MSU IT Solutions</span>
+                  <p className="tlDesc">Splunk SIEM, Microsoft Defender, network telemetry — campus infrastructure security.</p>
+                </div>
+              </div>
+              <div className="tlItem">
+                <span className="tlYear">2022</span>
+                <div className="tlBody">
+                  <span className="tlRole">Research Assistant</span>
+                  <span className="tlOrg">MSU — Embedded Systems Lab</span>
+                  <p className="tlDesc">ATtiny85 power management system, KiCad PCB design, robotics power optimization.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>{/* end .aboutSlider */}
+
+        {/* Slide progress dots */}
+        <div className="slideDots">
+          {Array.from({ length: SLIDE_COUNT }).map((_, i) => (
+            <div key={i} className={`slideDot${slideIndex === i ? ' slideDot--active' : ''}`} />
+          ))}
+        </div>
+
+        {/* Progress bar */}
+        <div className="slideProgressBar">
+          <div className="slideProgressFill" style={{ width: `${(slideIndex / (SLIDE_COUNT - 1)) * 100}%` }} />
+        </div>
+
+      </div>
+
+      <div className="aboutDivider" />
+      <div className="aboutRight"><Jarvis /></div>
+    </section>
+
+    <Projects embedded onNavigate={onNavigate} />
+
+    {directNav && (
+      <nav className="floatingNav">
+        <span className="navBracket navBracket--left">[</span>
+        <a href="/" onClick={(e) => { e.preventDefault(); onNavigate('main'); }}>HOME</a>
+        {currentSection !== 1 && (
+          <a href="/about" onClick={(e) => { e.preventDefault(); onNavigate('about'); }}>ABOUT</a>
+        )}
+        {currentSection !== 2 && (
+          <a href="/projects" onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>PROJECTS</a>
+        )}
+        <a href="/honors" onClick={(e) => { e.preventDefault(); onNavigate('honors'); }}>HONORS</a>
+        <span className="navBracket navBracket--right">]</span>
+      </nav>
+    )}
 
     </>
   );

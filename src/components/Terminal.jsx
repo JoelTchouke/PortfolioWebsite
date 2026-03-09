@@ -8,12 +8,12 @@ function Terminal({handle}){
     const [inputValue, SetInputValue] = useState('')
     const [elements, setElements] = useState([<p>Enter something and press "Enter"</p>])
     const [host, setHost] = useState('Joel')
-    const bottomRef = useRef(null)
-  
+    const containerRef = useRef(null)
+
     useEffect(
       ()=>{
-        if(bottomRef.current){
-          bottomRef.current.scrollIntoView()
+        if(containerRef.current){
+          containerRef.current.scrollTop = containerRef.current.scrollHeight
         }
       },
       [elements]
@@ -63,7 +63,7 @@ function Terminal({handle}){
         <HostContext.Provider value={host}>
         <Header />
         <br />
-        <div className='previous_instructions'>
+        <div className='previous_instructions' ref={containerRef}>
         <ul>
           {elements.map((element, index) => (
             <li key={index}>{element}</li>
@@ -74,7 +74,6 @@ function Terminal({handle}){
           <Hostname />
           <textarea style={{border:"none"}} value = {inputValue} onKeyDown={handleKeyDown} onChange={handleChange}></textarea>
         </div>
-        <div ref={bottomRef}></div>
         </HostContext.Provider>
       </div>
     )

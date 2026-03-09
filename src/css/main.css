@@ -1,3 +1,47 @@
+/* ── Floating nav (direct nav mode) ─────────── */
+.floatingNav {
+  position: fixed;
+  top: 6.5rem;
+  left: 3rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: rgba(5, 5, 5, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(240,240,240,0.07);
+  padding: 0.5rem 1.2rem;
+  white-space: nowrap;
+}
+
+.floatingNav a {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(240,240,240,0.5);
+  text-decoration: none;
+  padding: 0.4rem 0.65rem;
+  transition: color 0.2s;
+}
+
+.floatingNav a:hover {
+  color: rgba(240,240,240,0.9);
+}
+
+.floatingNav .navBracket--left,
+.floatingNav .navBracket--right {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  color: rgba(204,0,0,0.55);
+  font-weight: 700;
+  position: static;
+  pointer-events: none;
+  top: auto;
+}
+
 /* ── Cursor ─────────────────────────────────── */
 *, *::before, *::after { cursor: none; }
 
@@ -46,6 +90,7 @@
   z-index: 0;
 }
 
+
 /* ── Top bar ───────────────────────────────── */
 .topBar {
   position: absolute;
@@ -58,7 +103,7 @@
   justify-content: space-between;
   padding: 1.25rem 2rem;
   pointer-events: none;
-  background: rgba(0, 0, 0, 0.32);
+  background: rgba(0, 0, 0, 0.62);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -96,7 +141,7 @@
   transform: translateY(-60%);
   z-index: 2;
   max-width: 290px;
-  background: rgba(0, 0, 0, 0.32);
+  background: rgba(0, 0, 0, 0.62);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   padding: 1.1rem 1.2rem;
@@ -142,7 +187,7 @@
   display: flex;
   align-items: center;
   gap: 0;
-  background: rgba(0, 0, 0, 0.50);
+  background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   padding: 0.85rem 0.6rem;
@@ -224,25 +269,612 @@
     padding: 0 0.75rem;
     font-size: 0.56rem;
   }
+  .heroNameBlock {
+    bottom: 10vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroNameBlock {
+    bottom: 8vh;
+  }
 }
 
 /* ── Massive hero name ─────────────────────── */
-.heroName {
+.heroNameBlock {
   position: absolute;
-  bottom: 0;
+  bottom: 0.2em;
   left: 0;
   right: 0;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.heroNameRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 2rem;
+  gap: 1.5rem;
+}
+
+.heroNameLine {
+  flex: 0 0 auto;
+  width: clamp(6rem, 15vw, 20rem);
+  height: 3px;
+  display: block;
+  overflow: visible;
+}
+
+.heroUnderline {
+  display: flex;
+  align-items: center;
+  width: 88%;
+  margin-top: -0.08em;
+}
+
+.heroUnderline__line {
+  flex: 1;
+  height: 1px;
+  background: rgba(240,240,240,0.35);
+  transform-origin: right center;
+}
+
+.heroUnderline__line:last-child {
+  transform-origin: left center;
+}
+
+.heroUnderline__sphere {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(240,240,240,0.6);
+  margin: 0 0.9rem;
+  flex-shrink: 0;
+}
+
+.heroName {
+  position: relative;
+  flex: 0 0 auto;
+  white-space: nowrap;
   margin: 0;
   text-align: center;
-  font-size: clamp(1.8rem, 11vw, 15rem);
-  font-weight: 900;
-  letter-spacing: -0.025em;
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.5rem, 13vw, 26rem);
+  letter-spacing: -0.03em;
   text-transform: uppercase;
+  -webkit-text-stroke: 0.5px rgba(240, 240, 240, 0.9);
   color: rgba(240, 240, 240, 0.95);
   pointer-events: none;
   line-height: 0.85;
   white-space: nowrap;
+}
+
+/* ── About section ─────────────────────────── */
+.aboutSection {
+  height: 100vh;
+  background: #050505;
+  display: flex;
+}
+
+.aboutLeft {
+  flex: 0 0 55%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* ── Horizontal slider ── */
+.aboutSlider {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+.aboutSlide {
+  flex: 0 0 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5rem 4.5rem 5rem 5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Slide dots ── */
+.slideDots {
+  position: absolute;
+  bottom: 2.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 7px;
+  z-index: 10;
+}
+
+.slideDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(240, 240, 240, 0.18);
+  transition: background 0.35s, transform 0.35s;
+}
+
+.slideDot--active {
+  background: rgba(180, 28, 16, 0.85);
+  transform: scale(1.5);
+}
+
+/* ── Progress bar ── */
+.slideProgressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(240, 240, 240, 0.05);
+  z-index: 10;
+}
+
+.slideProgressFill {
+  height: 100%;
+  background: rgba(180, 28, 16, 0.65);
+  transition: width 1s cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+/* ── Slide 1: scroll hint ── */
+.slideHint {
+  position: absolute;
+  bottom: 2.2rem;
+  right: 4.5rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.48rem;
+  letter-spacing: 0.25em;
+  color: rgba(240, 240, 240, 0.18);
+  margin: 0;
+  animation: hintPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* ── Slide 2: Craft ── */
+.aboutSlide--craft { background: transparent; }
+
+.craftDecor {
+  position: absolute;
+  right: -80px;
+  top: 50%;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  border: 1px solid rgba(240, 240, 240, 0.04);
+  pointer-events: none;
+  animation: ringSpin 30s linear infinite;
+}
+
+.craftDecor::before,
+.craftDecor::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid;
+}
+
+.craftDecor::before {
+  inset: 55px;
+  border-color: rgba(180, 28, 16, 0.07);
+  animation: ringSpin 18s linear infinite reverse;
+}
+
+.craftDecor::after {
+  inset: 115px;
+  border-color: rgba(240, 240, 240, 0.04);
+  animation: ringSpin 12s linear infinite;
+}
+
+@keyframes ringSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.craftGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.8rem 2.5rem;
+  max-width: 480px;
+}
+
+.craftItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.craftNum {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.48rem;
+  letter-spacing: 0.22em;
+  color: rgba(180, 28, 16, 0.65);
+}
+
+.craftName {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(240, 240, 240, 0.85);
+}
+
+.craftDesc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(240, 240, 240, 0.38);
+  font-weight: 300;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Slide 3: Life ── */
+.aboutSlide--life { background: transparent; }
+
+.lifeCanvas3D {
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 280px;
+  height: 280px;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.hobbiesRow {
+  display: flex;
+  gap: 1.8rem;
+}
+
+.hobbyCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hobbyImg {
+  width: 100%;
+  aspect-ratio: 3/4;
+  overflow: hidden;
+  background: rgba(240, 240, 240, 0.025);
+  border: 1px solid rgba(240, 240, 240, 0.07);
+  position: relative;
+}
+
+.hobbyImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) contrast(1.05);
+  display: block;
+}
+
+.hobbyImg__tag {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0.7rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.46rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.35);
+  background: rgba(0, 0, 0, 0.55);
+  padding: 0.25rem 0.55rem;
+}
+
+.hobbyText {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(240, 240, 240, 0.35);
+  font-weight: 300;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.lifeBgWords {
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  display: flex;
+  gap: 1.5rem;
+  padding-left: 5rem;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.lifeBgWords span {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(4rem, 9vw, 10rem);
+  font-weight: 900;
+  color: rgba(240, 240, 240, 0.022);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+/* ── Slide 4: Experience ── */
+.aboutSlide--xp { background: transparent; }
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.tlItem {
+  display: flex;
+  gap: 1.8rem;
+  align-items: flex-start;
+}
+
+.tlYear {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: rgba(180, 28, 16, 0.65);
+  flex-shrink: 0;
+  width: 3.5rem;
+  padding-top: 0.15rem;
+}
+
+.tlBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-left: 1px solid rgba(240, 240, 240, 0.07);
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.tlBody::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 7px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(180, 28, 16, 0.65);
+}
+
+.tlRole {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(240, 240, 240, 0.85);
+}
+
+.tlOrg {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.66rem;
+  color: rgba(240, 240, 240, 0.35);
+  letter-spacing: 0.07em;
+}
+
+.tlDesc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  color: rgba(240, 240, 240, 0.38);
+  font-weight: 300;
+  line-height: 1.65;
+  margin: 0.3rem 0 0;
+  max-width: 300px;
+}
+
+.aboutEyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.52rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.28);
+  margin: 0 0 2rem;
+}
+
+.aboutDisplay {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(3rem, 5.5vw, 6rem);
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  color: rgba(240, 240, 240, 0.92);
+  line-height: 1.08;
+  margin: 0 0 2.5rem;
+}
+
+/* Photo — desktop: fixed size, absolutely positioned */
+.aboutPhoto {
+  position: absolute;
+  top: 8rem;
+  right: 4.5rem;
+  width: 220px;
+  height: 290px;
+  overflow: hidden;
+  border: 1px solid rgba(240, 240, 240, 0.07);
+}
+
+.aboutPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  filter: grayscale(100%) contrast(1.1);
+}
+
+.aboutDisplay__cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  background: rgba(180, 28, 16, 0.8);
+  margin-left: 4px;
+  vertical-align: middle;
+  animation: cursorBlink 1s step-end infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.aboutRule {
+  border: none;
+  border-top: 1px solid rgba(240, 240, 240, 0.07);
+  margin: 0 0 2.5rem;
+  width: 100%;
+}
+
+.aboutBio {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.85;
+  color: rgba(240, 240, 240, 0.48);
+  font-weight: 300;
+  margin: 0 0 1.1rem;
+  max-width: 430px;
+}
+
+.aboutSkills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 2.5rem;
+}
+
+.aboutSkills span {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.38);
+  border: 1px solid rgba(240, 240, 240, 0.10);
+  padding: 0.35rem 0.9rem;
+}
+
+/* Thin vertical red divider */
+.aboutDivider {
+  width: 1px;
+  flex-shrink: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(140, 20, 12, 0.55) 20%,
+    rgba(140, 20, 12, 0.55) 80%,
+    transparent 100%
+  );
+  z-index: 2;
+}
+
+/* Right atmospheric panel */
+.aboutRight {
+  flex: 1;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: #050505;
+}
+
+/* Red ambient glow — upper right source + lower bleed */
+.aboutRight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 65% at 105% -5%, rgba(160, 18, 10, 0.38) 0%, transparent 62%),
+    radial-gradient(ellipse 60% 50% at 90% 105%, rgba(100, 10, 5, 0.18) 0%, transparent 55%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Subtle grid matching main shader */
+.aboutRight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      13deg,
+      rgba(240, 240, 240, 0.016) 0px,
+      rgba(240, 240, 240, 0.016) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    repeating-linear-gradient(
+      103deg,
+      rgba(240, 240, 240, 0.016) 0px,
+      rgba(240, 240, 240, 0.016) 1px,
+      transparent 1px,
+      transparent 5px
+    );
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Photo placeholder */
+.aboutPhotoPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.aboutPhotoLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.52rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.12);
+  border: 1px solid rgba(240, 240, 240, 0.06);
+  padding: 0.6rem 1.4rem;
+}
+
+/* ── About responsive ───────────────────────── */
+@media (max-width: 1100px) {
+  .aboutLeft { flex: 0 0 52%; }
+  .aboutSlide { padding: 7rem 3rem 7rem 3.5rem; }
+  .craftGrid { gap: 1.4rem 2rem; }
+  .lifeCanvas3D { width: 220px; height: 220px; right: -30px; }
+}
+
+@media (max-width: 860px) {
+  .aboutSection { flex-direction: column; }
+  .aboutLeft { flex: none; height: 100vh; }
+  .aboutSlide { padding: 6rem 2.5rem 5rem; }
+
+  .hobbiesRow { gap: 1.2rem; }
+  .craftGrid { grid-template-columns: 1fr; gap: 1.2rem; max-width: 320px; }
+
+  .aboutDivider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent 0%, rgba(140,20,12,0.55) 20%, rgba(140,20,12,0.55) 80%, transparent 100%);
+  }
+  .aboutRight { min-height: 55vh; }
+  .lifeCanvas3D { display: none; }
+}
+
+@media (max-width: 520px) {
+  .aboutSlide { padding: 5rem 1.5rem 4rem; }
+  .aboutBio { max-width: 100%; }
+  .lifeBgWords span { font-size: 4rem; }
 }
 
 .heroName::before {
