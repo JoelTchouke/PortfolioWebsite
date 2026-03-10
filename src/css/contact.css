@@ -1,0 +1,338 @@
+/* ══════════════════════════════════════════
+   CONTACT SECTION
+   ══════════════════════════════════════════ */
+
+.contactSection {
+  min-height: 100vh;
+  background: #050505;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.contactSection::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(240,240,240,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,240,240,0.025) 1px, transparent 1px);
+  background-size: 5px 5px;
+  transform: rotate(13deg) scale(1.4);
+  pointer-events: none;
+}
+
+.contactSection__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Cards ─────────────────────────────── */
+.contact__card {
+  position: relative;
+  padding: 72px 60px 80px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  cursor: default;
+  transition: background 0.4s ease;
+}
+
+.contact__card--touch {
+  background: #0a0a0a;
+  border-right: 1px solid rgba(240,240,240,0.07);
+  cursor: pointer;
+}
+
+.contact__card--touch:hover {
+  background: #0f0f0f;
+}
+
+.contact__card--email {
+  background: #050505;
+}
+
+/* pill badge */
+.contact__pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(240,240,240,0.08);
+  border: 1px solid rgba(240,240,240,0.12);
+  color: rgba(240,240,240,0.7);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  padding: 4px 12px;
+  border-radius: 100px;
+  width: fit-content;
+  font-family: 'Space Mono', monospace, sans-serif;
+  text-transform: uppercase;
+}
+
+/* heading */
+.contact__heading {
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: clamp(52px, 6.5vw, 88px);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  color: rgba(240,240,240,0.9);
+  margin: 0;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
+}
+
+/* sub text */
+.contact__sub {
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(240,240,240,0.45);
+  max-width: 320px;
+  margin: 0;
+  font-family: 'Space Mono', monospace, sans-serif;
+  position: relative;
+  z-index: 2;
+}
+
+/* CTA row */
+.contact__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: rgba(240,240,240,0.85);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  font-family: 'Space Mono', monospace, sans-serif;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
+  background: #b41c10;
+  padding: 12px 20px;
+  width: fit-content;
+  transition: background 0.2s;
+}
+
+.contact__cta:hover {
+  background: #d42212;
+}
+
+.contact__cta--link {
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid rgba(240,240,240,0.18);
+  padding: 12px 20px;
+}
+
+.contact__cta--link:hover {
+  background: rgba(240,240,240,0.05);
+}
+
+/* Abstract art overlay */
+.contact__card-art {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  width: 200px;
+  height: 300px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ── Section footer bar ─────────────────── */
+.contactSection__footer {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 60px;
+  border-top: 1px solid rgba(240,240,240,0.07);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(240,240,240,0.3);
+  font-family: 'Space Mono', monospace, sans-serif;
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════
+   CONTACT MODAL
+   ══════════════════════════════════════════ */
+
+.contactModal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(14px) saturate(0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.contactModal__panel {
+  background: #fff;
+  color: #111;
+  border-radius: 4px;
+  padding: 60px 64px 56px;
+  width: 100%;
+  max-width: 720px;
+  position: relative;
+}
+
+.contactModal__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 36px;
+  height: 36px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s;
+}
+
+.contactModal__close:hover {
+  background: #b41c10;
+}
+
+.contactModal__title {
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: clamp(44px, 6vw, 72px);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: #111;
+  text-transform: uppercase;
+  margin: 0 0 36px;
+}
+
+.contactModal__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.contactModal__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.contactModal__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contactModal__group--full {
+  grid-column: 1 / -1;
+}
+
+.contactModal__group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #222;
+  letter-spacing: 0.02em;
+  font-family: 'Space Mono', monospace, sans-serif;
+}
+
+.contactModal__group input,
+.contactModal__group textarea {
+  border: none;
+  border-bottom: 1.5px solid rgba(0,0,0,0.18);
+  padding: 10px 0;
+  font-size: 14px;
+  font-family: inherit;
+  color: #111;
+  background: transparent;
+  outline: none;
+  resize: none;
+  transition: border-color 0.2s;
+}
+
+.contactModal__group input::placeholder,
+.contactModal__group textarea::placeholder {
+  color: #aaa;
+}
+
+.contactModal__group input:focus,
+.contactModal__group textarea:focus {
+  border-bottom-color: #b41c10;
+}
+
+.contactModal__send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-weight: 700;
+  padding: 14px 32px;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+  text-transform: uppercase;
+  margin-top: 4px;
+  transition: background 0.2s;
+}
+
+.contactModal__send:hover {
+  background: #b41c10;
+}
+
+/* sent state */
+.contactModal__sent {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.contactModal__sentSub {
+  color: #666;
+  margin-top: 12px;
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 14px;
+}
+
+/* ── Responsive ─────────────────────────── */
+@media (max-width: 768px) {
+  .contactSection__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .contact__card {
+    padding: 52px 32px 60px;
+    border-right: none;
+    border-bottom: 1px solid rgba(240,240,240,0.07);
+  }
+
+  .contactSection__footer {
+    padding: 20px 32px;
+  }
+
+  .contactModal__panel {
+    padding: 40px 28px 36px;
+  }
+
+  .contactModal__row {
+    grid-template-columns: 1fr;
+  }
+}

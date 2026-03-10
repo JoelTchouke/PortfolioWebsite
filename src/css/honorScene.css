@@ -1,475 +1,528 @@
-/* ═══════════════════════════════════════════════
-   BASE RESET — pin font identical to main page
-   ═══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   HONORS GALLERY — dark editorial aesthetic
+   matches main site: #050505 bg, #b41c10 red,
+   Anton headings, Space Mono body
+   ══════════════════════════════════════════ */
 
 .scene-root {
-  font-family: 'Inter', Arial, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  text-align: left; /* .App sets text-align:center globally — cancel it here */
-  color: #f0f0f0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  height: 100vh;
+  position: fixed;
+  inset: 0;
+  background: #050505;
   overflow: hidden;
-  position: relative;
 }
 
-
-/* ═══════════════════════════════════════════════
-   SCENE WRAPPER — 3-D honours scene chrome
-   ═══════════════════════════════════════════════ */
-
-/* Floating top chrome — individual pill buttons, no unified bar */
+/* ── Top bar ─────────────────────────────── */
 .scene-topbar {
   position: absolute;
   top: 0; left: 0; right: 0;
   z-index: 200;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  padding: 1.4rem 1.8rem;
-  pointer-events: none;
+  padding: 0 28px;
+  height: 52px;
+  background: rgba(5,5,5,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(240,240,240,0.07);
+}
+
+.scene-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .scene-topbar__logo {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.05rem;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: 18px;
   font-weight: 900;
+  color: rgba(240,240,240,0.9);
   letter-spacing: 0.06em;
-  color: #ffffff;
-  user-select: none;
-  pointer-events: auto;
-  background: rgba(12, 12, 12, 0.78);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 999px;
-  padding: 0.45rem 1.1rem;
+  border: 1.5px solid rgba(240,240,240,0.2);
+  padding: 3px 10px;
+  line-height: 1;
+}
+
+.scene-topbar__title {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(240,240,240,0.3);
+  text-transform: uppercase;
 }
 
 .scene-topbar__nav {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  pointer-events: auto;
+  gap: 4px;
+}
+
+.scene-topbar__bracket {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: rgba(240,240,240,0.3);
+  padding: 0 4px;
 }
 
 .scene-nav-btn {
-  background: rgba(12, 12, 12, 0.78);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 999px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.13em;
+  background: transparent;
+  border: none;
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(240,240,240,0.45);
   cursor: pointer;
-  padding: 0.42rem 1rem;
-  transition: background 0.22s, border-color 0.22s, color 0.22s, box-shadow 0.22s;
+  padding: 6px 12px;
+  transition: color 0.18s;
 }
 
 .scene-nav-btn:hover {
-  background: rgba(30, 30, 30, 0.88);
-  border-color: rgba(255, 255, 255, 0.26);
-  color: #ffffff;
+  color: rgba(240,240,240,0.9);
 }
 
 .scene-nav-btn--back {
-  border-color: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
+  color: #b41c10;
+  border: 1px solid rgba(180,28,16,0.4);
+  margin-left: 8px;
 }
 
 .scene-nav-btn--back:hover {
-  background: rgba(30, 30, 30, 0.88);
-  border-color: rgba(255, 255, 255, 0.36);
+  background: rgba(180,28,16,0.12);
+  color: #d42212;
 }
 
-/* "Exit frame focus" button (floats below topbar) */
+/* ── Back/exit button ───────────────────── */
 .scene-exit-btn {
   position: absolute;
-  top: 5.2rem;
-  right: 1.8rem;
-  background: rgba(12, 12, 12, 0.78);
-  backdrop-filter: blur(14px) saturate(1.4);
-  -webkit-backdrop-filter: blur(14px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 999px;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.82);
-  cursor: pointer;
-  padding: 0.42rem 1rem;
+  bottom: 36px;
+  left: 36px;
   z-index: 200;
-  transition: background 0.22s, border-color 0.22s, color 0.22s;
+  background: rgba(5,5,5,0.8);
+  border: 1px solid rgba(240,240,240,0.15);
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(240,240,240,0.6);
+  cursor: pointer;
+  padding: 10px 18px;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s, color 0.2s;
 }
 
 .scene-exit-btn:hover {
-  background: rgba(30, 30, 30, 0.88);
-  border-color: rgba(255, 255, 255, 0.26);
-  color: #ffffff;
+  border-color: #b41c10;
+  color: rgba(240,240,240,0.9);
 }
 
+/* ── Explore hint ───────────────────────── */
+.scene-hint {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: hintFade 1.2s ease 4s forwards;
+  opacity: 1;
+  pointer-events: none;
+}
 
-/* ═══════════════════════════════════════════════
-   HONOURS DETAIL PAGE — full-screen overlay
-   ═══════════════════════════════════════════════ */
+.scene-hint__line {
+  width: 24px;
+  height: 1px;
+  background: rgba(240,240,240,0.2);
+  display: block;
+}
+
+.scene-hint__text {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(240,240,240,0.3);
+}
+
+@keyframes hintFade { to { opacity: 0; } }
+
+/* ── Hover tooltip ──────────────────────── */
+.scene-tooltip {
+  position: fixed;
+  pointer-events: none;
+  z-index: 300;
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(240,240,240,0.9);
+  background: rgba(5,5,5,0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(180,28,16,0.4);
+  padding: 7px 14px;
+}
+
+/* ══════════════════════════════════════════
+   MODALS / OVERLAYS
+   ══════════════════════════════════════════ */
+
+.honors-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(14px) saturate(0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.honors-modal {
+  background: #0d0d0d;
+  border: 1px solid rgba(240,240,240,0.08);
+  padding: 52px 56px 48px;
+  width: 100%;
+  max-width: 560px;
+  position: relative;
+  /* Red corner accent */
+  box-shadow:
+    inset 0 0 0 1px rgba(180,28,16,0.15),
+    0 0 60px rgba(0,0,0,0.8);
+}
+
+.honors-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 40px; height: 2px;
+  background: #b41c10;
+}
+
+.honors-modal__eyebrow {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: #b41c10;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+.honors-modal__title {
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: rgba(240,240,240,0.92);
+  text-transform: uppercase;
+  margin: 0 0 24px;
+}
+
+.honors-modal__rule {
+  border: none;
+  border-top: 1px solid rgba(240,240,240,0.08);
+  margin: 0 0 24px;
+}
+
+.honors-modal__body {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 12px;
+  line-height: 1.8;
+  color: rgba(240,240,240,0.5);
+  margin: 0 0 28px;
+}
+
+.honors-modal__list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.honors-modal__list li {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 11px;
+  line-height: 1.7;
+  color: rgba(240,240,240,0.5);
+  padding-left: 16px;
+  border-left: 2px solid rgba(180,28,16,0.4);
+}
+
+.honors-modal__key {
+  color: rgba(240,240,240,0.85);
+  display: block;
+  margin-bottom: 2px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.honors-modal__btn {
+  background: #b41c10;
+  border: none;
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(240,240,240,0.95);
+  cursor: pointer;
+  padding: 13px 28px;
+  transition: background 0.2s;
+}
+
+.honors-modal__btn:hover {
+  background: #d42212;
+}
+
+/* ══════════════════════════════════════════
+   DETAIL PANELS (Honors / Research / etc.)
+   ══════════════════════════════════════════ */
 
 .honors-page {
   position: fixed;
   inset: 0;
-  background: #050505;
-  color: #f0f0f0;
-  font-family: 'Inter', Arial, sans-serif;
+  z-index: 400;
+  background: #070707;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
-  z-index: 6000;
-  /* inclined micro-grid matching the preloader */
-  background-image:
-    repeating-linear-gradient(
-      13deg,
-      rgba(240, 240, 240, 0.018) 0px,
-      rgba(240, 240, 240, 0.018) 1px,
-      transparent 1px,
-      transparent 5px
-    ),
-    repeating-linear-gradient(
-      103deg,
-      rgba(240, 240, 240, 0.018) 0px,
-      rgba(240, 240, 240, 0.018) 1px,
-      transparent 1px,
-      transparent 5px
-    );
 }
 
-/* Sticky top bar inside the detail page */
 .honors-page__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 52px;
+  background: rgba(5,5,5,0.95);
+  border-bottom: 1px solid rgba(240,240,240,0.07);
+  flex-shrink: 0;
   position: sticky;
   top: 0;
   z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.4rem 2.5rem;
-  border-bottom: 1px solid rgba(240, 240, 240, 0.06);
-  background: rgba(5, 5, 5, 0.75);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .honors-page__breadcrumb {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.55rem;
-  letter-spacing: 0.26em;
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(240,240,240,0.3);
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.3);
 }
 
 .honors-page__exit-btn {
-  background: none;
-  border: 1px solid rgba(240, 240, 240, 0.22);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.18em;
+  background: transparent;
+  border: 1px solid rgba(240,240,240,0.15);
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.65);
+  color: rgba(240,240,240,0.5);
   cursor: pointer;
-  padding: 0.45rem 1.1rem;
-  transition: border-color 0.22s, color 0.22s;
+  padding: 7px 16px;
+  transition: border-color 0.18s, color 0.18s;
 }
 
 .honors-page__exit-btn:hover {
-  border-color: rgba(240, 240, 240, 0.7);
-  color: #f0f0f0;
+  border-color: #b41c10;
+  color: rgba(240,240,240,0.9);
 }
 
-/* Main reading area */
 .honors-page__content {
-  max-width: 820px;
-  margin: 0 auto;
-  padding: 5.5rem 2.5rem 7rem;
+  padding: 64px 80px 80px;
+  max-width: 780px;
 }
 
-/* Eyebrow / section label */
 .honors-page__eyebrow {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.55rem;
-  letter-spacing: 0.26em;
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: #b41c10;
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.3);
-  margin: 0 0 1.2rem;
+  margin: 0 0 16px;
 }
 
-/* Display title — Cormorant Garamond like the hero name */
 .honors-page__title {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(3.2rem, 7.5vw, 6.5rem);
-  font-weight: 300;
-  letter-spacing: 0.02em;
-  color: rgba(240, 240, 240, 0.92);
-  line-height: 1;
-  margin: 0 0 3rem;
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: clamp(52px, 7vw, 96px);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  color: rgba(240,240,240,0.92);
+  text-transform: uppercase;
+  margin: 0 0 32px;
 }
 
-/* Thin separator */
 .honors-page__rule {
   border: none;
-  border-top: 1px solid rgba(240, 240, 240, 0.08);
-  margin: 0 0 3rem;
+  border-top: 1px solid rgba(240,240,240,0.08);
+  margin: 0 0 32px;
 }
 
-/* Body copy */
 .honors-page__description {
-  font-size: 0.9rem;
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 13px;
   line-height: 1.9;
-  color: rgba(240, 240, 240, 0.58);
-  font-weight: 300;
-  margin: 0 0 4.5rem;
+  color: rgba(240,240,240,0.45);
+  margin: 0 0 40px;
+  max-width: 620px;
 }
 
-/* Documents sub-heading */
 .honors-page__docs-label {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.55rem;
-  letter-spacing: 0.26em;
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: rgba(240,240,240,0.25);
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.3);
-  margin: 0 0 1.4rem;
+  margin: 0 0 14px;
 }
 
-/* Document button row */
 .honors-page__docs {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.9rem;
-  margin-bottom: 3rem;
+  gap: 12px;
 }
 
-/* Minimal border button — matches main page .ctaBtn */
 .honors-doc-btn {
-  background: none;
-  border: 1px solid rgba(240, 240, 240, 0.25);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.16em;
+  background: transparent;
+  border: 1px solid rgba(240,240,240,0.15);
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.7);
+  color: rgba(240,240,240,0.6);
   cursor: pointer;
-  padding: 0.7rem 1.5rem;
-  transition: border-color 0.22s, color 0.22s, background 0.22s;
+  padding: 11px 20px;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
 }
 
 .honors-doc-btn:hover {
-  border-color: rgba(240, 240, 240, 0.72);
-  color: #f0f0f0;
-  background: rgba(240, 240, 240, 0.03);
+  border-color: #b41c10;
+  color: rgba(240,240,240,0.9);
+  background: rgba(180,28,16,0.08);
 }
 
-/* PDF viewer container */
 .honors-page__pdf-wrap {
-  border: 1px solid rgba(240, 240, 240, 0.07);
-  background: rgba(255, 255, 255, 0.02);
-  overflow: hidden;
-  margin-bottom: 2rem;
-  width: 100%;
+  position: relative;
+  width: 100vw;              /* full viewport width */
+  margin-left: calc(-50vw + 50%); /* break out of centered container */
+  margin-top: 28px;
+  box-shadow:
+    0 0 0 1px rgba(180,28,16,0.35),
+    0 0 40px rgba(180,28,16,0.08),
+    0 0 80px rgba(0,0,0,0.6);
 }
 
-/* Image (Strength Finder etc.) */
+.honors-page__image {
+  margin-top: 28px;
+  max-width: 100%;
+  border: 1px solid rgba(240,240,240,0.08);
+}
+
+/* ── Centered detail panel overrides ────── */
+.honors-page__content {
+  padding: 64px 48px 80px;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.honors-page__title {
+  text-align: center;
+}
+
+.honors-page__description {
+  text-align: center;
+  max-width: 580px;
+}
+
+.honors-page__rule {
+  width: 100%;
+  max-width: 480px;
+}
+
+.honors-page__docs {
+  justify-content: center;
+}
+
+.honors-page__eyebrow {
+  text-align: center;
+}
+
+.honors-page__docs-label {
+  text-align: center;
+}
+
 .honors-page__image {
   display: block;
+  margin: 28px auto 0;
+}
+
+.honors-page__pdf-wrap {
   width: 100%;
-  max-width: 460px;
-  height: auto;
-  border: 1px solid rgba(240, 240, 240, 0.07);
-  margin-top: 1.6rem;
 }
 
-
-/* ═══════════════════════════════════════════════
-   DARK POPUP — Introduction / Welcome / Mission
-   ═══════════════════════════════════════════════ */
-
-.dark-popup-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9000;
-  background: rgba(5, 5, 5, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
+/* ── PDF iframe viewer ──────────────────── */
+.honors-page__pdf-wrap {
+  position: relative;
+  width: 90vw;
+  margin: 28px auto 0;
 }
 
-.dark-popup {
-  background: #0b0b0b;
-  border: 1px solid rgba(240, 240, 240, 0.09);
-  max-width: 660px;
-  width: 100%;
-  padding: 3.2rem;
-  animation: popupIn 0.28s ease;
-}
-
-@keyframes popupIn {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.dark-popup__header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0;
-}
-
-.dark-popup__eyebrow {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.52rem;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.28);
-  margin: 0 0 0.8rem;
-}
-
-.dark-popup__title {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-weight: 300;
-  letter-spacing: 0.02em;
-  color: rgba(240, 240, 240, 0.92);
-  margin: 0;
-  line-height: 1.1;
-}
-
-.dark-popup__x {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  color: rgba(240, 240, 240, 0.28);
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  flex-shrink: 0;
-  margin-top: 0.3rem;
-  transition: color 0.2s;
-}
-
-.dark-popup__x:hover { color: rgba(240, 240, 240, 0.8); }
-
-.dark-popup__rule {
-  border: none;
-  border-top: 1px solid rgba(240, 240, 240, 0.07);
-  margin: 1.6rem 0 1.8rem;
-}
-
-.dark-popup__body {
-  font-size: 0.88rem;
-  line-height: 1.85;
-  color: rgba(240, 240, 240, 0.52);
-  font-weight: 300;
-  margin: 0 0 2.4rem;
-}
-
-.dark-popup__close {
-  background: none;
-  border: 1px solid rgba(240, 240, 240, 0.22);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.6);
-  cursor: pointer;
-  padding: 0.55rem 1.3rem;
-  transition: border-color 0.22s, color 0.22s;
-}
-
-.dark-popup__close:hover {
-  border-color: rgba(240, 240, 240, 0.7);
-  color: #f0f0f0;
-}
-
-
-/* ═══════════════════════════════════════════════
-   HELP MODAL — dark theme
-   ═══════════════════════════════════════════════ */
-
-.help-modal-dark {
-  position: fixed;
-  inset: 0;
-  z-index: 9000;
-  background: rgba(5, 5, 5, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
-
-.help-modal-dark__inner {
-  background: #0b0b0b;
-  border: 1px solid rgba(240, 240, 240, 0.09);
-  max-width: 540px;
-  width: 100%;
-  padding: 3.2rem;
-  animation: popupIn 0.28s ease;
-}
-
-.help-modal-dark__eyebrow {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.52rem;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.28);
-  margin: 0 0 0.8rem;
-}
-
-.help-modal-dark__title {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 2.4rem;
-  font-weight: 300;
-  color: rgba(240, 240, 240, 0.92);
-  margin: 0 0 0;
-  line-height: 1;
-}
-
-.help-modal-dark__rule {
-  border: none;
-  border-top: 1px solid rgba(240, 240, 240, 0.07);
-  margin: 1.6rem 0 0;
-}
-
-.help-modal-dark__list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 2.4rem;
-}
-
-.help-modal-dark__list li {
-  padding: 1rem 0;
-  border-bottom: 1px solid rgba(240, 240, 240, 0.05);
-  font-size: 0.85rem;
-  line-height: 1.7;
-  color: rgba(240, 240, 240, 0.5);
-  font-weight: 300;
-}
-
-.help-modal-dark__list li:last-child {
-  border-bottom: none;
-}
-
-.help-modal-dark__list strong {
+.honors-pdf-iframe {
   display: block;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(240, 240, 240, 0.78);
-  font-weight: 600;
-  margin-bottom: 0.3rem;
+  width: 100%;
+  height: 82vh;
+  border: none;
+  background: #111;
+  transition: opacity 0.5s ease;
+}
+/* Corner brackets on PDF */
+.pdfCorner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  z-index: 4;
+  pointer-events: none;
+}
+.pdfCorner--tl { top: -1px; left: -1px;  border-top: 2px solid #b41c10; border-left: 2px solid #b41c10; }
+.pdfCorner--tr { top: -1px; right: -1px; border-top: 2px solid #b41c10; border-right: 2px solid #b41c10; }
+.pdfCorner--bl { bottom: -1px; left: -1px;  border-bottom: 2px solid #b41c10; border-left: 2px solid #b41c10; }
+.pdfCorner--br { bottom: -1px; right: -1px; border-bottom: 2px solid #b41c10; border-right: 2px solid #b41c10; }
+
+/* Loading dots */
+.pdfLoading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #080808;
+  z-index: 2;
+}
+
+.pdfLoading__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #b41c10;
+  animation: pdfPulse 1.1s ease-in-out infinite;
+}
+.pdfLoading__dot:nth-child(2) { animation-delay: 0.18s; }
+.pdfLoading__dot:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes pdfPulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.85); }
+  40%           { opacity: 1;   transform: scale(1); }
 }

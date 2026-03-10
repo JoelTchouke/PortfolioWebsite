@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { useTexture, Html } from "@react-three/drei";
 import { Component, useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
@@ -14,63 +14,86 @@ class CanvasErrorBoundary extends Component {
 
 const PROJECTS = [
   {
-    id: 1, title: 'Autonomous Navigation System', category: 'Embedded/Firmware', year: '2024',
-    desc: 'Developed embedded control systems for autonomous agricultural vehicles at AGCO Corporation. Implemented real-time sensor fusion on ARM Cortex-M with sub-10ms latency.',
-    tags: ['C/C++', 'RTOS', 'CAN Bus', 'ARM Cortex-M'],
+    id: 1,
+    title: 'Advanced Smart Glasses System',
+    category: 'Embedded / AI',
+    year: '2024',
+    desc: 'Developed an advanced smart glasses platform focused on accessibility. Integrated text-to-speech, object recognition, and wireless communication modules to assist users by interpreting and describing their environment in real time.',
+    tags: ['Python', 'Computer Vision', 'Embedded Systems', 'TTS'],
     images: [
-      'https://picsum.photos/seed/nav1/400/260',
-      'https://picsum.photos/seed/nav2/400/260',
-      'https://picsum.photos/seed/nav3/400/260',
+      'https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80',
     ],
   },
+
   {
-    id: 2, title: 'Threat Intelligence Dashboard', category: 'Cybersecurity', year: '2023',
-    desc: 'Real-time threat monitoring platform for SOC operations. Integrated SIEM data sources and automated incident response workflows using the MITRE ATT&CK framework.',
-    tags: ['Python', 'SIEM', 'MITRE ATT&CK', 'ELK Stack'],
+    id: 2,
+    title: 'LEGO Robotics Power Management PCB',
+    category: 'Embedded / Hardware',
+    year: '2024',
+    desc: 'Designed a power management system for a robotics LEGO brick using an ATtiny85 microcontroller. Implemented rechargeable battery integration, battery level monitoring, and sleep-mode energy optimization using a custom KiCad PCB.',
+    tags: ['ATtiny85', 'KiCad', 'PCB Design', 'Power Systems'],
     images: [
-      'https://picsum.photos/seed/soc1/400/260',
-      'https://picsum.photos/seed/soc2/400/260',
-      'https://picsum.photos/seed/soc3/400/260',
+      'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1553406830-ef2513450d76?auto=format&fit=crop&w=800&q=80',
     ],
   },
+
   {
-    id: 3, title: 'Computer Vision Pipeline', category: 'Software', year: '2023',
-    desc: 'Scalable ML pipeline for agricultural image analysis. 94% accuracy in crop disease detection using CNNs trained on 50k+ labeled images.',
-    tags: ['Python', 'PyTorch', 'OpenCV', 'Docker'],
+    id: 3,
+    title: 'SOC Security Investigation Workflows',
+    category: 'Cybersecurity',
+    year: '2024',
+    desc: 'Conducted security investigations within a Security Operations Center environment using Splunk and network telemetry. Built structured workflows for DHCP attribution, endpoint investigation, and incident validation across campus infrastructure.',
+    tags: ['Splunk', 'Network Analysis', 'SOC', 'Incident Response'],
     images: [
-      'https://picsum.photos/seed/cv1/400/260',
-      'https://picsum.photos/seed/cv2/400/260',
-      'https://picsum.photos/seed/cv3/400/260',
+      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1548092372-0d1bd40894a3?auto=format&fit=crop&w=800&q=80',
     ],
   },
+
   {
-    id: 4, title: 'Firmware Vulnerability Scanner', category: 'Cybersecurity', year: '2024',
-    desc: 'Automated binary analysis tool for identifying security vulnerabilities in embedded firmware. Combines static and dynamic analysis techniques.',
-    tags: ['Ghidra', 'Python', 'Binary Analysis', 'IoT'],
+    id: 4,
+    title: 'STM32 PWM Audio Generation',
+    category: 'Embedded / Firmware',
+    year: '2024',
+    desc: 'Programmed an STM32L475 microcontroller to generate audio signals using timer-based PWM output. Implemented hardware timer configuration and GPIO control to drive a speaker and reproduce musical tones in real time.',
+    tags: ['STM32', 'C', 'Timers', 'PWM'],
     images: [
-      'https://picsum.photos/seed/fw1/400/260',
-      'https://picsum.photos/seed/fw2/400/260',
-      'https://picsum.photos/seed/fw3/400/260',
+      'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1581092583537-20d51b4b4f1b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1518773553398-650c184e0bb3?auto=format&fit=crop&w=800&q=80',
     ],
   },
+
   {
-    id: 5, title: 'High-Speed DAQ System', category: 'Embedded/Firmware', year: '2022',
-    desc: 'High-speed data acquisition for agricultural sensor arrays. Sub-millisecond latency across CAN and Ethernet with FPGA-accelerated signal processing.',
-    tags: ['C', 'FPGA', 'Ethernet', 'DSP'],
+    id: 5,
+    title: 'Full-Stack Application Development',
+    category: 'Software Engineering',
+    year: '2023',
+    desc: 'Built multiple full-stack applications including an e-commerce website, a banking transaction management system, and a mobile delivery application. Focused on UI design, backend logic, and scalable application architecture.',
+    tags: ['React', 'Web Apps', 'Node.js', 'APIs'],
     images: [
-      'https://picsum.photos/seed/daq1/400/260',
-      'https://picsum.photos/seed/daq2/400/260',
-      'https://picsum.photos/seed/daq3/400/260',
+      'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80',
     ],
   },
+
   {
-    id: 6, title: 'IoT Intrusion Detection', category: 'Cybersecurity', year: '2022',
-    desc: 'ML-based IDS for IoT networks. Research on anomaly detection in resource-constrained environments, achieving 97% detection rate.',
-    tags: ['Python', 'ML', 'IoT', 'Networking'],
+    id: 6,
+    title: 'Interactive Terminal Portfolio Environment',
+    category: 'Systems / DevOps',
+    year: '2025',
+    desc: 'Built a containerized Linux investigation environment embedded directly inside a portfolio website. Each user session launches an isolated Docker container with controlled resources and a hidden engineering puzzle.',
+    tags: ['Docker', 'Node.js', 'Linux', 'WebSockets'],
     images: [
-      'https://picsum.photos/seed/ids1/400/260',
-      'https://picsum.photos/seed/ids2/400/260',
-      'https://picsum.photos/seed/ids3/400/260',
+      'https://images.unsplash.com/photo-1518779578993-ec3579fee39f?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1580894894513-541e068a3e2b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80',
     ],
   },
 ];
@@ -204,9 +227,29 @@ function ProjectCard({ index, total, isSelected, onSelect, project }) {
     []
   );
 
+  const [hovered, setHovered] = useState(false);
+
   // Load cover image; fall back gracefully if missing
   const texture = useTexture(project.images[0]);
   texture.colorSpace = THREE.SRGBColorSpace;
+
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.center.set(0.5, 0.5);
+
+  const tileAspect = 1.05 / 1.55;
+
+  if (texture.image) {
+    const imageAspect = texture.image.width / texture.image.height;
+
+    if (imageAspect > tileAspect) {
+      // image is wider
+      texture.repeat.set(tileAspect / imageAspect, 1);
+    } else {
+      // image is taller
+      texture.repeat.set(1, imageAspect / tileAspect);
+    }
+  }
 
   useFrame(({ clock, camera }) => {
     if (!groupRef.current) return;
@@ -239,7 +282,11 @@ function ProjectCard({ index, total, isSelected, onSelect, project }) {
 
   return (
     <group ref={groupRef}>
-      <mesh onClick={() => onSelect(isSelected ? null : project.id)}>
+      <mesh
+        onClick={() => onSelect(isSelected ? null : project.id)}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+      >
         <boxGeometry args={[1.05, 1.55, 0.05]} />
         {/* side edges — dark metal */}
         <meshStandardMaterial attach="material-0" {...edgeMat} />
@@ -273,6 +320,21 @@ function ProjectCard({ index, total, isSelected, onSelect, project }) {
           opacity={isSelected ? 0.9 : 0.5}
         />
       </lineSegments>
+      {hovered && !isSelected && (
+        <Html
+          position={[0, 1.0, 0]}
+          center
+          distanceFactor={8}
+          style={{
+            pointerEvents: "none",
+            transition: "opacity 0.2s ease",
+          }}
+        >
+          <div className="projectHoverLabel">
+            {project.title}
+          </div>
+        </Html>
+      )}
     </group>
   );
 }

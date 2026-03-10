@@ -1,10 +1,14 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from 'react-router-dom';
 import gsap from "gsap";
 import * as THREE from "three";
 import "./../css/main.css";
 import Jarvis from "./Jarvis";
 import Projects from "./Projects";
+import Contact from "./Contact";
+import Resume from "./Resume";
+import Footer from "./Footer";
 
 class CanvasErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { failed: false }; }
@@ -267,19 +271,41 @@ function FloatingOrb() {
   );
 }
 
-const SECTION_PATHS = ['/', '/about', '/projects'];
+const SECTION_PATHS = ['/', '/about', '/resume', '/projects', '/contact'];
 
 function Main({ onNavigate, initialSection = 0 }) {
+  const location = useLocation();
+
+  // debug – show search params/state
+  console.log('Main render', { pathname: location.pathname, search: location.search, state: location.state });
+
+  // derive flag from query parameter or state
+  const searchParams = new URLSearchParams(location.search);
+  const initialFromHonors = searchParams.get('from') === 'honors' || !!location.state?.fromHonors;
+  const [comingFromHonors, setLocalComing] = useState(initialFromHonors);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const flag = params.get('from') === 'honors' || !!location.state?.fromHonors;
+    setLocalComing(flag);
+  }, [location]);
+
   const navRef        = useRef();
   const sliderRef     = useRef();
   const underlineRef  = useRef();
   const scrollToRef   = useRef(null);          // exposes scrollToSection outside effect
+  const jumpToRef     = useRef(null);          // exposes jumpToSection for instant jumps
   const currentRef      = useRef(initialSection);
   const currentSlideRef = useRef(0);
   const scrollingRef    = useRef(false);
   const [slideIndex,      setSlideIndex]      = useState(0);
   const [directNav,       setDirectNav]       = useState(initialSection > 0);
   const [currentSection,  setCurrentSection]  = useState(initialSection);
+
+  // animation configuration – tweak these to make scrolling/transition faster
+  const SECTION_SCROLL_DURATION = 0.8;    // was 1.0
+  const SLIDE_TRANSITION_DURATION = 1.0;  // was 1.5
+  const SLIDE_BG_DURATION = 1.0;          // background color change
 
   // Deploy underline lines outward from center sphere
   const deployUnderline = (delay = 0) => {
@@ -308,26 +334,43 @@ function Main({ onNavigate, initialSection = 0 }) {
     const sections = [
       document.querySelector('.mainPageDiv'),
       document.getElementById('about'),
+      document.getElementById('resume'),
       document.getElementById('projects'),
+      document.getElementById('contact'),
+      document.getElementById('footer'),
     ];
 
     const scrollToSection = (idx) => {
       scrollingRef.current = true;
       currentRef.current   = idx;
       setCurrentSection(idx);
-      window.history.pushState({}, '', SECTION_PATHS[idx]);
       if (idx === 0) setDirectNav(false);
       const target = sections[idx].offsetTop;
       const proxy  = { y: window.scrollY };
       gsap.to(proxy, {
-        y: target, duration: 1.0, ease: 'power3.inOut',
+        y: target, duration: SECTION_SCROLL_DURATION, ease: 'power3.inOut',
         onUpdate:  () => window.scrollTo(0, proxy.y),
-        onComplete: () => { scrollingRef.current = false; },
+        onComplete: () => {
+          scrollingRef.current = false;
+          // ← Update URL when scroll lands
+          window.history.replaceState({}, '', SECTION_PATHS[idx] ?? '/');
+        },
       });
     };
 
-    // Expose so the jump handler and back button can call it
+    const jumpToSection = (idx) => {
+      scrollingRef.current = false;
+      currentRef.current   = idx;
+      setCurrentSection(idx);
+      if (idx === 0) setDirectNav(false);
+      window.scrollTo(0, sections[idx].offsetTop);
+      // ← Update URL immediately on jump
+      window.history.replaceState({}, '', SECTION_PATHS[idx] ?? '/');
+    };
+
+    // expose helpers separately: one for gradual scroll, one for instant jump
     scrollToRef.current = scrollToSection;
+    jumpToRef.current   = jumpToSection;
 
     const handleDir = (dir) => {
       if (scrollingRef.current) return;
@@ -348,12 +391,12 @@ function Main({ onNavigate, initialSection = 0 }) {
 
           gsap.to(slider, {
             x: -nextSlide * slideWidth,
-            duration: 1.5, ease: 'power2.inOut',
+            duration: SLIDE_TRANSITION_DURATION, ease: 'power2.inOut',
             onComplete: () => { scrollingRef.current = false; },
           });
           gsap.to(leftPanel, {
             backgroundColor: SLIDE_COLORS[nextSlide],
-            duration: 1.5, ease: 'power2.inOut',
+            duration: SLIDE_BG_DURATION, ease: 'power2.inOut',
           });
           gsap.fromTo(
             [...incoming.children],
@@ -367,7 +410,7 @@ function Main({ onNavigate, initialSection = 0 }) {
           setSlideIndex(0);
           gsap.set(sliderRef.current, { x: 0 });
           gsap.to(sliderRef.current.parentElement, {
-            backgroundColor: SLIDE_COLORS[0], duration: 1.0, ease: 'power2.inOut',
+            backgroundColor: SLIDE_COLORS[0], duration: SLIDE_BG_DURATION, ease: 'power2.inOut',
           });
           deployUnderline(0.3);
           scrollToSection(0);
@@ -411,31 +454,36 @@ function Main({ onNavigate, initialSection = 0 }) {
 
   // ── Handle curtain-jump navigation from nav menu ─────────────
   useEffect(() => {
-    const handler = (e) => {
-      const dest = e.detail;
-      const idx  = dest === 'about' ? 1 : dest === 'projects' ? 2 : 0;
-      currentRef.current      = idx;
-      currentSlideRef.current = 0;
-      setSlideIndex(0);
-      setCurrentSection(idx);
-      setDirectNav(idx > 0);
-      if (sliderRef.current) gsap.set(sliderRef.current, { x: 0 });
-      const el = idx === 1 ? document.getElementById('about')
-               : idx === 2 ? document.getElementById('projects')
-               : document.querySelector('.mainPageDiv');
-      if (el) window.scrollTo(0, el.offsetTop);
-      if (idx === 0) deployUnderline(0.4);
-    };
-    window.addEventListener('sectionJump', handler);
-    return () => window.removeEventListener('sectionJump', handler);
-  }, []);
+  const handler = (e) => {
+    const dest = e.detail;
+    const idx = dest === 'about' ? 1 : dest === 'resume' ? 2 : dest === 'projects' ? 3 : dest === 'contact' ? 4 : 0;
+    currentRef.current      = idx;
+    currentSlideRef.current = 0;
+    setSlideIndex(0);
+    setCurrentSection(idx);
+    setDirectNav(idx > 0);
+    if (sliderRef.current) gsap.set(sliderRef.current, { x: 0 });
+    if (idx === 0) deployUnderline(0.4);
+
+    // use jumpToRef for instant navigation when curtain covers page
+    if (jumpToRef.current) jumpToRef.current(idx);
+  };
+  window.addEventListener('sectionJump', handler);
+  return () => window.removeEventListener('sectionJump', handler);
+}, []);
 
   // ── Scroll to initial section on direct URL load ──────────────
   useEffect(() => {
     if (initialSection > 0) {
       const el = initialSection === 1
         ? document.getElementById('about')
-        : document.getElementById('projects');
+        : initialSection === 2
+        ? document.getElementById('resume')
+        : initialSection === 3
+        ? document.getElementById('projects')
+        : initialSection === 4
+        ? document.getElementById('contact')
+        : document.querySelector('.mainPageDiv');
       if (el) window.scrollTo(0, el.offsetTop);
     }
   }, []);
@@ -487,8 +535,15 @@ function Main({ onNavigate, initialSection = 0 }) {
         <span className="topBar__item">MANKATO, MN</span>
         <div className="topBar__logo">TJ</div>
         <span className="topBar__item">AVAILABLE FOR WORK</span>
-        <a href="#contact" className="topBar__item topBar__contact">CONTACT ↗</a>
-      </header>
+       {/* <a href="#resume" className="topBar__item topBar__contact"
+        onClick={(e) => { e.preventDefault(); onNavigate('resume'); }}>
+        RÉSUMÉ ↗
+        </a>*/}
+        <a href="#contact" className="topBar__item topBar__contact"
+        onClick={(e) => { e.preventDefault(); onNavigate('contact'); }}>
+        CONTACT ↗
+        </a>      
+        </header>
 
       <div className="heroBody">
         <p>
@@ -501,11 +556,12 @@ function Main({ onNavigate, initialSection = 0 }) {
 
       <nav className="centerNav" ref={navRef}>
         <span className="navBracket navBracket--left">[</span>
-        <a href="#works"    onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>WORKS</a>
+        <a href="#home"    onClick={(e) => { e.preventDefault(); onNavigate('main'); }}>HOME</a>
         <a href="#about"    onClick={(e) => { e.preventDefault(); onNavigate('about');    }}>ABOUT</a>
+        <a href="#resume" onClick={(e) => { e.preventDefault(); onNavigate('resume'); }}>RÉSUMÉ</a>
         <a href="#projects" onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>PROJECTS</a>
         <a href="#honors" onClick={(e) => { e.preventDefault(); onNavigate('honors'); }}>HONORS</a>
-        <a href="#contact">CONTACT</a>
+        <a href="#contact" onClick={(e) => { e.preventDefault(); onNavigate('contact'); }}>CONTACT</a>
         <span className="navBracket navBracket--right">]</span>
       </nav>
 
@@ -530,6 +586,12 @@ function Main({ onNavigate, initialSection = 0 }) {
     </main>
 
     <section id="about" className="aboutSection">
+      {/* back button when coming from honors */}
+      {comingFromHonors && (
+        <button className="aboutBack" onClick={() => onNavigate('honors')} style={{position:'absolute', zIndex: 100}}>
+          ← BACK TO HONORS
+        </button>
+      )}
       <div className="aboutLeft">
 
         {/* ── Slider ── */}
@@ -670,10 +732,13 @@ function Main({ onNavigate, initialSection = 0 }) {
       <div className="aboutDivider" />
       <div className="aboutRight"><Jarvis /></div>
     </section>
-
+    <Resume embedded onNavigate={onNavigate} />
     <Projects embedded onNavigate={onNavigate} />
+    <Contact embedded onNavigate={onNavigate}/>
+    <Footer embedded onNavigate={onNavigate} />
 
-    {directNav && (
+    {/* floating navigation suppressed if we landed here from honors */}
+    {directNav && !comingFromHonors && !comingFromHonors && (
       <nav className="floatingNav">
         <span className="navBracket navBracket--left">[</span>
         <a href="/" onClick={(e) => { e.preventDefault(); onNavigate('main'); }}>HOME</a>
@@ -681,7 +746,13 @@ function Main({ onNavigate, initialSection = 0 }) {
           <a href="/about" onClick={(e) => { e.preventDefault(); onNavigate('about'); }}>ABOUT</a>
         )}
         {currentSection !== 2 && (
+          <a href="/resume" onClick={(e) => { e.preventDefault(); onNavigate('resume'); }}>RÉSUMÉ</a>
+        )}
+        {currentSection !== 3 && (
           <a href="/projects" onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>PROJECTS</a>
+        )}
+        {currentSection !== 4 && (
+          <a href="/contact" onClick={(e) => { e.preventDefault(); onNavigate('contact'); }}>CONTACT</a>
         )}
         <a href="/honors" onClick={(e) => { e.preventDefault(); onNavigate('honors'); }}>HONORS</a>
         <span className="navBracket navBracket--right">]</span>
