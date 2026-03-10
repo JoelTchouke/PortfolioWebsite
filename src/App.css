@@ -18,6 +18,10 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  font-family: "Pixelify Sans", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .App {
@@ -66,6 +70,8 @@ canvas {
 .App-link {
   color: #61dafb;
 }
+
+
 
 @keyframes App-logo-spin {
   from {
