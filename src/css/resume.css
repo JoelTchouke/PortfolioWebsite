@@ -1,0 +1,241 @@
+/* ══════════════════════════════════════════
+   RESUME SECTION
+   ══════════════════════════════════════════ */
+
+.resumeSection {
+  min-height: 100vh;
+  background: #030303;
+  display: flex;
+  flex-direction: column;
+  padding: 72px 60px 48px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Same inclined grid as contact */
+.resumeSection__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(240,240,240,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240,240,240,0.025) 1px, transparent 1px);
+  background-size: 5px 5px;
+  transform: rotate(13deg) scale(1.4);
+  pointer-events: none;
+}
+
+/* ── Header ─────────────────────────────── */
+.resumeHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+  gap: 40px;
+}
+
+.resumeEyebrow {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: rgba(240,240,240,0.4);
+  font-family: 'Space Mono', monospace, sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.resumeTitle {
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: clamp(52px, 6.5vw, 92px);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  color: rgba(240,240,240,0.92);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.resumeHeader__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+  padding-bottom: 6px;
+}
+
+.resumeDesc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(240,240,240,0.4);
+  font-family: 'Space Mono', monospace, sans-serif;
+  text-align: right;
+  margin: 0;
+}
+
+.resumeDownloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #b41c10;
+  color: rgba(240,240,240,0.95);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  font-family: 'Space Mono', monospace, sans-serif;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 13px 22px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.resumeDownloadBtn:hover {
+  background: #d42212;
+}
+
+/* ── Divider ────────────────────────────── */
+.resumeDivider {
+  width: 100%;
+  height: 1px;
+  background: rgba(240,240,240,0.08);
+  margin: 32px 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── PDF Viewer ─────────────────────────── */
+.resumeViewer {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  z-index: 2;
+  /* red glow border */
+  box-shadow:
+    0 0 0 1px rgba(180,28,16,0.35),
+    0 0 40px rgba(180,28,16,0.08),
+    0 0 80px rgba(0,0,0,0.6);
+}
+
+/* Corner bracket decorations */
+.resumeCorner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.resumeCorner--tl {
+  top: -1px; left: -1px;
+  border-top: 2px solid #b41c10;
+  border-left: 2px solid #b41c10;
+}
+.resumeCorner--tr {
+  top: -1px; right: -1px;
+  border-top: 2px solid #b41c10;
+  border-right: 2px solid #b41c10;
+}
+.resumeCorner--bl {
+  bottom: -1px; left: -1px;
+  border-bottom: 2px solid #b41c10;
+  border-left: 2px solid #b41c10;
+}
+.resumeCorner--br {
+  bottom: -1px; right: -1px;
+  border-bottom: 2px solid #b41c10;
+  border-right: 2px solid #b41c10;
+}
+
+/* Scanline effect over the PDF */
+.resumeViewer__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.04) 3px,
+    rgba(0,0,0,0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Loading dots */
+.resumeViewer__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #080808;
+  z-index: 2;
+}
+
+.resumeViewer__loadingDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #b41c10;
+  animation: resumePulse 1.1s ease-in-out infinite;
+}
+
+.resumeViewer__loadingDot:nth-child(2) { animation-delay: 0.18s; }
+.resumeViewer__loadingDot:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes resumePulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.85); }
+  40%            { opacity: 1;   transform: scale(1); }
+}
+
+/* The iframe */
+.resumeIframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 70vh;
+  border: none;
+  background: #111;
+  transition: opacity 0.5s ease;
+}
+
+/* ── Footer bar ─────────────────────────── */
+.resumeFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(240,240,240,0.25);
+  font-family: 'Space Mono', monospace, sans-serif;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Responsive ─────────────────────────── */
+@media (max-width: 768px) {
+  .resumeSection {
+    padding: 52px 28px 36px;
+  }
+
+  .resumeHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .resumeHeader__right {
+    align-items: flex-start;
+  }
+
+  .resumeDesc {
+    text-align: left;
+  }
+
+  .resumeIframe {
+    min-height: 55vh;
+  }
+}

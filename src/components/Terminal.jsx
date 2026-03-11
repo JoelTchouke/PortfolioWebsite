@@ -1,200 +1,146 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import "./../css/terminal.css"
+import { useEffect, useRef } from 'react';
+import { Terminal } from '@xterm/xterm';
+import { FitAddon } from '@xterm/addon-fit';
+import { WebLinksAddon } from '@xterm/addon-web-links';
+import '@xterm/xterm/css/xterm.css';
+import './../css/terminal.css';
 
+export default function TerminalPage({ onNavigate }) {
+  const containerRef = useRef(null);
+  const termRef      = useRef(null);
+  const socketRef    = useRef(null);
+  const fitAddonRef  = useRef(null);
 
-const HostContext = createContext()
-
-function Terminal({handle}){
-    const [inputValue, SetInputValue] = useState('')
-    const [elements, setElements] = useState([<p>Enter something</p>])
-    const [host, setHost] = useState('Joel')
-    const bottomRef = useRef(null)
-  
-    useEffect(
-      ()=>{
-        if(bottomRef.current){
-          bottomRef.current.scrollIntoView()
-        }
+  useEffect(() => {
+    // ── 1. Create xterm instance ──────────────────────────────────
+    const term = new Terminal({
+      cursorBlink: true,
+      fontSize: 14,
+      fontFamily: '"JetBrains Mono", "Fira Code", "Cascadia Code", monospace',
+      theme: {
+        background:      '#0a0a0a',
+        foreground:      '#e8e8e8',
+        cursor:          '#b41c10',
+        cursorAccent:    '#0a0a0a',
+        black:           '#1a1a1a',
+        red:             '#b41c10',
+        green:           '#4caf72',
+        yellow:          '#e8b84b',
+        blue:            '#4a8fd4',
+        magenta:         '#9c6fb5',
+        cyan:            '#4ab5b5',
+        white:           '#e8e8e8',
+        brightBlack:     '#444444',
+        brightRed:       '#d42212',
+        brightGreen:     '#5dcc88',
+        brightYellow:    '#f0c960',
+        brightBlue:      '#5a9fe4',
+        brightMagenta:   '#b07fc5',
+        brightCyan:      '#5ac5c5',
+        brightWhite:     '#ffffff',
+        selectionBackground: 'rgba(180,28,16,0.3)',
       },
-      [elements]
-    )
-  
-    const handleChange = (e) => {
-      SetInputValue(e.target.value)
-    }
-    const handleKeyDown = (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        switch (inputValue) {
-          case 'help':
-            setElements([...elements,<p><Hostname /> {inputValue}</p>, <Help /> ])
-            break;
-          case 'whoami':
-            setElements([...elements,<p><Hostname /> {inputValue}</p>, <p> {host}</p>])
-            break;
-          case 'clear':
-            setElements([])
-            break;
-          case '':
-            setElements([...elements,<p><Hostname /></p>])
-            break;
-          case 'su':
-            setElements([])
-            setHost('root')
-            break;
-          case 'start':
-            setElements([...elements,<p><Hostname /> {inputValue}</p>, <TerminalAnimation handle={handle}/>])
-            break;
-          case 'exit':
-            window.opener = null;
-            window.open("", "_self");
-            window.close();
-            break;
-          default:
-            setElements([...elements,<p><Hostname /> {inputValue}</p>, <p style={{color:'red'}}>No command found! Type 'help' to see all commands available</p>])
-            break;
-        }
-        SetInputValue('')
-      }
-    };
-  
-    return(
-      <div className='terminal'>
-        <HostContext.Provider value={host}>
-        <Header />
-        <br />
-        <div className='previous_instructions'>
-        <ul>
-          {elements.map((element, index) => (
-            <li key={index}>{element}</li>
-          ))}
-        </ul>
-        </div>
-        <div className='terminal_content'>
-          <Hostname />
-          <textarea style={{border:"none"}} value = {inputValue} onKeyDown={handleKeyDown} onChange={handleChange}></textarea>
-        </div>
-        <div ref={bottomRef}></div>
-        </HostContext.Provider>
-      </div>
-    )
-  }
-  
-  function Hostname(){
-    const host = useContext(HostContext)
-    return(
-      <span>{host}@Terminal {'>'} ~$   </span>
-    )
-  }
-  
-  
-  
-  // Header.js
-  
-  const Header = () => {
-    const [fileContent, setFileContent] = useState('');
-  
-    useEffect(() => {
-      const fetchFileContent = async () => {
-        try {
-          const response = await fetch('/header.txt'); // Fetch the file
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          const text = await response.text(); // Read the file as text
-          setFileContent(text); // Set the content to state
-        } catch (error) {
-          console.error('Error fetching the file:', error);
-        }
-      };
-  
-      fetchFileContent();
-    }, []);
-  
-    return (
-      <div>
-        <pre style={{ whiteSpace: 'pre-wrap',fontFamily:'monospace', fontSize:'20px',  padding: '10px', marginTop: '10px' }}>
-          {fileContent} {/* Display the file content */}
-        </pre>
-      </div>
-    );
-  
-  }
-  
-  const TerminalAnimation = ({handle}) => {
-    const [frames, setFrames] = useState(['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']);
-    const [currentFrame, setCurrentFrame] = useState(0);
-    const [currentMessage, setCurrentMessage] = useState(0);
-    const [messages, setMessage] = useState(['Setting the stage ready...'])
-    const [breakout, setBreakout] = useState(true)
-    const temp_msg = ['Downloading all necessary modules...', 'Loading the website...', 'enjoy!']
-  
-  
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentFrame((prevFrame) => (prevFrame + 1) % frames.length);
-      }, 80);
-  
-      return () => clearInterval(interval);
-    }, []);
-  
-    useEffect(()=>{
-      if(currentMessage === temp_msg.length+1){
-        handle()
-        return
-      }
-        const interval = setInterval(() => {
-          setMessage([...messages,temp_msg[currentMessage]])
-          setCurrentMessage(currentMessage + 1)
-         
-        }, 1000);
-  
-        return () => clearInterval(interval);
-        
-    }, [messages])
-  
-    return (
-      <ul>
-        {
-          messages.map((message) =>(
-            <li>
-              <span>{frames[currentFrame]}</span> {message}
-            </li>
-          ))
-        }
-  
-      </ul>
-    );
-    
-  };
-  
-  
-  //Command prompts
-  const Help = () => {
-    const commands = [
-      { command: 'help', description: 'Displays this help message with all available commands' },
-      { command: 'whoami', description: 'Displays the current user name' },
-      { command: 'clear', description: 'Clears the terminal screen' },
-      { command: 'su', description: 'Log in as root' },
-      { command: 'date', description: 'Shows the current date and time' },
-      { command: 'ls', description: 'Lists files and directories in the current location' },
-      { command: 'echo', description: 'Outputs the entered text' },
-      { command: 'exit', description: 'Closes the terminal session' },
-      // Add other commands here as needed
-    ];
-  
-    return (
-      <div className="terminal-help">
-        <h4>Available Commands:</h4>
-        <ul>
-          {commands.map((cmd, index) => (
-            <li key={index}>
-              <span className="command">{cmd.command}</span> - {cmd.description}
-            </li>
-          ))}
-        </ul><br/>
-      </div>
-    );
-  };
+      allowTransparency: true,
+      scrollback: 5000,
+      convertEol: true,
+    });
 
-  export default Terminal;
+    const fitAddon = new FitAddon();
+    const webLinksAddon = new WebLinksAddon();
+    term.loadAddon(fitAddon);
+    term.loadAddon(webLinksAddon);
+
+    term.open(containerRef.current);
+    
+    fitAddon.fit();
+    termRef.current    = term;
+    fitAddonRef.current = fitAddon;
+
+    // ── 2. Connect to WebSocket server ────────────────────────────
+    const WS_URL = process.env.REACT_APP_TERMINAL_WS_URL || 'ws://localhost:3002';
+    const socket = new WebSocket(WS_URL);
+    socketRef.current = socket;
+
+    socket.onopen = () => {
+      socket.send(JSON.stringify({
+        type: 'resize',
+        cols: term.cols,
+        rows: term.rows,
+      }));
+
+      // Give the shell a moment to start then refit + focus
+      setTimeout(() => {
+        fitAddon.fit();
+        term.focus();
+      }, 300);
+    };
+
+    socket.onmessage = (event) => {
+      // Data from the shell → write to terminal
+      term.write(event.data);
+    };
+
+    socket.onclose = () => {
+      term.write('\r\n\x1b[31mConnection closed.\x1b[0m\r\n');
+    };
+
+    socket.onerror = () => {
+      term.write('\r\n\x1b[31mCould not connect to terminal server.\x1b[0m\r\n');
+    };
+
+    // ── 3. Terminal input → send to shell ─────────────────────────
+    term.onData((data) => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: 'input', data }));
+      }
+    });
+
+    // ── 4. Terminal resize → notify shell ─────────────────────────
+    term.onResize(({ cols, rows }) => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ type: 'resize', cols, rows }));
+      }
+    });
+
+    // ── 5. Window resize → refit terminal ─────────────────────────
+    const handleResize = () => fitAddon.fit();
+    window.addEventListener('resize', handleResize);
+
+    // Focus terminal
+    term.focus();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      socket.close();
+      term.dispose();
+    };
+  }, []);
+
+  return (
+    <div className="terminalPage">
+      {/* Top bar */}
+      <div className="terminalPage__bar">
+        <div className="terminalPage__bar-dots">
+          <span className="tpDot tpDot--red"
+            onClick={() => onNavigate && onNavigate('main')}
+            title="Exit terminal"
+          />
+          <span className="tpDot tpDot--yellow" />
+          <span className="tpDot tpDot--green" />
+        </div>
+        <span className="terminalPage__bar-title">
+          bash — tchouke@portfolio
+        </span>
+        <button
+          className="terminalPage__bar-back"
+          onClick={() => onNavigate && onNavigate('main')}
+        >
+          ← BACK TO SITE
+        </button>
+      </div>
+
+      {/* xterm mount point */}
+      <div className="terminalPage__xterm" ref={containerRef} />
+    </div>
+  );
+}

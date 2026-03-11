@@ -1,17 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Bellefair&family=Bonheur+Royale&family=Great+Vibes&family=Pixelify+Sans:wght@400..700&family=VT323&display=swap');
-.App {
-  text-align: center;
-  height: 100%;
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;600;700;800;900&display=swap');
+
+:root {
+  font-size: 16px !important;
+}
+
+html {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 16px !important;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
   overflow-x: hidden;
   font-family: "Pixelify Sans", serif;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
 }
-html,body, canvas {
+
+.App {
+  text-align: center;
   min-height: 100vh;
   overflow-x: hidden;
+}
 
+canvas {
+  display: block;
 }
 .loading-indicator {
   position: absolute;

@@ -1,55 +1,139 @@
-.gooey {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 142px;
-    height: 40px;
-    margin: -20px 0 0 -71px;
-    background: white;
-    filter: contrast(20);
-    z-index: 12000;
-  }
-  
-  .gooey .dot {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    top: 12px;
-    left: 15px;
-    filter: blur(4px);
-    background: #000;
-    border-radius: 50%;
-    transform: translateX(0);
-    animation: dot 2.8s infinite;
-  }
-  
-  .gooey .dots {
-    transform: translateX(0);
-    margin-top: 12px;
-    margin-left: 31px;
-    animation: dots 2.8s infinite;
-  }
-  
-  .gooey .dots span {
-    display: block;
-    float: left;
-    width: 16px;
-    height: 16px;
-    margin-left: 16px;
-    filter: blur(4px);
-    background: #000;
-    border-radius: 50%;
-  }
-  
-  @keyframes dot {
-    50% {
-      transform: translateX(96px);
-    }
-  }
-  
-  @keyframes dots {
-    50% {
-      transform: translateX(-31px);
-    }
-  }
-  
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #050505;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  clip-path: inset(0 0 0 0);
+}
+
+/* Tilted micro-grid — mirrors the shader grid */
+.preloader__grid {
+  position: absolute;
+  inset: -25%;
+  background-image:
+    repeating-linear-gradient(
+      13deg,
+      rgba(240, 240, 240, 0.022) 0px,
+      rgba(240, 240, 240, 0.022) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    repeating-linear-gradient(
+      103deg,
+      rgba(240, 240, 240, 0.022) 0px,
+      rgba(240, 240, 240, 0.022) 1px,
+      transparent 1px,
+      transparent 5px
+    );
+  pointer-events: none;
+}
+
+/* ── Inner content ─────────────────────────── */
+.preloader__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.4rem;
+}
+
+/* ── SVG ring ──────────────────────────────── */
+.preloader__ring-wrap {
+  position: relative;
+  width: 148px;
+  height: 148px;
+}
+
+.preloader__svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.preloader__ring-bg {
+  fill: none;
+  stroke: rgba(240, 240, 240, 0.07);
+  stroke-width: 0.75;
+}
+
+.preloader__ring {
+  fill: none;
+  stroke: rgba(240, 240, 240, 0.72);
+  stroke-width: 0.75;
+  stroke-linecap: butt;
+}
+
+/* ── TJ monogram ───────────────────────────── */
+.preloader__monogram {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: rgba(240, 240, 240, 0.88);
+}
+
+/* ── Counter ───────────────────────────────── */
+.preloader__count-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.preloader__count {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 5.5rem;
+  font-weight: 300;
+  color: rgba(240, 240, 240, 0.88);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  min-width: 2.2ch;
+  text-align: right;
+}
+
+.preloader__pct {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: rgba(240, 240, 240, 0.32);
+  text-transform: uppercase;
+  padding-bottom: 0.6rem;
+}
+
+/* ── Progress bar ──────────────────────────── */
+.preloader__bar-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(240, 240, 240, 0.07);
+  overflow: hidden;
+}
+
+.preloader__bar {
+  height: 100%;
+  background: rgba(240, 240, 240, 0.52);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+/* ── Bottom-right signature ────────────────── */
+.preloader__label {
+  position: absolute;
+  bottom: 1.6rem;
+  right: 2rem;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(240, 240, 240, 0.2);
+}
