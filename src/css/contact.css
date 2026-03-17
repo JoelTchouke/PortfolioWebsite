@@ -336,3 +336,38 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Form status styles ─────────────────── */
+.contactModal__error {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 11px;
+  color: #b41c10;
+  letter-spacing: 0.06em;
+  margin: -8px 0 16px;
+  padding: 10px 14px;
+  border: 1px solid rgba(180,28,16,0.35);
+  background: rgba(180,28,16,0.07);
+}
+
+.contactModal__send--loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.contactModal__send--loading::after {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid rgba(240,240,240,0.4);
+  border-top-color: rgba(240,240,240,0.9);
+  border-radius: 50%;
+  margin-left: 10px;
+  animation: spinSend 0.7s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spinSend {
+  to { transform: rotate(360deg); }
+}

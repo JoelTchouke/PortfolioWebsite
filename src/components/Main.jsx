@@ -1,6 +1,6 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 import gsap from "gsap";
 import * as THREE from "three";
 import "./../css/main.css";
@@ -11,10 +11,17 @@ import Resume from "./Resume";
 import Footer from "./Footer";
 
 class CanvasErrorBoundary extends Component {
-  constructor(props) { super(props); this.state = { failed: false }; }
-  static getDerivedStateFromError() { return { failed: true }; }
+  constructor(props) {
+    super(props);
+    this.state = { failed: false };
+  }
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
   componentDidCatch() {}
-  render() { return this.state.failed ? null : this.props.children; }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
 }
 
 const vertexShader = `
@@ -108,7 +115,13 @@ function LiquidPlane() {
   const trailCtxRef = useRef(null);
   const trailTextureRef = useRef(null);
 
-  const pointerRef = useRef({ x: 0.5, y: 0.5, lastX: 0.5, lastY: 0.5, initialized: false });
+  const pointerRef = useRef({
+    x: 0.5,
+    y: 0.5,
+    lastX: 0.5,
+    lastY: 0.5,
+    initialized: false,
+  });
 
   useEffect(() => {
     const canvas = trailCanvasRef.current;
@@ -148,11 +161,16 @@ function LiquidPlane() {
       uResolution: { value: new THREE.Vector2(size.width, size.height) },
       uTrailTexture: { value: null },
     }),
-    [size.width, size.height]
+    [size.width, size.height],
   );
 
   useFrame((state) => {
-    if (!materialRef.current || !trailCtxRef.current || !trailTextureRef.current) return;
+    if (
+      !materialRef.current ||
+      !trailCtxRef.current ||
+      !trailTextureRef.current
+    )
+      return;
 
     const ctx = trailCtxRef.current;
     const canvas = trailCanvasRef.current;
@@ -219,10 +237,10 @@ function LiquidPlane() {
   );
 }
 
-const WORDS = ['Engineer.', 'Builder.', 'Thinker.'];
+const WORDS = ["Engineer.", "Builder.", "Thinker."];
 
 function TypeWriter() {
-  const [displayed, setDisplayed] = useState('');
+  const [displayed, setDisplayed] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
@@ -232,13 +250,17 @@ function TypeWriter() {
 
     if (!deleting && displayed === word) {
       timeout = setTimeout(() => setDeleting(true), 1600);
-    } else if (deleting && displayed === '') {
+    } else if (deleting && displayed === "") {
       setDeleting(false);
       setWordIndex((i) => (i + 1) % WORDS.length);
     } else {
       const speed = deleting ? 80 : 160;
       timeout = setTimeout(() => {
-        setDisplayed(deleting ? word.slice(0, displayed.length - 1) : word.slice(0, displayed.length + 1));
+        setDisplayed(
+          deleting
+            ? word.slice(0, displayed.length - 1)
+            : word.slice(0, displayed.length + 1),
+        );
       }, speed);
     }
 
@@ -247,13 +269,14 @@ function TypeWriter() {
 
   return (
     <h2 className="aboutDisplay">
-      {displayed}<span className="aboutDisplay__cursor" />
+      {displayed}
+      <span className="aboutDisplay__cursor" />
     </h2>
   );
 }
 
 const SLIDE_COUNT = 4;
-const SLIDE_COLORS = ['#050505', '#030511', '#07030b', '#090404'];
+const SLIDE_COLORS = ["#050505", "#030511", "#07030b", "#090404"];
 
 function FloatingOrb() {
   const meshRef = useRef();
@@ -271,48 +294,58 @@ function FloatingOrb() {
   );
 }
 
-const SECTION_PATHS = ['/', '/about', '/resume', '/projects', '/contact'];
+const SECTION_PATHS = ["/", "/about", "/resume", "/projects", "/contact"];
 
 function Main({ onNavigate, initialSection = 0 }) {
   const location = useLocation();
 
   // debug – show search params/state
-  console.log('Main render', { pathname: location.pathname, search: location.search, state: location.state });
+  console.log("Main render", {
+    pathname: location.pathname,
+    search: location.search,
+    state: location.state,
+  });
 
   // derive flag from query parameter or state
   const searchParams = new URLSearchParams(location.search);
-  const initialFromHonors = searchParams.get('from') === 'honors' || !!location.state?.fromHonors;
+  const initialFromHonors =
+    searchParams.get("from") === "honors" || !!location.state?.fromHonors;
   const [comingFromHonors, setLocalComing] = useState(initialFromHonors);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const flag = params.get('from') === 'honors' || !!location.state?.fromHonors;
+    const flag =
+      params.get("from") === "honors" || !!location.state?.fromHonors;
     setLocalComing(flag);
   }, [location]);
 
-  const navRef        = useRef();
-  const sliderRef     = useRef();
-  const underlineRef  = useRef();
-  const scrollToRef   = useRef(null);          // exposes scrollToSection outside effect
-  const jumpToRef     = useRef(null);          // exposes jumpToSection for instant jumps
-  const currentRef      = useRef(initialSection);
+  const navRef = useRef();
+  const sliderRef = useRef();
+  const underlineRef = useRef();
+  const scrollToRef = useRef(null); // exposes scrollToSection outside effect
+  const jumpToRef = useRef(null); // exposes jumpToSection for instant jumps
+  const currentRef = useRef(initialSection);
   const currentSlideRef = useRef(0);
-  const scrollingRef    = useRef(false);
-  const [slideIndex,      setSlideIndex]      = useState(0);
-  const [directNav,       setDirectNav]       = useState(initialSection > 0);
-  const [currentSection,  setCurrentSection]  = useState(initialSection);
+  const scrollingRef = useRef(false);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const [directNav, setDirectNav] = useState(initialSection > 0);
+  const [currentSection, setCurrentSection] = useState(initialSection);
 
   // animation configuration – tweak these to make scrolling/transition faster
-  const SECTION_SCROLL_DURATION = 0.8;    // was 1.0
-  const SLIDE_TRANSITION_DURATION = 1.0;  // was 1.5
-  const SLIDE_BG_DURATION = 1.0;          // background color change
+  const SECTION_SCROLL_DURATION = 0.8; // was 1.0
+  const SLIDE_TRANSITION_DURATION = 1.0; // was 1.5
+  const SLIDE_BG_DURATION = 1.0; // background color change
 
   // Deploy underline lines outward from center sphere
   const deployUnderline = (delay = 0) => {
     const el = underlineRef.current;
     if (!el) return;
     const [left, , right] = el.children;
-    gsap.fromTo([left, right], { scaleX: 0 }, { scaleX: 1, duration: 1.1, delay, ease: 'power3.out' });
+    gsap.fromTo(
+      [left, right],
+      { scaleX: 0 },
+      { scaleX: 1, duration: 1.1, delay, ease: "power3.out" },
+    );
   };
 
   // Retract underline lines back to center sphere
@@ -320,88 +353,101 @@ function Main({ onNavigate, initialSection = 0 }) {
     const el = underlineRef.current;
     if (!el) return;
     const [left, , right] = el.children;
-    gsap.to([left, right], { scaleX: 0, duration: 0.7, ease: 'power3.in' });
+    gsap.to([left, right], { scaleX: 0, duration: 0.7, ease: "power3.in" });
   };
 
   useEffect(() => {
     // ── GSAP section scroll + horizontal slides ───────────────────────────────
-    window.history.scrollRestoration = 'manual';
+    window.history.scrollRestoration = "manual";
     if (initialSection === 0) {
       window.scrollTo(0, 0);
       deployUnderline(0.6);
     }
 
     const sections = [
-      document.querySelector('.mainPageDiv'),
-      document.getElementById('about'),
-      document.getElementById('resume'),
-      document.getElementById('projects'),
-      document.getElementById('contact'),
-      document.getElementById('footer'),
+      document.querySelector(".mainPageDiv"),
+      document.getElementById("about"),
+      document.getElementById("resume"),
+      document.getElementById("projects"),
+      document.getElementById("contact"),
+      document.getElementById("footer"),
     ];
 
     const scrollToSection = (idx) => {
       scrollingRef.current = true;
-      currentRef.current   = idx;
+      currentRef.current = idx;
       setCurrentSection(idx);
       if (idx === 0) setDirectNav(false);
       const target = sections[idx].offsetTop;
-      const proxy  = { y: window.scrollY };
+      const proxy = { y: window.scrollY };
       gsap.to(proxy, {
-        y: target, duration: SECTION_SCROLL_DURATION, ease: 'power3.inOut',
-        onUpdate:  () => window.scrollTo(0, proxy.y),
+        y: target,
+        duration: SECTION_SCROLL_DURATION,
+        ease: "power3.inOut",
+        onUpdate: () => window.scrollTo(0, proxy.y),
         onComplete: () => {
           scrollingRef.current = false;
           // ← Update URL when scroll lands
-          window.history.replaceState({}, '', SECTION_PATHS[idx] ?? '/');
+          window.history.replaceState({}, "", SECTION_PATHS[idx] ?? "/");
         },
       });
     };
 
     const jumpToSection = (idx) => {
       scrollingRef.current = false;
-      currentRef.current   = idx;
+      currentRef.current = idx;
       setCurrentSection(idx);
       if (idx === 0) setDirectNav(false);
       window.scrollTo(0, sections[idx].offsetTop);
       // ← Update URL immediately on jump
-      window.history.replaceState({}, '', SECTION_PATHS[idx] ?? '/');
+      window.history.replaceState({}, "", SECTION_PATHS[idx] ?? "/");
     };
 
     // expose helpers separately: one for gradual scroll, one for instant jump
     scrollToRef.current = scrollToSection;
-    jumpToRef.current   = jumpToSection;
+    jumpToRef.current = jumpToSection;
 
     const handleDir = (dir) => {
       if (scrollingRef.current) return;
-      const current      = currentRef.current;
+      const current = currentRef.current;
       const currentSlide = currentSlideRef.current;
 
       if (current === 1) {
         const nextSlide = currentSlide + dir;
         if (nextSlide >= 0 && nextSlide < SLIDE_COUNT) {
-          scrollingRef.current     = true;
-          currentSlideRef.current  = nextSlide;
+          scrollingRef.current = true;
+          currentSlideRef.current = nextSlide;
           setSlideIndex(nextSlide);
 
-          const slider     = sliderRef.current;
-          const leftPanel  = slider.parentElement;
+          const slider = sliderRef.current;
+          const leftPanel = slider.parentElement;
           const slideWidth = leftPanel.offsetWidth;
-          const incoming   = slider.children[nextSlide];
+          const incoming = slider.children[nextSlide];
 
           gsap.to(slider, {
             x: -nextSlide * slideWidth,
-            duration: SLIDE_TRANSITION_DURATION, ease: 'power2.inOut',
-            onComplete: () => { scrollingRef.current = false; },
+            duration: SLIDE_TRANSITION_DURATION,
+            ease: "power2.inOut",
+            onComplete: () => {
+              scrollingRef.current = false;
+            },
           });
           gsap.to(leftPanel, {
             backgroundColor: SLIDE_COLORS[nextSlide],
-            duration: SLIDE_BG_DURATION, ease: 'power2.inOut',
+            duration: SLIDE_BG_DURATION,
+            ease: "power2.inOut",
           });
           gsap.fromTo(
             [...incoming.children],
             { opacity: 0, x: dir * 24 },
-            { opacity: 1, x: 0, duration: 0.7, stagger: 0.09, delay: 0.55, ease: 'power2.out' }
+            {
+              opacity: 1,
+              x: 0,
+              duration: 0.7,
+              stagger: 0.09,
+              delay: 0.55,
+              ease: "power2.out",
+            },
           );
           return;
         }
@@ -410,7 +456,9 @@ function Main({ onNavigate, initialSection = 0 }) {
           setSlideIndex(0);
           gsap.set(sliderRef.current, { x: 0 });
           gsap.to(sliderRef.current.parentElement, {
-            backgroundColor: SLIDE_COLORS[0], duration: SLIDE_BG_DURATION, ease: 'power2.inOut',
+            backgroundColor: SLIDE_COLORS[0],
+            duration: SLIDE_BG_DURATION,
+            ease: "power2.inOut",
           });
           deployUnderline(0.3);
           scrollToSection(0);
@@ -422,8 +470,15 @@ function Main({ onNavigate, initialSection = 0 }) {
 
       const next = Math.max(0, Math.min(sections.length - 1, current + dir));
       if (next === current) return;
-      if (next === 1) { currentSlideRef.current = 0; setSlideIndex(0); if (sliderRef.current) gsap.set(sliderRef.current, { x: 0 }); retractUnderline(); }
-      if (next === 0) { deployUnderline(0.3); }
+      if (next === 1) {
+        currentSlideRef.current = 0;
+        setSlideIndex(0);
+        if (sliderRef.current) gsap.set(sliderRef.current, { x: 0 });
+        retractUnderline();
+      }
+      if (next === 0) {
+        deployUnderline(0.3);
+      }
       scrollToSection(next);
     };
 
@@ -433,57 +488,71 @@ function Main({ onNavigate, initialSection = 0 }) {
     };
 
     const onKeyDown = (e) => {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' ||
-          e.key === ' ' || e.key === 'Enter') {
+      if (
+        e.key === "ArrowDown" ||
+        e.key === "ArrowUp" ||
+        e.key === " " ||
+        e.key === "Enter"
+      ) {
         // Don't hijack keys when user is typing in an input/textarea
         const tag = document.activeElement?.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        if (tag === "INPUT" || tag === "TEXTAREA") return;
         e.preventDefault();
-        if (e.key === 'ArrowDown' || e.key === ' ') handleDir(1);
-        if (e.key === 'ArrowUp')                    handleDir(-1);
+        if (e.key === "ArrowDown" || e.key === " ") handleDir(1);
+        if (e.key === "ArrowUp") handleDir(-1);
       }
     };
 
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKeyDown);
     return () => {
-      window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, []);
 
   // ── Handle curtain-jump navigation from nav menu ─────────────
   useEffect(() => {
-  const handler = (e) => {
-    const dest = e.detail;
-    const idx = dest === 'about' ? 1 : dest === 'resume' ? 2 : dest === 'projects' ? 3 : dest === 'contact' ? 4 : 0;
-    currentRef.current      = idx;
-    currentSlideRef.current = 0;
-    setSlideIndex(0);
-    setCurrentSection(idx);
-    setDirectNav(idx > 0);
-    if (sliderRef.current) gsap.set(sliderRef.current, { x: 0 });
-    if (idx === 0) deployUnderline(0.4);
+    const handler = (e) => {
+      const dest = e.detail;
+      const idx =
+        dest === "about"
+          ? 1
+          : dest === "resume"
+            ? 2
+            : dest === "projects"
+              ? 3
+              : dest === "contact"
+                ? 4
+                : 0;
+      currentRef.current = idx;
+      currentSlideRef.current = 0;
+      setSlideIndex(0);
+      setCurrentSection(idx);
+      setDirectNav(idx > 0);
+      if (sliderRef.current) gsap.set(sliderRef.current, { x: 0 });
+      if (idx === 0) deployUnderline(0.4);
 
-    // use jumpToRef for instant navigation when curtain covers page
-    if (jumpToRef.current) jumpToRef.current(idx);
-  };
-  window.addEventListener('sectionJump', handler);
-  return () => window.removeEventListener('sectionJump', handler);
-}, []);
+      // use jumpToRef for instant navigation when curtain covers page
+      if (jumpToRef.current) jumpToRef.current(idx);
+    };
+    window.addEventListener("sectionJump", handler);
+    return () => window.removeEventListener("sectionJump", handler);
+  }, []);
 
   // ── Scroll to initial section on direct URL load ──────────────
   useEffect(() => {
     if (initialSection > 0) {
-      const el = initialSection === 1
-        ? document.getElementById('about')
-        : initialSection === 2
-        ? document.getElementById('resume')
-        : initialSection === 3
-        ? document.getElementById('projects')
-        : initialSection === 4
-        ? document.getElementById('contact')
-        : document.querySelector('.mainPageDiv');
+      const el =
+        initialSection === 1
+          ? document.getElementById("about")
+          : initialSection === 2
+            ? document.getElementById("resume")
+            : initialSection === 3
+              ? document.getElementById("projects")
+              : initialSection === 4
+                ? document.getElementById("contact")
+                : document.querySelector(".mainPageDiv");
       if (el) window.scrollTo(0, el.offsetTop);
     }
   }, []);
@@ -491,274 +560,475 @@ function Main({ onNavigate, initialSection = 0 }) {
   useEffect(() => {
     // ── Moving bracket nav indicator ─────────────────────────────────────────
     const navEl = navRef.current;
-    const bL    = navEl.querySelector('.navBracket--left');
-    const bR    = navEl.querySelector('.navBracket--right');
-    const links = [...navEl.querySelectorAll('a')];
+    const bL = navEl.querySelector(".navBracket--left");
+    const bR = navEl.querySelector(".navBracket--right");
+    const links = [...navEl.querySelectorAll("a")];
 
     // Let GSAP own all transforms so it can freely animate x + yPercent together
     gsap.set([bL, bR], { yPercent: -50 });
 
     const snap = (link, instant = false) => {
-      const nr  = navEl.getBoundingClientRect();
-      const lr  = link.getBoundingClientRect();
+      const nr = navEl.getBoundingClientRect();
+      const lr = link.getBoundingClientRect();
       const dur = instant ? 0 : 0.32;
       const pad = parseFloat(getComputedStyle(link).paddingLeft);
-      gsap.to(bL, { x: lr.left  - nr.left - bL.offsetWidth + pad * 0.5, duration: dur, ease: 'power3.out' });
-      gsap.to(bR, { x: lr.right - nr.left - pad * 0.5,                  duration: dur, ease: 'power3.out' });
-      links.forEach(l =>
-        gsap.to(l, { color: l === link ? 'rgba(240,240,240,1)' : 'rgba(240,240,240,0.55)', duration: 0.2 })
+      gsap.to(bL, {
+        x: lr.left - nr.left - bL.offsetWidth + pad * 0.5,
+        duration: dur,
+        ease: "power3.out",
+      });
+      gsap.to(bR, {
+        x: lr.right - nr.left - pad * 0.5,
+        duration: dur,
+        ease: "power3.out",
+      });
+      links.forEach((l) =>
+        gsap.to(l, {
+          color: l === link ? "rgba(240,240,240,1)" : "rgba(240,240,240,0.55)",
+          duration: 0.2,
+        }),
       );
     };
 
     // Initialise on first link after layout is painted
     requestAnimationFrame(() => snap(links[0], true));
 
-    links.forEach(link => link.addEventListener('mouseenter', () => snap(link)));
-    navEl.addEventListener('mouseleave', () => snap(links[0]));
+    links.forEach((link) =>
+      link.addEventListener("mouseenter", () => snap(link)),
+    );
+    navEl.addEventListener("mouseleave", () => snap(links[0]));
   }, []);
 
   return (
     <>
-    <main className="mainPageDiv">
-      <div className="shaderBg">
-        {window.__webglSupported && (
-          <CanvasErrorBoundary>
-            <Canvas dpr={[1, 2]} gl={{ antialias: true, failIfMajorPerformanceCaveat: false }} camera={{ position: [0, 0, 1] }}>
-              <LiquidPlane />
-            </Canvas>
-          </CanvasErrorBoundary>
-        )}
-      </div>
+      <main className="mainPageDiv">
+        <div className="shaderBg">
+          {window.__webglSupported && (
+            <CanvasErrorBoundary>
+              <Canvas
+                dpr={[1, 2]}
+                gl={{ antialias: true, failIfMajorPerformanceCaveat: false }}
+                camera={{ position: [0, 0, 1] }}
+              >
+                <LiquidPlane />
+              </Canvas>
+            </CanvasErrorBoundary>
+          )}
+        </div>
 
-      <header className="topBar">
-        <span className="topBar__item">TCHOUKEJOEL@GMAIL.COM</span>
-        <span className="topBar__item">MANKATO, MN</span>
-        <div className="topBar__logo">TJ</div>
-        <span className="topBar__item">AVAILABLE FOR WORK</span>
-       {/* <a href="#resume" className="topBar__item topBar__contact"
+        <header className="topBar">
+          <span className="topBar__item">TCHOUKEJOEL@GMAIL.COM</span>
+          <span className="topBar__item">MANKATO, MN</span>
+          <div className="topBar__logo">TJ</div>
+          <span className="topBar__item">AVAILABLE FOR WORK</span>
+          {/* <a href="#resume" className="topBar__item topBar__contact"
         onClick={(e) => { e.preventDefault(); onNavigate('resume'); }}>
         RÉSUMÉ ↗
         </a>*/}
-        <a href="#contact" className="topBar__item topBar__contact"
-        onClick={(e) => { e.preventDefault(); onNavigate('contact'); }}>
-        CONTACT ↗
-        </a>      
+          <a
+            href="#contact"
+            className="topBar__item topBar__contact"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("contact");
+            }}
+          >
+            CONTACT ↗
+          </a>
         </header>
 
-      <div className="heroBody">
-        <p>
-            Curious about how things work — and how they could work better.<br />
-            I build <strong>systems, software, and ideas</strong><br />
+        <div className="heroBody">
+          <p>
+            Curious about how things work — and how they could work better.
+            <br />I build <strong>systems, software, and ideas</strong>
+            <br />
             that move from concept to reality.
-        </p>
-        <a href="#works" className="ctaBtn" onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>VIEW WORK →</a>
-      </div>
-
-      <nav className="centerNav" ref={navRef}>
-        <span className="navBracket navBracket--left">[</span>
-        <a href="#home"    onClick={(e) => { e.preventDefault(); onNavigate('main'); }}>HOME</a>
-        <a href="#about"    onClick={(e) => { e.preventDefault(); onNavigate('about');    }}>ABOUT</a>
-        <a href="#resume" onClick={(e) => { e.preventDefault(); onNavigate('resume'); }}>RÉSUMÉ</a>
-        <a href="#projects" onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>PROJECTS</a>
-        <a href="#honors" onClick={(e) => { e.preventDefault(); onNavigate('honors'); }}>HONORS</a>
-        <a href="#contact" onClick={(e) => { e.preventDefault(); onNavigate('contact'); }}>CONTACT</a>
-        <span className="navBracket navBracket--right">]</span>
-      </nav>
-
-      <div className="heroNameBlock">
-        <div className="heroNameRow">
-          {/* Left blade: curved base at right, tapers to point at left */}
-          <svg className="heroNameLine" viewBox="0 0 300 4" preserveAspectRatio="none">
-            <path d="M298,0.3 A3,1.7 0 0 1 298,3.7 L0,2Z" fill="rgba(240,240,240,0.32)"/>
-          </svg>
-          <h1 className="heroName">JOEL TCHOUKE</h1>
-          {/* Right blade: curved base at left, tapers to point at right */}
-          <svg className="heroNameLine" viewBox="0 0 300 4" preserveAspectRatio="none">
-            <path d="M2,0.3 A3,1.7 0 0 0 2,3.7 L300,2Z" fill="rgba(240,240,240,0.32)"/>
-          </svg>
+          </p>
+          <a
+            href="#works"
+            className="ctaBtn"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("projects");
+            }}
+          >
+            VIEW WORK →
+          </a>
         </div>
-        <div className="heroUnderline" ref={underlineRef}>
-          <span className="heroUnderline__line" />
-          <span className="heroUnderline__sphere" />
-          <span className="heroUnderline__line" />
-        </div>
-      </div>
-    </main>
 
-    <section id="about" className="aboutSection">
-      {/* back button when coming from honors */}
-      {comingFromHonors && (
-        <button className="aboutBack" onClick={() => onNavigate('honors')} style={{position:'absolute', zIndex: 100}}>
-          ← BACK TO HONORS
-        </button>
+        <nav className="centerNav" ref={navRef}>
+          <span className="navBracket navBracket--left">[</span>
+          <a
+            href="#home"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("main");
+            }}
+          >
+            HOME
+          </a>
+          <a
+            href="#about"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("about");
+            }}
+          >
+            ABOUT
+          </a>
+          <a
+            href="#resume"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("resume");
+            }}
+          >
+            RÉSUMÉ
+          </a>
+          <a
+            href="#projects"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("projects");
+            }}
+          >
+            PROJECTS
+          </a>
+          <a
+            href="#honors"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("honors");
+            }}
+          >
+            HONORS
+          </a>
+          <a
+            href="#contact"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("contact");
+            }}
+          >
+            CONTACT
+          </a>
+          <span className="navBracket navBracket--right">]</span>
+        </nav>
+
+        <div className="heroNameBlock">
+          <div className="heroNameRow">
+            {/* Left blade: curved base at right, tapers to point at left */}
+            <svg
+              className="heroNameLine"
+              viewBox="0 0 300 4"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M298,0.3 A3,1.7 0 0 1 298,3.7 L0,2Z"
+                fill="rgba(240,240,240,0.32)"
+              />
+            </svg>
+            <h1 className="heroName">JOEL TCHOUKE</h1>
+            {/* Right blade: curved base at left, tapers to point at right */}
+            <svg
+              className="heroNameLine"
+              viewBox="0 0 300 4"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M2,0.3 A3,1.7 0 0 0 2,3.7 L300,2Z"
+                fill="rgba(240,240,240,0.32)"
+              />
+            </svg>
+          </div>
+          <div className="heroUnderline" ref={underlineRef}>
+            <span className="heroUnderline__line" />
+            <span className="heroUnderline__sphere" />
+            <span className="heroUnderline__line" />
+          </div>
+        </div>
+      </main>
+
+      <section id="about" className="aboutSection">
+        {/* back button when coming from honors */}
+        {comingFromHonors && (
+          <button
+            className="aboutBack"
+            onClick={() => onNavigate("honors")}
+            style={{ position: "absolute", zIndex: 100 }}
+          >
+            ← BACK TO HONORS
+          </button>
+        )}
+        <div className="aboutLeft">
+          {/* ── Slider ── */}
+          <div className="aboutSlider" ref={sliderRef}>
+            {/* Slide 1 — Introduction */}
+            <div className="aboutSlide aboutSlide--intro">
+              <p className="aboutEyebrow">About</p>
+              <TypeWriter />
+              <hr className="aboutRule" />
+              <p className="aboutBio">
+                I'm Joel Tchouke, a software engineer and systems builder based
+                in Mankato, MN. I'm drawn to the intersection of deep technical
+                craft and meaningful product design — building things that don't
+                just work, but feel inevitable.
+              </p>
+              <p className="aboutBio">
+                Currently available for full-time roles and select freelance
+                projects.
+              </p>
+              <div className="aboutSkills">
+                <span>Sofware Engineering</span>
+                <span>Embedded Sotware</span>
+                <span>Systems Design</span>
+                <span>Cybersecurity</span>
+              </div>
+              <p className="slideHint">SCROLL TO EXPLORE →</p>
+            </div>
+
+            {/* Slide 2 — Craft */}
+            <div className="aboutSlide aboutSlide--craft">
+              <div className="craftDecor" />
+              <p className="aboutEyebrow">Craft</p>
+              <h2 className="aboutDisplay">
+                Embedded
+                <br />
+                in everything.
+              </h2>
+              <hr className="aboutRule" />
+              <div className="craftGrid">
+                <div className="craftItem">
+                  <span className="craftNum">01</span>
+                  <span className="craftName">Embedded Systems</span>
+                  <p className="craftDesc">
+                    ARM microcontrollers, STM32, ATtiny — firmware at the metal
+                    level.
+                  </p>
+                </div>
+                <div className="craftItem">
+                  <span className="craftNum">02</span>
+                  <span className="craftName">Cybersecurity</span>
+                  <p className="craftDesc">
+                    SIEM analysis, incident triage, network telemetry
+                    investigation.
+                  </p>
+                </div>
+                <div className="craftItem">
+                  <span className="craftNum">03</span>
+                  <span className="craftName">Hardware Design</span>
+                  <p className="craftDesc">
+                    PCB layout with KiCad, power management, sensor integration.
+                  </p>
+                </div>
+                <div className="craftItem">
+                  <span className="craftNum">04</span>
+                  <span className="craftName">Web Engineering</span>
+                  <p className="craftDesc">
+                    React, Three.js, WebGL — interfaces at the edge of hardware.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Slide 3 — Life */}
+            <div className="aboutSlide aboutSlide--life">
+              <div className="lifeCanvas3D">
+                {window.__webglSupported && (
+                  <CanvasErrorBoundary>
+                    <Canvas
+                      camera={{ position: [0, 0, 4] }}
+                      gl={{
+                        antialias: true,
+                        failIfMajorPerformanceCaveat: false,
+                      }}
+                    >
+                      <FloatingOrb />
+                    </Canvas>
+                  </CanvasErrorBoundary>
+                )}
+              </div>
+              <p className="aboutEyebrow">Life</p>
+              <h2 className="aboutDisplay">
+                Beyond the
+                <br />
+                machine.
+              </h2>
+              <hr className="aboutRule" />
+              <div className="hobbiesRow">
+                <div className="hobbyCard">
+                  <div className="hobbyImg">
+                    <img src="/images/hobby-music.jpg" alt="Music" />
+                    <span className="hobbyImg__tag">Music</span>
+                  </div>
+                  <p className="hobbyText">
+                    Joel is a musician — creative expression through sound and
+                    rhythm.
+                  </p>
+                </div>
+                <div className="hobbyCard">
+                  <div className="hobbyImg">
+                    <img src="/images/hobby-chess.jpg" alt="Chess" />
+                    <span className="hobbyImg__tag">Chess</span>
+                  </div>
+                  <p className="hobbyText">
+                    Strategy and patience — the infinite game of calculated
+                    thinking.
+                  </p>
+                </div>
+              </div>
+              <div className="lifeBgWords" aria-hidden="true">
+                <span>MUSIC</span>
+                <span>CHESS</span>
+              </div>
+            </div>
+
+            {/* Slide 4 — Experience */}
+            <div className="aboutSlide aboutSlide--xp">
+              <p className="aboutEyebrow">Experience</p>
+              <h2 className="aboutDisplay">
+                Where I've
+                <br />
+                been.
+              </h2>
+              <hr className="aboutRule" />
+              <div className="timeline">
+                <div className="tlItem">
+                  <span className="tlYear">2024</span>
+                  <div className="tlBody">
+                    <span className="tlRole">Embedded Software Intern</span>
+                    <span className="tlOrg">AGCO</span>
+                    <p className="tlDesc">
+                      Embedded C/C++, ARM microcontrollers, sensor integration
+                      on production agricultural systems.
+                    </p>
+                  </div>
+                </div>
+                <div className="tlItem">
+                  <span className="tlYear">2023</span>
+                  <div className="tlBody">
+                    <span className="tlRole">SOC Analyst</span>
+                    <span className="tlOrg">MSU IT Solutions</span>
+                    <p className="tlDesc">
+                      Splunk SIEM, Microsoft Defender, network telemetry —
+                      campus infrastructure security.
+                    </p>
+                  </div>
+                </div>
+                <div className="tlItem">
+                  <span className="tlYear">2022</span>
+                  <div className="tlBody">
+                    <span className="tlRole">Research Assistant</span>
+                    <span className="tlOrg">MSU — Embedded Systems Lab</span>
+                    <p className="tlDesc">
+                      ATtiny85 power management system, KiCad PCB design,
+                      robotics power optimization.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* end .aboutSlider */}
+
+          {/* Slide progress dots */}
+          <div className="slideDots">
+            {Array.from({ length: SLIDE_COUNT }).map((_, i) => (
+              <div
+                key={i}
+                className={`slideDot${slideIndex === i ? " slideDot--active" : ""}`}
+              />
+            ))}
+          </div>
+
+          {/* Progress bar */}
+          <div className="slideProgressBar">
+            <div
+              className="slideProgressFill"
+              style={{ width: `${(slideIndex / (SLIDE_COUNT - 1)) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="aboutDivider" />
+        <div className="aboutRight">
+          <Jarvis />
+        </div>
+      </section>
+      <Resume embedded onNavigate={onNavigate} />
+      <Projects embedded onNavigate={onNavigate} />
+      <Contact embedded onNavigate={onNavigate} />
+      <Footer embedded onNavigate={onNavigate} />
+
+      {/* floating navigation suppressed if we landed here from honors */}
+      {directNav && !comingFromHonors && !comingFromHonors && (
+        <nav className="floatingNav">
+          <span className="navBracket navBracket--left">[</span>
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("main");
+            }}
+          >
+            HOME
+          </a>
+          {currentSection !== 1 && (
+            <a
+              href="/about"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate("about");
+              }}
+            >
+              ABOUT
+            </a>
+          )}
+          {currentSection !== 2 && (
+            <a
+              href="/resume"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate("resume");
+              }}
+            >
+              RÉSUMÉ
+            </a>
+          )}
+          {currentSection !== 3 && (
+            <a
+              href="/projects"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate("projects");
+              }}
+            >
+              PROJECTS
+            </a>
+          )}
+          {currentSection !== 4 && (
+            <a
+              href="/contact"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigate("contact");
+              }}
+            >
+              CONTACT
+            </a>
+          )}
+          <a
+            href="/honors"
+            onClick={(e) => {
+              e.preventDefault();
+              onNavigate("honors");
+            }}
+          >
+            HONORS
+          </a>
+          <span className="navBracket navBracket--right">]</span>
+        </nav>
       )}
-      <div className="aboutLeft">
-
-        {/* ── Slider ── */}
-        <div className="aboutSlider" ref={sliderRef}>
-
-          {/* Slide 1 — Introduction */}
-          <div className="aboutSlide aboutSlide--intro">
-            <p className="aboutEyebrow">About</p>
-            <TypeWriter />
-            <hr className="aboutRule" />
-            <p className="aboutBio">
-              I'm Joel Tchouke, a software engineer and systems builder based in Mankato, MN.
-              I'm drawn to the intersection of deep technical craft and meaningful product design —
-              building things that don't just work, but feel inevitable.
-            </p>
-            <p className="aboutBio">Currently available for full-time roles and select freelance projects.</p>
-            <div className="aboutSkills">
-              <span>React</span><span>Node.js</span><span>Three.js</span>
-              <span>Python</span><span>Systems Design</span>
-            </div>
-            <p className="slideHint">SCROLL TO EXPLORE →</p>
-          </div>
-
-          {/* Slide 2 — Craft */}
-          <div className="aboutSlide aboutSlide--craft">
-            <div className="craftDecor" />
-            <p className="aboutEyebrow">Craft</p>
-            <h2 className="aboutDisplay">Embedded<br />in everything.</h2>
-            <hr className="aboutRule" />
-            <div className="craftGrid">
-              <div className="craftItem">
-                <span className="craftNum">01</span>
-                <span className="craftName">Embedded Systems</span>
-                <p className="craftDesc">ARM microcontrollers, STM32, ATtiny — firmware at the metal level.</p>
-              </div>
-              <div className="craftItem">
-                <span className="craftNum">02</span>
-                <span className="craftName">Cybersecurity</span>
-                <p className="craftDesc">SIEM analysis, incident triage, network telemetry investigation.</p>
-              </div>
-              <div className="craftItem">
-                <span className="craftNum">03</span>
-                <span className="craftName">Hardware Design</span>
-                <p className="craftDesc">PCB layout with KiCad, power management, sensor integration.</p>
-              </div>
-              <div className="craftItem">
-                <span className="craftNum">04</span>
-                <span className="craftName">Web Engineering</span>
-                <p className="craftDesc">React, Three.js, WebGL — interfaces at the edge of hardware.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide 3 — Life */}
-          <div className="aboutSlide aboutSlide--life">
-            <div className="lifeCanvas3D">
-              {window.__webglSupported && (
-                <CanvasErrorBoundary>
-                  <Canvas camera={{ position: [0, 0, 4] }} gl={{ antialias: true, failIfMajorPerformanceCaveat: false }}>
-                    <FloatingOrb />
-                  </Canvas>
-                </CanvasErrorBoundary>
-              )}
-            </div>
-            <p className="aboutEyebrow">Life</p>
-            <h2 className="aboutDisplay">Beyond the<br />machine.</h2>
-            <hr className="aboutRule" />
-            <div className="hobbiesRow">
-              <div className="hobbyCard">
-                <div className="hobbyImg">
-                  <img src="/images/hobby-music.jpg" alt="Music" />
-                  <span className="hobbyImg__tag">Music</span>
-                </div>
-                <p className="hobbyText">Joel is a musician — creative expression through sound and rhythm.</p>
-              </div>
-              <div className="hobbyCard">
-                <div className="hobbyImg">
-                  <img src="/images/hobby-chess.jpg" alt="Chess" />
-                  <span className="hobbyImg__tag">Chess</span>
-                </div>
-                <p className="hobbyText">Strategy and patience — the infinite game of calculated thinking.</p>
-              </div>
-            </div>
-            <div className="lifeBgWords" aria-hidden="true">
-              <span>MUSIC</span><span>CHESS</span>
-            </div>
-          </div>
-
-          {/* Slide 4 — Experience */}
-          <div className="aboutSlide aboutSlide--xp">
-            <p className="aboutEyebrow">Experience</p>
-            <h2 className="aboutDisplay">Where I've<br />been.</h2>
-            <hr className="aboutRule" />
-            <div className="timeline">
-              <div className="tlItem">
-                <span className="tlYear">2024</span>
-                <div className="tlBody">
-                  <span className="tlRole">Embedded Software Intern</span>
-                  <span className="tlOrg">AGCO</span>
-                  <p className="tlDesc">Embedded C/C++, ARM microcontrollers, sensor integration on production agricultural systems.</p>
-                </div>
-              </div>
-              <div className="tlItem">
-                <span className="tlYear">2023</span>
-                <div className="tlBody">
-                  <span className="tlRole">SOC Analyst</span>
-                  <span className="tlOrg">MSU IT Solutions</span>
-                  <p className="tlDesc">Splunk SIEM, Microsoft Defender, network telemetry — campus infrastructure security.</p>
-                </div>
-              </div>
-              <div className="tlItem">
-                <span className="tlYear">2022</span>
-                <div className="tlBody">
-                  <span className="tlRole">Research Assistant</span>
-                  <span className="tlOrg">MSU — Embedded Systems Lab</span>
-                  <p className="tlDesc">ATtiny85 power management system, KiCad PCB design, robotics power optimization.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>{/* end .aboutSlider */}
-
-        {/* Slide progress dots */}
-        <div className="slideDots">
-          {Array.from({ length: SLIDE_COUNT }).map((_, i) => (
-            <div key={i} className={`slideDot${slideIndex === i ? ' slideDot--active' : ''}`} />
-          ))}
-        </div>
-
-        {/* Progress bar */}
-        <div className="slideProgressBar">
-          <div className="slideProgressFill" style={{ width: `${(slideIndex / (SLIDE_COUNT - 1)) * 100}%` }} />
-        </div>
-
-      </div>
-
-      <div className="aboutDivider" />
-      <div className="aboutRight"><Jarvis /></div>
-    </section>
-    <Resume embedded onNavigate={onNavigate} />
-    <Projects embedded onNavigate={onNavigate} />
-    <Contact embedded onNavigate={onNavigate}/>
-    <Footer embedded onNavigate={onNavigate} />
-
-    {/* floating navigation suppressed if we landed here from honors */}
-    {directNav && !comingFromHonors && !comingFromHonors && (
-      <nav className="floatingNav">
-        <span className="navBracket navBracket--left">[</span>
-        <a href="/" onClick={(e) => { e.preventDefault(); onNavigate('main'); }}>HOME</a>
-        {currentSection !== 1 && (
-          <a href="/about" onClick={(e) => { e.preventDefault(); onNavigate('about'); }}>ABOUT</a>
-        )}
-        {currentSection !== 2 && (
-          <a href="/resume" onClick={(e) => { e.preventDefault(); onNavigate('resume'); }}>RÉSUMÉ</a>
-        )}
-        {currentSection !== 3 && (
-          <a href="/projects" onClick={(e) => { e.preventDefault(); onNavigate('projects'); }}>PROJECTS</a>
-        )}
-        {currentSection !== 4 && (
-          <a href="/contact" onClick={(e) => { e.preventDefault(); onNavigate('contact'); }}>CONTACT</a>
-        )}
-        <a href="/honors" onClick={(e) => { e.preventDefault(); onNavigate('honors'); }}>HONORS</a>
-        <span className="navBracket navBracket--right">]</span>
-      </nav>
-    )}
-
     </>
   );
 }
