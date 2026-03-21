@@ -9,6 +9,8 @@ import Projects from "./Projects";
 import Contact from "./Contact";
 import Resume from "./Resume";
 import Footer from "./Footer";
+import about1 from "../img/about1.jpeg"
+import about2 from "../img/about2.jpeg"
 
 class CanvasErrorBoundary extends Component {
   constructor(props) {
@@ -374,6 +376,7 @@ function Main({ onNavigate, initialSection = 0 }) {
     ];
 
     const scrollToSection = (idx) => {
+      if (!sections[idx]) return;
       scrollingRef.current = true;
       currentRef.current = idx;
       setCurrentSection(idx);
@@ -408,6 +411,8 @@ function Main({ onNavigate, initialSection = 0 }) {
     jumpToRef.current = jumpToSection;
 
     const handleDir = (dir) => {
+      if (document.body.style.overflow === 'hidden') return;
+      if (scrollingRef.current) return;
       if (scrollingRef.current) return;
       const current = currentRef.current;
       const currentSlide = currentSlideRef.current;
@@ -516,15 +521,12 @@ function Main({ onNavigate, initialSection = 0 }) {
     const handler = (e) => {
       const dest = e.detail;
       const idx =
-        dest === "about"
-          ? 1
-          : dest === "resume"
-            ? 2
-            : dest === "projects"
-              ? 3
-              : dest === "contact"
-                ? 4
-                : 0;
+      dest === 'about'    ? 1 :
+      dest === 'resume'   ? 2 :
+      dest === 'projects' ? 3 :
+      dest === 'contact'  ? 4 :
+      dest === 'footer'   ? 5 :
+      0;
       currentRef.current = idx;
       currentSlideRef.current = 0;
       setSlideIndex(0);
@@ -626,14 +628,14 @@ function Main({ onNavigate, initialSection = 0 }) {
         RÉSUMÉ ↗
         </a>*/}
           <a
-            href="#contact"
+            href="#footer"
             className="topBar__item topBar__contact"
             onClick={(e) => {
               e.preventDefault();
-              onNavigate("contact");
+              onNavigate('footer');
             }}
           >
-            CONTACT ↗
+            EASTER EGG ↗
           </a>
         </header>
 
@@ -760,28 +762,29 @@ function Main({ onNavigate, initialSection = 0 }) {
             ← BACK TO HONORS
           </button>
         )}
+
         <div className="aboutLeft">
           {/* ── Slider ── */}
           <div className="aboutSlider" ref={sliderRef}>
+            
             {/* Slide 1 — Introduction */}
             <div className="aboutSlide aboutSlide--intro">
               <p className="aboutEyebrow">About</p>
               <TypeWriter />
               <hr className="aboutRule" />
               <p className="aboutBio">
-                I'm Joel Tchouke, a software engineer and systems builder based
-                in Mankato, MN. I'm drawn to the intersection of deep technical
-                craft and meaningful product design — building things that don't
-                just work, but feel inevitable.
+                I'm Joel Tchouke — a computer engineer building systems that live beyond the screen.
+                From embedded firmware to full-scale applications, I focus on creating technology that is
+                reliable, efficient, and grounded in real-world use.
               </p>
               <p className="aboutBio">
-                Currently available for full-time roles and select freelance
-                projects.
+                I don’t just prototype — I design, test, and ship systems end-to-end.
+                Currently open to full-time engineering roles where I can build and scale impactful systems.
               </p>
               <div className="aboutSkills">
-                <span>Sofware Engineering</span>
-                <span>Embedded Sotware</span>
-                <span>Systems Design</span>
+                <span>Software Engineering</span>
+                <span>Embedded Systems</span>
+                <span>Systems Architecture</span>
                 <span>Cybersecurity</span>
               </div>
               <p className="slideHint">SCROLL TO EXPLORE →</p>
@@ -792,9 +795,9 @@ function Main({ onNavigate, initialSection = 0 }) {
               <div className="craftDecor" />
               <p className="aboutEyebrow">Craft</p>
               <h2 className="aboutDisplay">
-                Embedded
+                Built from
                 <br />
-                in everything.
+                first principles.
               </h2>
               <hr className="aboutRule" />
               <div className="craftGrid">
@@ -802,30 +805,28 @@ function Main({ onNavigate, initialSection = 0 }) {
                   <span className="craftNum">01</span>
                   <span className="craftName">Embedded Systems</span>
                   <p className="craftDesc">
-                    ARM microcontrollers, STM32, ATtiny — firmware at the metal
-                    level.
+                    Bare-metal and RTOS development on ARM — precise control over timing, memory, and hardware behavior.
                   </p>
                 </div>
                 <div className="craftItem">
                   <span className="craftNum">02</span>
                   <span className="craftName">Cybersecurity</span>
                   <p className="craftDesc">
-                    SIEM analysis, incident triage, network telemetry
-                    investigation.
+                    SOC analysis, threat investigation, and defensive systems built from real telemetry and attack patterns.
                   </p>
                 </div>
                 <div className="craftItem">
                   <span className="craftNum">03</span>
                   <span className="craftName">Hardware Design</span>
                   <p className="craftDesc">
-                    PCB layout with KiCad, power management, sensor integration.
+                    PCB design, power systems, and embedded integration — from schematic to fully functional hardware.
                   </p>
                 </div>
                 <div className="craftItem">
                   <span className="craftNum">04</span>
-                  <span className="craftName">Web Engineering</span>
+                  <span className="craftName">Software Systems</span>
                   <p className="craftDesc">
-                    React, Three.js, WebGL — interfaces at the edge of hardware.
+                    Full-stack and systems-level engineering — building applications, tools, and infrastructure that scale.
                   </p>
                 </div>
               </div>
@@ -850,36 +851,34 @@ function Main({ onNavigate, initialSection = 0 }) {
               </div>
               <p className="aboutEyebrow">Life</p>
               <h2 className="aboutDisplay">
-                Beyond the
+                Beyond
                 <br />
-                machine.
+                engineering.
               </h2>
               <hr className="aboutRule" />
               <div className="hobbiesRow">
                 <div className="hobbyCard">
                   <div className="hobbyImg">
-                    <img src="/images/hobby-music.jpg" alt="Music" />
+                    <img src={about1} alt="Music" />
                     <span className="hobbyImg__tag">Music</span>
                   </div>
                   <p className="hobbyText">
-                    Joel is a musician — creative expression through sound and
-                    rhythm.
+                    Music is where I build differently — structure, rhythm, and creativity without constraints.
                   </p>
                 </div>
                 <div className="hobbyCard">
                   <div className="hobbyImg">
-                    <img src="/images/hobby-chess.jpg" alt="Chess" />
+                    <img src={about2} alt="Chess" />
                     <span className="hobbyImg__tag">Chess</span>
                   </div>
                   <p className="hobbyText">
-                    Strategy and patience — the infinite game of calculated
-                    thinking.
+                    Chess sharpens how I think — strategy, patience, and decision-making under pressure.
                   </p>
                 </div>
               </div>
               <div className="lifeBgWords" aria-hidden="true">
                 <span>MUSIC</span>
-                <span>CHESS</span>
+                <span>STRATEGY</span>
               </div>
             </div>
 
@@ -887,9 +886,9 @@ function Main({ onNavigate, initialSection = 0 }) {
             <div className="aboutSlide aboutSlide--xp">
               <p className="aboutEyebrow">Experience</p>
               <h2 className="aboutDisplay">
-                Where I've
+                Real work.
                 <br />
-                been.
+                Real systems.
               </h2>
               <hr className="aboutRule" />
               <div className="timeline">
@@ -899,19 +898,17 @@ function Main({ onNavigate, initialSection = 0 }) {
                     <span className="tlRole">Embedded Software Intern</span>
                     <span className="tlOrg">AGCO</span>
                     <p className="tlDesc">
-                      Embedded C/C++, ARM microcontrollers, sensor integration
-                      on production agricultural systems.
+                      Developed embedded C/C++ systems on ARM platforms, integrating sensors and improving reliability in production agricultural equipment.
                     </p>
                   </div>
                 </div>
                 <div className="tlItem">
                   <span className="tlYear">2023</span>
                   <div className="tlBody">
-                    <span className="tlRole">SOC Analyst</span>
+                    <span className="tlRole">Cybersecurity Analyst</span>
                     <span className="tlOrg">MSU IT Solutions</span>
                     <p className="tlDesc">
-                      Splunk SIEM, Microsoft Defender, network telemetry —
-                      campus infrastructure security.
+                      Investigated security events using Splunk and Defender, identifying and responding to threats across real campus infrastructure.
                     </p>
                   </div>
                 </div>
@@ -919,15 +916,15 @@ function Main({ onNavigate, initialSection = 0 }) {
                   <span className="tlYear">2022</span>
                   <div className="tlBody">
                     <span className="tlRole">Research Assistant</span>
-                    <span className="tlOrg">MSU — Embedded Systems Lab</span>
+                    <span className="tlOrg">Embedded Systems Lab</span>
                     <p className="tlDesc">
-                      ATtiny85 power management system, KiCad PCB design,
-                      robotics power optimization.
+                      Designed power-efficient embedded systems using ATtiny85 and custom PCBs to improve robotics performance and battery life.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
           {/* end .aboutSlider */}
 
@@ -951,6 +948,7 @@ function Main({ onNavigate, initialSection = 0 }) {
         </div>
 
         <div className="aboutDivider" />
+
         <div className="aboutRight">
           <Jarvis />
         </div>

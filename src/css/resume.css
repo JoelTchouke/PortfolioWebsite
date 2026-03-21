@@ -103,17 +103,23 @@
   z-index: 2;
 }
 
-/* ── PDF Viewer ─────────────────────────── */
-.resumeViewer {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  z-index: 2;
-  /* red glow border */
+/* ── PDF Viewer — fullscreen overlay ────── */
+.resumeFullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 8000;
+  background: #070707;
+  display: flex;
+  flex-direction: column;
   box-shadow:
-    0 0 0 1px rgba(180,28,16,0.35),
-    0 0 40px rgba(180,28,16,0.08),
-    0 0 80px rgba(0,0,0,0.6);
+    inset 0 0 0 1px rgba(180,28,16,0.25),
+    0 0 80px rgba(0,0,0,0.9);
+  animation: rfIn 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+
+@keyframes rfIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 /* Corner bracket decorations */
@@ -193,8 +199,8 @@
 .resumeIframe {
   display: block;
   width: 100%;
-  height: 100%;
-  min-height: 70vh;
+  flex: 1;
+  min-height: 0;
   border: none;
   background: #111;
   transition: opacity 0.5s ease;
@@ -238,4 +244,248 @@
   .resumeIframe {
     min-height: 55vh;
   }
+}
+
+/* ══════════════════════════════════════════
+   RESUME SELECTOR CARDS
+   ══════════════════════════════════════════ */
+
+.resumeSelector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 32px;
+}
+
+.resumeCard {
+  position: relative;
+  background: #0c0c0c;
+  border: 1px solid rgba(240,240,240,0.07);
+  padding: 36px 32px 32px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  transition: border-color 0.25s, background 0.25s;
+}
+
+.resumeCard:hover {
+  border-color: rgba(180,28,16,0.35);
+  background: #0f0f0f;
+}
+
+.resumeCard--active {
+  border-color: rgba(180,28,16,0.6) !important;
+  background: #100808 !important;
+}
+
+/* Red bottom line that expands on active */
+.resumeCard__activeLine {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: #b41c10;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+.resumeCard--active .resumeCard__activeLine {
+  transform: scaleX(1);
+}
+
+/* SVG art */
+.resumeCard__art {
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.25s;
+}
+
+.resumeCard:hover .resumeCard__art,
+.resumeCard--active .resumeCard__art {
+  opacity: 1;
+}
+
+/* Text content */
+.resumeCard__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.resumeCard__eyebrow {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #b41c10;
+  margin: 0;
+}
+
+.resumeCard__title {
+  font-family: 'Anton', 'Impact', sans-serif;
+  font-size: clamp(22px, 2.5vw, 34px);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: rgba(240,240,240,0.9);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.resumeCard__desc {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 11px;
+  line-height: 1.7;
+  color: rgba(240,240,240,0.35);
+  margin: 0;
+}
+
+.resumeCard__cta {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: rgba(240,240,240,0.5);
+  margin-top: 4px;
+  transition: color 0.2s;
+}
+
+.resumeCard--active .resumeCard__cta {
+  color: #b41c10;
+}
+
+/* ── Viewer label strip ──────────────────── */
+.resumeViewer__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #0a0a0a;
+  border-bottom: 1px solid rgba(240,240,240,0.06);
+  position: relative;
+  z-index: 4;
+}
+
+.resumeViewer__label span {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: rgba(240,240,240,0.3);
+}
+
+.resumeViewer__close {
+  background: transparent;
+  border: 1px solid rgba(240,240,240,0.12);
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: rgba(240,240,240,0.4);
+  cursor: pointer;
+  padding: 5px 12px;
+  transition: border-color 0.18s, color 0.18s;
+}
+
+.resumeViewer__close:hover {
+  border-color: #b41c10;
+  color: rgba(240,240,240,0.9);
+}
+
+/* ── Responsive ─────────────────────────── */
+@media (max-width: 768px) {
+  .resumeSelector {
+    grid-template-columns: 1fr;
+  }
+
+  .resumeCard {
+    padding: 24px 20px;
+    gap: 18px;
+  }
+
+  .resumeCard__art {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+/* ── Fullscreen topbar ───────────────────── */
+.resumeViewer__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 52px;
+  background: rgba(5,5,5,0.95);
+  border-bottom: 1px solid rgba(240,240,240,0.07);
+  position: relative;
+  z-index: 4;
+  flex-shrink: 0;
+  backdrop-filter: blur(12px);
+}
+
+.resumeViewer__label-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.resumeViewer__label-tag {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(240,240,240,0.25);
+}
+
+.resumeViewer__label-name {
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(240,240,240,0.55);
+}
+
+.resumeViewer__label-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.resumeDownloadBtn--sm {
+  font-size: 9px !important;
+  padding: 8px 14px !important;
+  gap: 7px !important;
+}
+
+.resumeViewer__close {
+  background: transparent;
+  border: 1px solid rgba(240,240,240,0.15);
+  font-family: 'Space Mono', monospace, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: rgba(240,240,240,0.5);
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}
+
+.resumeViewer__close:hover {
+  border-color: #b41c10;
+  color: rgba(240,240,240,0.95);
+  background: rgba(180,28,16,0.08);
+}
+
+/* Loading covers full viewer */
+.resumeViewer__loading {
+  position: absolute;
+  inset: 52px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #080808;
+  z-index: 2;
 }
