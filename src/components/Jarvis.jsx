@@ -9,6 +9,9 @@ const SUGGESTIONS = [
   'Is he available for hire?',
 ];
 
+const API = process.env.REACT_APP_API_URL || '';
+
+
 function stripMarkdown(text) {
   return text
     .replace(/#{1,6}\s*/g, '')
@@ -63,7 +66,7 @@ export default function Jarvis() {
     audioRef.current?.pause();
     setSpeaking(true);
     try {
-      const res = await fetch('/api/tts', {
+      const res = await fetch(`${API}/api/tts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: stripMarkdown(text) }),
@@ -171,7 +174,7 @@ export default function Jarvis() {
     setLoading(true);
 
     try {
-      const res  = await fetch('/api/chat', {
+      const res  = await fetch(`${API}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: next }),
