@@ -1,11 +1,34 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+const { Readable } = require('stream');
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:3000' }));
+
+// ─── CORS ────────────────────────────────────────────────────────────────────
+app.use(cors({
+  origin: [
+    'https://joeltchouke.com',
+    'https://www.joeltchouke.com',
+    'http://localhost:3000',
+  ],
+}));
+
 app.use(express.json());
 
+// ─── RATE LIMITING ───────────────────────────────────────────────────────────
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,                   // 20 requests per IP per window
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please wait a few minutes and try again.' },
+});
+
+app.use('/api/', limiter);
+
+// ─── SYSTEM PROMPT ───────────────────────────────────────────────────────────
 const SYSTEM_PROMPT = `
 You are **Jarvis**, an AI assistant embedded in the personal portfolio website of **Joel Tchouke**. Your job is to answer questions from recruiters, engineers, collaborators, and visitors who want to learn about Joel's background, projects, skills, and experience.
 
@@ -19,13 +42,13 @@ You must always:
 - Highlight Joel's engineering strengths, leadership, and curiosity.
 - Present Joel as a capable engineer and strong collaborator.
 
-If a visitor asks about Joel’s experience, projects, or skills, answer using the information below. If something is not explicitly known, respond honestly instead of inventing information.
+If a visitor asks about Joel's experience, projects, or skills, answer using the information below. If something is not explicitly known, respond honestly instead of inventing information.
 
 ----------------------------
 PERSON PROFILE
 ----------------------------
 
-Joel Tchouke is a Computer Engineering student at **Minnesota State University, Mankato** pursuing a **Bachelor of Science in Computer Engineering with a minor in Physics**. He is part of the **University Honors Program** and has been recognized on the **Dean’s List multiple semesters**.
+Joel Tchouke is a Computer Engineering student at **Minnesota State University, Mankato** pursuing a **Bachelor of Science in Computer Engineering with a minor in Physics**. He is part of the **University Honors Program** and has been recognized on the **Dean's List multiple semesters**.
 
 Joel is expected to graduate around **2026**.
 
@@ -287,7 +310,7 @@ HOW TO RESPOND
 
 When answering visitors:
 
-- Explain Joel’s work clearly.
+- Explain Joel's work clearly.
 - Emphasize his technical depth and curiosity.
 - Highlight his leadership and collaboration skills.
 - If asked why Joel is a strong candidate, emphasize his unique combination of **embedded systems knowledge, cybersecurity experience, hands-on engineering projects, and leadership experience**.
@@ -295,62 +318,98 @@ When answering visitors:
 Always remain professional, clear, and helpful.
 `;
 
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const fetchWithTimeout = (url, options, ms = 10000) =>
+  Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out')), ms)
+    ),
+  ]);
+
+// ─── CHAT ─────────────────────────────────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
   const { messages } = req.body;
+
   if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: 'Invalid request' });
+    return res.status(400).json({ error: 'Invalid request.' });
   }
 
+  // Input length guard
+  const lastMessage = messages[messages.length - 1]?.content || '';
+  if (lastMessage.length > 1000) {
+    return res.status(400).json({ error: 'Message too long. Please keep it under 1000 characters.' });
+  }
+
+  // Cap conversation history to last 20 messages to limit token usage
+  const trimmedMessages = messages.slice(-20);
+
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+    const response = await fetchWithTimeout(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...trimmedMessages],
+          max_tokens: 300,
+          temperature: 0.7,
+        }),
       },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
-        max_tokens: 300,
-        temperature: 0.7,
-      }),
-    });
+      10000
+    );
 
     const data = await response.json();
 
     if (!response.ok) {
       console.error('OpenAI error:', data.error);
-      return res.status(response.status).json({ error: data.error?.message || 'OpenAI error' });
+      return res.status(response.status).json({ error: data.error?.message || 'OpenAI error.' });
     }
 
     console.log('OpenAI reply OK');
     res.json({ reply: data.choices[0].message.content });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Chat error:', err.message);
+    res.status(500).json({ error: err.message === 'Request timed out' ? 'Request timed out. Please try again.' : 'Server error.' });
   }
 });
 
+// ─── TTS ──────────────────────────────────────────────────────────────────────
 app.post('/api/tts', async (req, res) => {
   const { text } = req.body;
-  if (!text) return res.status(400).json({ error: 'No text provided' });
+
+  if (!text) return res.status(400).json({ error: 'No text provided.' });
+  if (text.length > 1000) return res.status(400).json({ error: 'Text too long for TTS.' });
+
   try {
-    const response = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
+    const response = await fetchWithTimeout(
+      'https://api.openai.com/v1/audio/speech',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ model: 'tts-1', voice: 'onyx', input: text }),
       },
-      body: JSON.stringify({ model: 'tts-1', voice: 'onyx', input: text }),
-    });
-    if (!response.ok) return res.status(500).json({ error: 'TTS failed' });
+      15000 // TTS can take a bit longer
+    );
+
+    if (!response.ok) return res.status(500).json({ error: 'TTS failed.' });
+
     res.set('Content-Type', 'audio/mpeg');
     res.set('Transfer-Encoding', 'chunked');
-    const { Readable } = require('stream');
     Readable.fromWeb(response.body).pipe(res);
-  } catch {
-    res.status(500).json({ error: 'Server error' });
+  } catch (err) {
+    console.error('TTS error:', err.message);
+    res.status(500).json({ error: err.message === 'Request timed out' ? 'TTS request timed out.' : 'Server error.' });
   }
 });
 
+// ─── START ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Jarvis proxy running on port ${PORT}`));
