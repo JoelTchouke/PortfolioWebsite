@@ -2,28 +2,40 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const { Readable } = require('stream');
+const OpenAI = require('openai');
 
 const app = express();
 
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error('Missing OPENAI_API_KEY in environment variables.');
+}
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 // ─── CORS ────────────────────────────────────────────────────────────────────
-app.use(cors({
-  origin: [
-    'https://joeltchouke.com',
-    'https://www.joeltchouke.com',
-    'http://localhost:3000',
-  ],
-}));
+app.use(
+  cors({
+    origin: [
+      'https://joeltchouke.com',
+      'https://www.joeltchouke.com',
+      'http://localhost:3000',
+    ],
+  })
+);
 
 app.use(express.json());
 
 // ─── RATE LIMITING ───────────────────────────────────────────────────────────
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20,                   // 20 requests per IP per window
+  windowMs: 15 * 60 * 1000,
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many requests. Please wait a few minutes and try again.' },
+  message: {
+    error: 'Too many requests. Please wait a few minutes and try again.',
+  },
 });
 
 app.use('/api/', limiter);
@@ -318,15 +330,6 @@ When answering visitors:
 Always remain professional, clear, and helpful.
 `;
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-const fetchWithTimeout = (url, options, ms = 10000) =>
-  Promise.race([
-    fetch(url, options),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Request timed out')), ms)
-    ),
-  ]);
-
 // ─── CHAT ─────────────────────────────────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
   const { messages } = req.body;
@@ -335,46 +338,37 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Invalid request.' });
   }
 
-  // Input length guard
   const lastMessage = messages[messages.length - 1]?.content || '';
-  if (lastMessage.length > 1000) {
-    return res.status(400).json({ error: 'Message too long. Please keep it under 1000 characters.' });
+  if (typeof lastMessage !== 'string' || lastMessage.length > 1000) {
+    return res
+      .status(400)
+      .json({ error: 'Message too long. Please keep it under 1000 characters.' });
   }
 
-  // Cap conversation history to last 20 messages to limit token usage
-  const trimmedMessages = messages.slice(-20);
+  const trimmedMessages = messages
+    .slice(-20)
+    .filter((m) => m && typeof m.content === 'string' && m.role);
 
   try {
-    const response = await fetchWithTimeout(
-      'https://api.openai.com/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...trimmedMessages],
-          max_tokens: 300,
-          temperature: 0.7,
-        }),
-      },
-      10000
-    );
+    const completion = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        ...trimmedMessages,
+      ],
+      max_tokens: 300,
+      temperature: 0.7,
+    });
 
-    const data = await response.json();
+    const reply = completion.choices?.[0]?.message?.content ?? '';
 
-    if (!response.ok) {
-      console.error('OpenAI error:', data.error);
-      return res.status(response.status).json({ error: data.error?.message || 'OpenAI error.' });
-    }
+    return res.json({ reply });
+  } catch (error) {
+    console.error('Chat error:', error);
 
-    console.log('OpenAI reply OK');
-    res.json({ reply: data.choices[0].message.content });
-  } catch (err) {
-    console.error('Chat error:', err.message);
-    res.status(500).json({ error: err.message === 'Request timed out' ? 'Request timed out. Please try again.' : 'Server error.' });
+    return res.status(500).json({
+      error: error?.message || 'Server error.',
+    });
   }
 });
 
@@ -382,34 +376,42 @@ app.post('/api/chat', async (req, res) => {
 app.post('/api/tts', async (req, res) => {
   const { text } = req.body;
 
-  if (!text) return res.status(400).json({ error: 'No text provided.' });
-  if (text.length > 1000) return res.status(400).json({ error: 'Text too long for TTS.' });
+  if (!text) {
+    return res.status(400).json({ error: 'No text provided.' });
+  }
+
+  if (typeof text !== 'string' || text.length > 1000) {
+    return res.status(400).json({ error: 'Text too long for TTS.' });
+  }
 
   try {
-    const response = await fetchWithTimeout(
-      'https://api.openai.com/v1/audio/speech',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ model: 'tts-1', voice: 'onyx', input: text }),
-      },
-      15000 // TTS can take a bit longer
-    );
+    const mp3 = await client.audio.speech.create({
+      model: 'tts-1',
+      voice: 'onyx',
+      input: text,
+    });
 
-    if (!response.ok) return res.status(500).json({ error: 'TTS failed.' });
+    const buffer = Buffer.from(await mp3.arrayBuffer());
 
-    res.set('Content-Type', 'audio/mpeg');
-    res.set('Transfer-Encoding', 'chunked');
-    Readable.fromWeb(response.body).pipe(res);
-  } catch (err) {
-    console.error('TTS error:', err.message);
-    res.status(500).json({ error: err.message === 'Request timed out' ? 'TTS request timed out.' : 'Server error.' });
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Content-Length', buffer.length);
+    return res.send(buffer);
+  } catch (error) {
+    console.error('TTS error:', error);
+
+    return res.status(500).json({
+      error: error?.message || 'TTS failed.',
+    });
   }
+});
+
+// ─── HEALTH CHECK ────────────────────────────────────────────────────────────
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true });
 });
 
 // ─── START ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Jarvis proxy running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Jarvis proxy running on port ${PORT}`);
+});
