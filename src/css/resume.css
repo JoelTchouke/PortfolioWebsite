@@ -246,6 +246,22 @@
   }
 }
 
+@media (max-width: 480px) {
+  .resumeSection {
+    padding: 40px 18px 28px;
+  }
+
+  .resumeCard {
+    padding: 20px 16px;
+    gap: 14px;
+  }
+
+  .resumeCard__art {
+    width: 48px;
+    height: 48px;
+  }
+}
+
 /* ══════════════════════════════════════════
    RESUME SELECTOR CARDS
    ══════════════════════════════════════════ */

@@ -116,6 +116,7 @@ function LiquidPlane() {
   const trailCanvasRef = useRef(document.createElement("canvas"));
   const trailCtxRef = useRef(null);
   const trailTextureRef = useRef(null);
+  const frameCountRef = useRef(0);
 
   const pointerRef = useRef({
     x: 0.5,
@@ -127,8 +128,9 @@ function LiquidPlane() {
 
   useEffect(() => {
     const canvas = trailCanvasRef.current;
-    canvas.width = 1536;
-    canvas.height = 1536;
+    // 512×512 is plenty after the blur — 9× less GPU work than 1536
+    canvas.width = 512;
+    canvas.height = 512;
     const ctx = canvas.getContext("2d");
     trailCtxRef.current = ctx;
     ctx.fillStyle = "black";
@@ -215,10 +217,14 @@ function LiquidPlane() {
     pointer.lastX = THREE.MathUtils.lerp(pointer.lastX, pointer.x, 0.22);
     pointer.lastY = THREE.MathUtils.lerp(pointer.lastY, pointer.y, 0.22);
 
+    frameCountRef.current += 1;
     ctx.globalCompositeOperation = "source-over";
-    ctx.filter = "blur(10px)";
-    ctx.drawImage(canvas, 0, 0);
-    ctx.filter = "none";
+    // Apply blur every other frame — visually identical, half the cost
+    if (frameCountRef.current % 2 === 0) {
+      ctx.filter = "blur(6px)";
+      ctx.drawImage(canvas, 0, 0);
+      ctx.filter = "none";
+    }
 
     trailTextureRef.current.needsUpdate = true;
     materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
@@ -521,11 +527,36 @@ function Main({ onNavigate, initialSection = 0 }) {
       }
     };
 
+    // ── Touch / swipe navigation ──────────────────────────────────
+    let touchStartY = 0;
+    let touchStartX = 0;
+    const onTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    };
+    const onTouchEnd = (e) => {
+      const dy = touchStartY - e.changedTouches[0].clientY;
+      const dx = touchStartX - e.changedTouches[0].clientX;
+      // Ignore mostly-horizontal swipes (e.g. accidental while swiping left in about)
+      if (Math.abs(dy) < Math.abs(dx)) return;
+      if (Math.abs(dy) >= 50) handleDir(dy > 0 ? 1 : -1);
+    };
+    // Prevent native scroll so sections stay full-screen on touch devices
+    const onTouchMove = (e) => {
+      if (!e.target.closest('.jarvis__messages')) e.preventDefault();
+    };
+
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
     return () => {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchmove", onTouchMove);
       if (wheelResetTimer) clearTimeout(wheelResetTimer);
     };
   }, []);
@@ -853,6 +884,7 @@ function Main({ onNavigate, initialSection = 0 }) {
                   <CanvasErrorBoundary>
                     <Canvas
                       camera={{ position: [0, 0, 4] }}
+                      dpr={[1, 1.5]}
                       gl={{
                         antialias: true,
                         failIfMajorPerformanceCaveat: false,

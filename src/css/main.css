@@ -2,7 +2,8 @@
 .floatingNav {
   position: fixed;
   top: 3rem;
-  left: 20rem;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
   display: flex;
   align-items: center;

@@ -337,6 +337,26 @@
   }
 }
 
+@media (max-width: 480px) {
+  .contact__card {
+    padding: 40px 20px 48px;
+  }
+
+  .contactSection__footer {
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 20px;
+  }
+
+  .contactModal__panel {
+    padding: 32px 18px 28px;
+  }
+
+  .contact__heading {
+    font-size: clamp(40px, 12vw, 52px);
+  }
+}
+
 /* ── Form status styles ─────────────────── */
 .contactModal__error {
   font-family: 'Space Mono', monospace, sans-serif;

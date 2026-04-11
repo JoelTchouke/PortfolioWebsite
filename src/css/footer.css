@@ -332,3 +332,18 @@
     gap: 16px;
   }
 }
+
+@media (max-width: 480px) {
+  .footerSection {
+    padding: 48px 18px;
+  }
+
+  .footer__eggBlock {
+    padding: 36px 0;
+    gap: 28px;
+  }
+
+  .footer__eggHeading {
+    font-size: clamp(36px, 11vw, 44px);
+  }
+}
