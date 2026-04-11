@@ -332,6 +332,7 @@ function Main({ onNavigate, initialSection = 0 }) {
   const [slideIndex, setSlideIndex] = useState(0);
   const [directNav, setDirectNav] = useState(initialSection > 0);
   const [currentSection, setCurrentSection] = useState(initialSection);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // animation configuration – tweak these to make scrolling/transition faster
   const SECTION_SCROLL_DURATION = 0.8; // was 1.0
@@ -1056,6 +1057,56 @@ function Main({ onNavigate, initialSection = 0 }) {
           <span className="navBracket navBracket--right">]</span>
         </nav>
       )}
+
+      {/* ── Mobile hamburger button ── */}
+      <button
+        className={`mobileMenuBtn${menuOpen ? ' mobileMenuBtn--open' : ''}`}
+        onClick={() => setMenuOpen(o => !o)}
+        aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
+      >
+        <span className="mobileMenuBtn__bar" />
+        <span className="mobileMenuBtn__bar" />
+        <span className="mobileMenuBtn__bar" />
+      </button>
+
+      {/* Dim overlay */}
+      <div
+        className={`mobileSidebarOverlay${menuOpen ? ' mobileSidebarOverlay--open' : ''}`}
+        onClick={() => setMenuOpen(false)}
+      />
+
+      {/* Slide-in drawer */}
+      <nav className={`mobileSidebar${menuOpen ? ' mobileSidebar--open' : ''}`}>
+        <span className="mobileSidebar__label">Navigation</span>
+
+        {[
+          { label: 'Home',     dest: 'main' },
+          { label: 'About',    dest: 'about' },
+          { label: 'Résumé',   dest: 'resume' },
+          { label: 'Projects', dest: 'projects' },
+          { label: 'Honors',   dest: 'honors' },
+          { label: 'Contact',  dest: 'contact' },
+        ].map(({ label, dest }) => {
+          const sectionIdx = ['main','about','resume','projects','contact'].indexOf(dest);
+          const isActive = sectionIdx === currentSection;
+          return (
+            <a
+              key={dest}
+              href={`/${dest === 'main' ? '' : dest}`}
+              className={`mobileSidebar__link${isActive ? ' mobileSidebar__link--active' : ''}`}
+              onClick={(e) => {
+                e.preventDefault();
+                setMenuOpen(false);
+                onNavigate(dest);
+              }}
+            >
+              {label}
+            </a>
+          );
+        })}
+
+        <span className="mobileSidebar__footer">Joel Tchouke · Portfolio</span>
+      </nav>
     </>
   );
 }

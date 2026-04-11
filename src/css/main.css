@@ -247,9 +247,6 @@
 
 /* Tablet ≤ 768px */
 @media (max-width: 768px) {
-  /* No WebGL background — too heavy for mobile */
-  .shaderBg { display: none; }
-
   /* Top bar: keep only logo + contact link */
   .topBar {
     padding: 1rem 1.25rem;
@@ -283,26 +280,163 @@
     margin: 0 auto;
   }
 
-  /* Nav: pinned above the name block */
-  .centerNav {
-    top: auto;
-    bottom: calc(14vh + 0.5rem);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.55rem 0.35rem;
+  /* Hide center nav on mobile — replaced by the sidebar */
+  .centerNav { display: none; }
+
+  /* Name block stays near bottom */
+  .heroNameBlock { bottom: 2vh; }
+}
+
+/* ── Mobile hamburger button ─────────────────── */
+.mobileMenuBtn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobileMenuBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0.9rem;
+    right: 1.1rem;
+    z-index: 8000;
+    width: 38px;
+    height: 38px;
+    background: rgba(5,5,5,0.82);
+    border: 1px solid rgba(240,240,240,0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    transition: border-color 0.2s;
   }
 
-  .centerNav a {
-    font-size: 0.62rem;
-    letter-spacing: 0.10em;
-    padding: 0 0.55rem;
+  .mobileMenuBtn:hover {
+    border-color: rgba(204,0,0,0.5);
   }
 
-  .navBracket { padding: 0; font-size: 0.62rem; }
+  .mobileMenuBtn__bar {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: rgba(240,240,240,0.85);
+    transition: transform 0.3s, opacity 0.3s;
+    transform-origin: center;
+  }
 
-  /* Name block a bit higher so it doesn't touch nav */
-  .heroNameBlock {
-    bottom: 2vh;
+  /* Animate bars into X when open */
+  .mobileMenuBtn--open .mobileMenuBtn__bar:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+  .mobileMenuBtn--open .mobileMenuBtn__bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .mobileMenuBtn--open .mobileMenuBtn__bar:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+}
+
+/* ── Mobile sidebar drawer ───────────────────── */
+.mobileSidebar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Dim overlay behind the drawer */
+  .mobileSidebarOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 7000;
+    background: rgba(0,0,0,0);
+    pointer-events: none;
+    transition: background 0.3s;
+  }
+  .mobileSidebarOverlay--open {
+    background: rgba(0,0,0,0.55);
+    pointer-events: all;
+  }
+
+  /* Drawer panel */
+  .mobileSidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(72vw, 280px);
+    z-index: 7500;
+    background: rgba(6,6,6,0.97);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-left: 1px solid rgba(240,240,240,0.07);
+    padding: 5rem 2rem 2.5rem;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    gap: 0;
+  }
+
+  .mobileSidebar--open {
+    transform: translateX(0);
+  }
+
+  /* Red accent line at top of drawer */
+  .mobileSidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, rgba(180,28,16,0.8), transparent);
+  }
+
+  .mobileSidebar__label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.48rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(180,28,16,0.6);
+    margin-bottom: 1.6rem;
+  }
+
+  .mobileSidebar__link {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.08em;
+    color: rgba(240,240,240,0.75);
+    text-decoration: none;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(240,240,240,0.05);
+    transition: color 0.2s, padding-left 0.2s;
+    display: block;
+  }
+
+  .mobileSidebar__link:last-of-type {
+    border-bottom: none;
+  }
+
+  .mobileSidebar__link:hover,
+  .mobileSidebar__link--active {
+    color: rgba(240,240,240,0.98);
+    padding-left: 0.5rem;
+  }
+
+  .mobileSidebar__link--active {
+    color: #b41c10;
+  }
+
+  .mobileSidebar__footer {
+    margin-top: auto;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.52rem;
+    letter-spacing: 0.14em;
+    color: rgba(240,240,240,0.18);
+    text-transform: uppercase;
   }
 }
 
