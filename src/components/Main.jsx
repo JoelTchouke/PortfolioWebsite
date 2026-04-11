@@ -334,7 +334,7 @@ function Main({ onNavigate, initialSection = 0 }) {
   const [currentSection, setCurrentSection] = useState(initialSection);
 
   // animation configuration – tweak these to make scrolling/transition faster
-  const SECTION_SCROLL_DURATION = 0.8; // was 1.0
+  const SECTION_SCROLL_DURATION = 0.5; // was 0.8
   const SLIDE_TRANSITION_DURATION = 1.0; // was 1.5
   const SLIDE_BG_DURATION = 1.0; // background color change
 
@@ -487,9 +487,22 @@ function Main({ onNavigate, initialSection = 0 }) {
       scrollToSection(next);
     };
 
+    // Accumulate wheel delta so tiny trackpad nudges don't trigger section jumps.
+    // Only fire when the user has scrolled >= 80px worth of intent.
+    let wheelAccum = 0;
+    let wheelResetTimer = null;
     const onWheel = (e) => {
       e.preventDefault();
-      handleDir(e.deltaY > 0 ? 1 : -1);
+      wheelAccum += e.deltaY;
+      if (wheelResetTimer) clearTimeout(wheelResetTimer);
+      wheelResetTimer = setTimeout(() => { wheelAccum = 0; }, 150);
+      if (!scrollingRef.current && Math.abs(wheelAccum) >= 80) {
+        const dir = wheelAccum > 0 ? 1 : -1;
+        wheelAccum = 0;
+        clearTimeout(wheelResetTimer);
+        wheelResetTimer = null;
+        handleDir(dir);
+      }
     };
 
     const onKeyDown = (e) => {
@@ -513,6 +526,7 @@ function Main({ onNavigate, initialSection = 0 }) {
     return () => {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
+      if (wheelResetTimer) clearTimeout(wheelResetTimer);
     };
   }, []);
 
