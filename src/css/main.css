@@ -245,46 +245,105 @@
   .cursor, .cursorRing { display: none; }
 }
 
-/* Tablet ≤ 768px */
+/* ── Mobile hero: switch from all-absolute to a flex column ── */
 @media (max-width: 768px) {
-  /* Top bar: keep only logo + contact link */
+
+  /* Page shell becomes a flex column — children stack, no overlap */
+  .mainPageDiv {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* shaderBg stays as the absolute full-bleed background */
+  .shaderBg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── Top bar ── */
+  /* Pull out of absolute flow so it sits at the very top */
   .topBar {
-    padding: 1rem 1.25rem;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+    padding: 0.9rem 1.1rem;
+    /* Hide everything except the logo — hamburger handles nav */
   }
   .topBar > :nth-child(1), /* email */
   .topBar > :nth-child(2), /* location */
-  .topBar > :nth-child(4) { /* available for work */
-    display: none;
+  .topBar > :nth-child(4), /* available for work */
+  .topBar > :last-child   /* easter egg — sidebar covers navigation */
+  { display: none; }
+
+  /* Centre the lone TJ logo */
+  .topBar__logo {
+    margin: 0 auto;
   }
 
-  /* Hero body: centred, upper half of screen */
+  /* ── Hero body ── */
+  /* Remove absolute positioning — flex:1 fills the middle space */
   .heroBody {
-    left: 1.5rem;
-    right: 1.5rem;
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    transform: none;
     max-width: none;
-    top: 38%;
-    transform: translateY(-50%);
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
+    padding: 1.5rem 1.75rem;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .heroBody p {
     font-size: 0.9rem;
-    line-height: 1.7;
+    line-height: 1.75;
     margin-bottom: 1.6rem;
   }
 
-  /* Center the CTA button */
   .ctaBtn {
     display: block;
     width: fit-content;
     margin: 0 auto;
   }
 
-  /* Hide center nav on mobile — replaced by the sidebar */
+  /* ── Centre nav ── hidden — sidebar replaces it */
   .centerNav { display: none; }
 
-  /* Name block stays near bottom */
-  .heroNameBlock { bottom: 2vh; }
+  /* ── Hero name block ── */
+  /* Remove absolute positioning — sits at the bottom of the flex column */
+  .heroNameBlock {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    z-index: 2;
+    flex-shrink: 0;
+    padding: 0 0 2.5rem;
+    pointer-events: none;
+  }
+
+  /* Floating nav replaced by sidebar — never show */
+  .floatingNav { display: none !important; }
+}
+
+/* Small phones ≤ 480px — tweak sizes within the same flow layout */
+@media (max-width: 480px) {
+  .heroBody p {
+    font-size: 0.82rem;
+  }
+  .heroNameBlock {
+    padding-bottom: 1.75rem;
+  }
 }
 
 /* ── Mobile hamburger button ─────────────────── */
@@ -440,20 +499,6 @@
   }
 }
 
-/* Small phones ≤ 480px */
-@media (max-width: 480px) {
-  .heroBody p {
-    font-size: 0.82rem;
-    line-height: 1.65;
-  }
-  .centerNav a {
-    font-size: 0.52rem;
-    padding: 0 0.4rem;
-  }
-  .heroNameBlock {
-    bottom: 1.5vh;
-  }
-}
 
 /* ── Massive hero name ─────────────────────── */
 .heroNameBlock {
