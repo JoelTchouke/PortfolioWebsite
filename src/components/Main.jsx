@@ -413,11 +413,13 @@ function Main({ onNavigate, initialSection = 0 }) {
     const handleDir = (dir) => {
       if (document.body.style.overflow === 'hidden') return;
       if (scrollingRef.current) return;
-      if (scrollingRef.current) return;
       const current = currentRef.current;
       const currentSlide = currentSlideRef.current;
+      // On mobile the about slides are hidden — treat the whole about section
+      // as a single stop so one swipe moves you in/out of it.
+      const isMobile = window.innerWidth <= 768;
 
-      if (current === 1) {
+      if (current === 1 && !isMobile) {
         const nextSlide = currentSlide + dir;
         if (nextSlide >= 0 && nextSlide < SLIDE_COUNT) {
           scrollingRef.current = true;
@@ -508,11 +510,38 @@ function Main({ onNavigate, initialSection = 0 }) {
       }
     };
 
+    // ── Touch / swipe navigation ─────────────────────────────────
+    let touchStartY = 0;
+    let touchStartX = 0;
+    const onTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+      touchStartX = e.touches[0].clientX;
+    };
+    const onTouchEnd = (e) => {
+      // Let Jarvis messages and mobile project list scroll natively
+      if (e.target.closest('.jarvis__messages') || e.target.closest('.projMobileList')) return;
+      const dy = touchStartY - e.changedTouches[0].clientY;
+      const dx = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(dy) < Math.abs(dx)) return; // ignore horizontal swipes
+      if (Math.abs(dy) >= 50) handleDir(dy > 0 ? 1 : -1);
+    };
+    // Prevent native page scroll; allow scrollable sub-containers
+    const onTouchMove = (e) => {
+      const inScrollable = e.target.closest('.jarvis__messages') || e.target.closest('.projMobileList');
+      if (!inScrollable) e.preventDefault();
+    };
+
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend",   onTouchEnd,   { passive: true });
+    window.addEventListener("touchmove",  onTouchMove,  { passive: false });
     return () => {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend",   onTouchEnd);
+      window.removeEventListener("touchmove",  onTouchMove);
     };
   }, []);
 

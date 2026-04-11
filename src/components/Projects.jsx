@@ -374,7 +374,15 @@ function Projects({ onNavigate, embedded = false, showBack = false }) {
   const [selected,  setSelected]  = useState(null);
   const [search,    setSearch]    = useState('');
   const [category,  setCategory]  = useState('All');
+  const [isMobile,  setIsMobile]  = useState(() => window.innerWidth <= 768);
   const detailRef = useRef();
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const selectedProject = PROJECTS.find(p => p.id === selected);
 
@@ -395,13 +403,35 @@ function Projects({ onNavigate, embedded = false, showBack = false }) {
   }, [selected]);
 
   return (
-    <div className="projPage" id={embedded ? 'projects' : undefined}>
-      {window.__webglSupported && (
+    <div className={`projPage${isMobile ? ' projPage--mobile' : ''}`} id={embedded ? 'projects' : undefined}>
+
+      {/* 3D canvas — desktop only */}
+      {!isMobile && window.__webglSupported && (
         <CanvasErrorBoundary>
           <Canvas className="projCanvas" camera={{ position: [0, 2.2, 7.5], fov: 58 }} gl={{ failIfMajorPerformanceCaveat: false }}>
             <Scene projects={filtered} selected={selected} onSelect={setSelected} />
           </Canvas>
         </CanvasErrorBoundary>
+      )}
+
+      {/* Mobile card list */}
+      {isMobile && (
+        <div className="projMobileList">
+          {filtered.map(proj => (
+            <div
+              key={proj.id}
+              className={`projMobileCard${selected === proj.id ? ' projMobileCard--active' : ''}`}
+              onClick={() => setSelected(selected === proj.id ? null : proj.id)}
+            >
+              <img src={proj.images[0]} alt={proj.title} className="projMobileCard__img" />
+              <div className="projMobileCard__body">
+                <span className="projMobileCard__cat">{proj.category}</span>
+                <h3 className="projMobileCard__title">{proj.title}</h3>
+                <span className="projMobileCard__year">{proj.year}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       <div className="projUI">
@@ -456,7 +486,7 @@ function Projects({ onNavigate, embedded = false, showBack = false }) {
         {/* ── Footer ── */}
         <div className="projFooter">
           <span>{filtered.length} / {PROJECTS.length} PROJECTS</span>
-          <span className="projHint">CLICK A CARD TO EXPLORE</span>
+          <span className="projHint">{isMobile ? 'TAP A CARD TO EXPLORE' : 'CLICK A CARD TO EXPLORE'}</span>
         </div>
       </div>
     </div>

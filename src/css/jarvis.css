@@ -376,3 +376,38 @@
   opacity: 0.25;
   cursor: default;
 }
+
+/* ── Mobile: Jarvis is the full about section ─── */
+@media (max-width: 768px) {
+  .jarvis {
+    padding: 5rem 1.5rem 1.5rem;
+  }
+
+  .jarvis__header {
+    margin-bottom: 1.4rem;
+  }
+
+  .jarvis__subtitle {
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+  }
+
+  .jarvis__input {
+    font-size: 0.9rem;
+  }
+
+  .jarvis__send {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .jarvis__msg p,
+  .jarvis__md {
+    font-size: 0.88rem;
+  }
+
+  .jarvis__suggestion {
+    font-size: 0.8rem;
+    padding: 0.7rem 1rem;
+  }
+}
