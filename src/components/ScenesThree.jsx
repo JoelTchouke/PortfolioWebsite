@@ -38,6 +38,38 @@ const ARTIFACTS = {
   ],
 };
 
+// ══════════════════════════════════════════════════════════════════
+//  GALLERY — master visual archive
+//  To add a real file: set path/thumb and placeholder:false
+//  Leave placeholder:true + note until the file is ready
+// ══════════════════════════════════════════════════════════════════
+const GALLERY_ITEMS = [
+  // ── Photos ────────────────────────────────────────────────────────
+  { type:'image', category:'photos',       label:'Portrait',                path:JoelImg, thumb:JoelImg, placeholder:false },
+  { type:'image', category:'photos',       label:'Professional Headshot',   path:null,    thumb:null,    placeholder:true,  note:'Upload a high-resolution professional headshot' },
+  { type:'image', category:'photos',       label:'Campus Life',             path:null,    thumb:null,    placeholder:true,  note:'Campus activity photos — events, classes, daily life' },
+  // ── Events ────────────────────────────────────────────────────────
+  { type:'image', category:'events',       label:'ISA / ASA Event',         path:null,    thumb:null,    placeholder:true,  note:'Photos from ISA or ASA meetings and events' },
+  { type:'image', category:'events',       label:'Honors Ceremony',         path:null,    thumb:null,    placeholder:true,  note:'Honors induction or awards ceremony' },
+  { type:'image', category:'events',       label:'Volunteer Activity',      path:null,    thumb:null,    placeholder:true,  note:'Community service or volunteer event photos' },
+  // ── Documents ─────────────────────────────────────────────────────
+  { type:'pdf',   category:'documents',    label:'Why Honors — 201',        path:'/Experiences/honors201.pdf',                    thumb:null, placeholder:false },
+  { type:'pdf',   category:'documents',    label:'Why Honors — 375',        path:'/Experiences/honors375.pdf',                    thumb:null, placeholder:false },
+  { type:'pdf',   category:'documents',    label:'Research Reflection',     path:'/Experiences/Research/Research.pdf',            thumb:null, placeholder:false },
+  { type:'pdf',   category:'documents',    label:'Leadership Reflection',   path:'/Experiences/Leadership/Leadership2.pdf',       thumb:null, placeholder:false },
+  { type:'pdf',   category:'documents',    label:'ISA / ASA Reflection',    path:'/Experiences/Leadership/Leadership.pdf',        thumb:null, placeholder:false },
+  { type:'pdf',   category:'documents',    label:'Intercultural Reflection',path:'/Experiences/Intercultural/Intercultural.pdf',  thumb:null, placeholder:false },
+  { type:'pdf',   category:'documents',    label:'HONR 475 Synthesis Essay',path:null,    thumb:null,    placeholder:true,  note:'Due at program exit — add when complete' },
+  // ── Certificates ──────────────────────────────────────────────────
+  { type:'image', category:'certificates', label:'StrengthsFinder Report',  path:finder,  thumb:finder,  placeholder:false },
+  { type:'image', category:'certificates', label:'Academic Award',          path:null,    thumb:null,    placeholder:true,  note:'Upload certificates, awards, or recognitions' },
+  { type:'image', category:'certificates', label:'Honors Recognition',      path:null,    thumb:null,    placeholder:true,  note:'Honors program completion or achievement certificate' },
+  // ── Projects ──────────────────────────────────────────────────────
+  { type:'image', category:'projects',     label:'Project Screenshot',      path:null,    thumb:null,    placeholder:true,  note:'Engineering project screenshots or mockups' },
+  { type:'video', category:'projects',     label:'Project Demo Video',      path:null,    thumb:null,    placeholder:true,  note:'Demo recording or YouTube embed link' },
+  { type:'pdf',   category:'projects',     label:'Technical Report',        path:null,    thumb:null,    placeholder:true,  note:'Research paper, lab report, or capstone document' },
+];
+
 // ── Scene loader ──────────────────────────────────────────────────
 function SceneLoader() {
   const { progress, active } = useProgress();
@@ -197,6 +229,83 @@ function ArtifactGallery({ items }) {
   );
 }
 
+// ── Placeholder slot ─────────────────────────────────────────────
+function PlaceholderSlot({ label, note }) {
+  return (
+    <div className="hp-placeholder">
+      <span className="hp-placeholder__icon">+</span>
+      <div style={{ flex: 1 }}>
+        <div className="hp-placeholder__label">{label}</div>
+        {note && <div className="hp-placeholder__note">{note}</div>}
+      </div>
+      <span className="hp-placeholder__badge">COMING SOON</span>
+    </div>
+  );
+}
+
+// ── Photo strip ───────────────────────────────────────────────────
+function PhotoStrip({ items }) {
+  const [lbItems, setLbItems] = useState(null);
+  const [lbStart, setLbStart] = useState(0);
+  if (!items || items.length === 0) return null;
+  const realItems = items.filter(i => !i.placeholder && i.path);
+  const open = (item) => {
+    if (item.placeholder || !item.path) return;
+    setLbItems(realItems);
+    setLbStart(Math.max(realItems.indexOf(item), 0));
+  };
+  return (
+    <>
+      <div className="photo-strip">
+        {items.map((item, i) => (
+          <div
+            key={i}
+            className={`photo-strip__card${item.placeholder ? ' photo-strip__card--placeholder' : ''}`}
+            onClick={() => open(item)}
+            title={item.placeholder && item.note ? item.note : undefined}
+          >
+            <div className="photo-strip__thumb">
+              {item.path ? (
+                <img src={item.thumb || item.path} alt={item.label} className="photo-strip__img"/>
+              ) : (
+                <div className="photo-strip__blank">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(240,240,240,0.1)" strokeWidth="1.2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5" fill="rgba(240,240,240,0.08)" stroke="none"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                  </svg>
+                  {item.note && <span className="photo-strip__hint">{item.note}</span>}
+                </div>
+              )}
+              {!item.placeholder && <div className="photo-strip__reveal"><span>VIEW</span></div>}
+            </div>
+            <div className="photo-strip__footer">
+              <span className="photo-strip__label">{item.label}</span>
+              {item.placeholder && <span className="photo-strip__add">+ ADD</span>}
+            </div>
+          </div>
+        ))}
+      </div>
+      {lbItems && (
+        <Lightbox items={lbItems} startIndex={lbStart} onClose={() => setLbItems(null)}/>
+      )}
+    </>
+  );
+}
+
+// ── Section block ─────────────────────────────────────────────────
+function SectionBlock({ label, title, text, photos, children }) {
+  return (
+    <div className="hp-section">
+      {label && <p className="hp-section__label">{label}</p>}
+      {title && <h3 className="hp-section__title">{title}</h3>}
+      {text  && <p className="hp-section__text">{text}</p>}
+      {photos && photos.length > 0 && <PhotoStrip items={photos}/>}
+      {children}
+    </div>
+  );
+}
+
 // ── Camera control ────────────────────────────────────────────────
 function CameraControl({ target }) {
   const { camera } = useThree();
@@ -236,7 +345,7 @@ function FrameExperiences({ position, scale, imageUrl, name, args, text, label, 
 }
 
 // ── Scene ─────────────────────────────────────────────────────────
-function Scene({ setClicked, setHovered }) {
+function Scene({ setClicked, setHovered, setGallery }) {
   const room = useGLTF('/3DModels/scene.gltf');
   const { scene } = useThree();
   const { targetFocus, setTargetFocus } = useContext(FrameFocusContext);
@@ -247,11 +356,12 @@ function Scene({ setClicked, setHovered }) {
   }, [scene]);
   const handleClick = (e) => {
     switch(e.object.name) {
-      case 'Window_Books_0': setTargetFocus('books'); break;
-      case 'frame0': if(targetFocus==='frames') setClicked('frame0'); setTargetFocus('frames'); break;
-      case 'frame1': if(targetFocus==='frames') setClicked('frame1'); setTargetFocus('frames'); break;
-      case 'frame2': if(targetFocus==='frames') setClicked('frame2'); setTargetFocus('frames'); break;
-      case 'frame3': if(targetFocus==='frames') setClicked('frame3'); setTargetFocus('frames'); break;
+      case 'Window_Books_0':  setTargetFocus('books'); break;
+      case 'frame_gallery':   setGallery(true); break;
+      case 'frame0': if(targetFocus==='frames') { setClicked('frame0'); } else { setTargetFocus('frames'); } break;
+      case 'frame1': if(targetFocus==='frames') { setClicked('frame1'); } else { setTargetFocus('frames'); } break;
+      case 'frame2': if(targetFocus==='frames') { setClicked('frame2'); } else { setTargetFocus('frames'); } break;
+      case 'frame3': if(targetFocus==='frames') { setClicked('frame3'); } else { setTargetFocus('frames'); } break;
       default: break;
     }
   };
@@ -265,7 +375,7 @@ function Scene({ setClicked, setHovered }) {
       <spotLight position={[0,7,3]} intensity={2} color="#ffe0b0" angle={0.4} penumbra={0.6} distance={20} decay={2}/>
       <primitive rotation={[0,-Math.PI/2,0]} object={room.scene} scale={1}/>
       <mesh scale={7.5} position={[0,0,-11]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#080808"/></mesh>
-      <FrameExperiences args={[1,1,1]}       scale={7.1}   name="frame1" position={[0,0,-10.7]}    imageUrl={JoelImg}/>
+      <FrameExperiences args={[1,1,1]}       scale={7.1}   name="frame_gallery" position={[0,0,-10.7]} imageUrl={JoelImg} label="Gallery" onHover={setHovered}/>
       <FrameExperiences text="Research"      args={[0.1,2,2]}    name="frame1" position={[-7.1,0,2.5]}  imageUrl="/3DModels/textures/research_illustration.jpeg"  label="Research"                onHover={setHovered}/>
       <FrameExperiences text="Leadership"    args={[0.1,2,2]}    name="frame2" position={[-7.1,0,0]}    imageUrl="/3DModels/textures/leadership_illustration.jpg" label="Leadership"               onHover={setHovered}/>
       <FrameExperiences                      args={[0.1,2,3.55]} name="frame0" position={[-7.1,2.5,0]}  imageUrl="/3DModels/textures/honors.jpeg"                 label="Honors Program"          onHover={setHovered}/>
@@ -303,9 +413,10 @@ function HelpView({ handleClick }) {
       <h2 className="honors-modal__title">HOW TO<br />EXPLORE.</h2>
       <hr className="honors-modal__rule"/>
       <ul className="honors-modal__list">
-        <li><span className="honors-modal__key">Click a frame</span>Camera moves toward it. Click again to open detail panel.</li>
-        <li><span className="honors-modal__key">← Back</span>Returns camera to origin view.</li>
-        <li><span className="honors-modal__key">Artifacts</span>Click any card to open full screen. Arrow keys to navigate.</li>
+        <li><span className="honors-modal__key">Wall frames</span>Click once to move camera. Click again to open the section detail.</li>
+        <li><span className="honors-modal__key">Center portrait</span>Click to open the visual Gallery — all photos, documents, and artifacts in one place.</li>
+        <li><span className="honors-modal__key">← Back</span>Returns camera to the origin view.</li>
+        <li><span className="honors-modal__key">Gallery / Artifacts</span>Click any card to open fullscreen. Arrow keys to navigate.</li>
       </ul>
       <button className="honors-modal__btn" onClick={handleClick}>GOT IT</button>
     </div></div>
@@ -343,10 +454,398 @@ function DetailPage({ title, eyebrow, description, artifactKey, handleClick }) {
   );
 }
 
-const Honors        = ({handleClick}) => <DetailPage title="Honors Program"          eyebrow="Competency Overview" artifactKey="honors"        handleClick={handleClick} description="Honors students are committed to developing in several competency areas such as leadership, research, and intercultural engagement. The program provides class experiences designed to support competency development and a variety of co-curricular activities to enrich their growth."/>;
-const Research      = ({handleClick}) => <DetailPage title="Research"                eyebrow="Competency Area"     artifactKey="research"      handleClick={handleClick} description="Honors students demonstrate their emerging competencies through electronic portfolios in which they document their activities and engage in meaningful reflection about their learning."/>;
-const Leadership    = ({handleClick}) => <DetailPage title="Leadership"              eyebrow="Competency Area"     artifactKey="leadership"    handleClick={handleClick} description="As a leader, I am committed to inspiring and empowering others to achieve their full potential. Through various leadership roles, I have developed strong skills in guiding teams, fostering collaboration, and promoting positive change."/>;
-const Intercultural = ({handleClick}) => <DetailPage title="Intercultural Engagement" eyebrow="Competency Area"   artifactKey="intercultural" handleClick={handleClick} description="I believe that engaging with diverse cultures enriches my personal growth and enhances my ability to work in global, multicultural environments. I have actively sought opportunities to interact with people from different cultural backgrounds."/>;
+// ── Honors Program page ───────────────────────────────────────────
+function HonorsPage({ handleClick }) {
+  return (
+    <div className="honors-page">
+      <header className="honors-page__topbar">
+        <span className="honors-page__breadcrumb">// Honors Program · Joel Tchouke</span>
+        <button className="honors-page__exit-btn" onClick={handleClick}>← SCENE</button>
+      </header>
+      <div className="honors-page__content honors-page__content--rich">
+        <p className="honors-page__eyebrow">Competency Portfolio</p>
+        <h1 className="honors-page__title">HONORS<br/>PROGRAM.</h1>
+        <hr className="honors-page__rule"/>
+        <p className="honors-page__description">
+          The UCA Honors Program challenges students to develop academic excellence, civic
+          responsibility, and personal growth. Through core courses, reflective writing,
+          and co-curricular engagement, I have worked to deepen my competencies in research,
+          leadership, and intercultural awareness.
+        </p>
+
+        <SectionBlock
+          label="HONR 475 · Capstone Synthesis"
+          title="Synthesis Essay"
+          text="The HONR 475 capstone asks honors students to synthesize the cumulative knowledge, growth, and experiences gathered throughout the entire honors journey. This essay draws connections across disciplines and reflects on how the honors program has shaped my academic and personal identity."
+        >
+          <PlaceholderSlot label="HONR 475 Synthesis Essay" note="Artifact pending completion — due at program exit"/>
+        </SectionBlock>
+
+        <SectionBlock
+          label="HONR 375 · Interdisciplinary Studies"
+          title="Why Honors — Junior Reflection"
+          text="HONR 375 deepened my interdisciplinary thinking, pushing me to connect engineering principles with fields like ethics, social science, and the humanities. The reflection below documents my growth midway through the honors experience."
+          photos={[
+            { type:'image', label:'Honors seminar or class photo', path:null, thumb:null, placeholder:true, note:'Upload a photo from an honors class, seminar, or related event' },
+          ]}
+        >
+          <ArtifactGallery items={[ARTIFACTS.honors[1]]}/>
+        </SectionBlock>
+
+        <SectionBlock
+          label="HONR 201 · First Year Experience"
+          title="Why Honors — Initial Essay"
+          text="Written during my first year, this essay captures my initial motivations for joining the Honors Program and the goals I set for myself as a new honors student. It serves as a baseline for measuring growth across subsequent years."
+          photos={[
+            { type:'image', label:'First year / campus arrival photo', path:null, thumb:null, placeholder:true, note:'Upload a photo from your first year on campus or at orientation' },
+          ]}
+        >
+          <ArtifactGallery items={[ARTIFACTS.honors[0]]}/>
+        </SectionBlock>
+      </div>
+    </div>
+  );
+}
+
+// ── Research & Scholarly Activity page ───────────────────────────
+function ResearchPage({ handleClick }) {
+  return (
+    <div className="honors-page">
+      <header className="honors-page__topbar">
+        <span className="honors-page__breadcrumb">// Research & Scholarly Activity · Joel Tchouke</span>
+        <button className="honors-page__exit-btn" onClick={handleClick}>← SCENE</button>
+      </header>
+      <div className="honors-page__content honors-page__content--rich">
+        <p className="honors-page__eyebrow">Competency Area</p>
+        <h1 className="honors-page__title">RESEARCH &amp;<br/>SCHOLARLY<br/>ACTIVITY.</h1>
+        <hr className="honors-page__rule"/>
+        <p className="honors-page__description">
+          Research is the cornerstone of intellectual growth. Through scholarly inquiry,
+          independent study, and creative projects, I have developed the skills needed
+          to ask meaningful questions, gather evidence, and present well-reasoned conclusions.
+        </p>
+
+        <SectionBlock
+          label="Primary Reflection"
+          title="Research Reflection"
+          text="This reflection examines my experience with undergraduate research, exploring the methodologies I applied, the challenges I encountered, and the insights I gained. It demonstrates my ability to engage in rigorous scholarly inquiry beyond the classroom."
+          photos={[
+            { type:'image', label:'Lab or research setting', path:null, thumb:null, placeholder:true, note:'Upload a photo from a lab, research space, or academic environment' },
+            { type:'image', label:'Project or experiment photo', path:null, thumb:null, placeholder:true, note:'A photo showing your research process, experiment, or results' },
+          ]}
+        >
+          <ArtifactGallery items={ARTIFACTS.research}/>
+        </SectionBlock>
+
+        <SectionBlock
+          label="Project Work"
+          title="Independent Study / Capstone Project"
+          text="Placeholder for a description of an independent study or capstone engineering project, detailing the problem definition, technical approach, and key outcomes achieved."
+          photos={[
+            { type:'image', label:'Project work in progress', path:null, thumb:null, placeholder:true, note:'Screenshot, prototype photo, or whiteboard work from your project' },
+          ]}
+        >
+          <PlaceholderSlot label="Project Report or Presentation" note="Artifact to be added upon project completion"/>
+        </SectionBlock>
+
+        <SectionBlock
+          label="Scholarly Contribution"
+          title="Publication or Conference Presentation"
+          text="Placeholder for any academic publication, conference poster, or presentation that demonstrates active participation in the broader scholarly community."
+        >
+          <PlaceholderSlot label="Publication or Presentation Artifact" note="To be added upon completion"/>
+        </SectionBlock>
+      </div>
+    </div>
+  );
+}
+
+// ── Leadership page ───────────────────────────────────────────────
+function LeadershipPage({ handleClick }) {
+  return (
+    <div className="honors-page">
+      <header className="honors-page__topbar">
+        <span className="honors-page__breadcrumb">// Leadership · Joel Tchouke</span>
+        <button className="honors-page__exit-btn" onClick={handleClick}>← SCENE</button>
+      </header>
+      <div className="honors-page__content honors-page__content--rich">
+        <p className="honors-page__eyebrow">Competency Area</p>
+        <h1 className="honors-page__title">LEADERSHIP.</h1>
+        <hr className="honors-page__rule"/>
+        <p className="honors-page__description">
+          Leadership for me is about service and impact — inspiring those around me,
+          fostering collaboration, and working toward meaningful change. Through
+          student organizations, academic roles, and community involvement, I have
+          actively cultivated the skills that define effective leadership.
+        </p>
+
+        <SectionBlock
+          label="StrengthsFinder Assessment"
+          title="Strength Report"
+          text="The CliftonStrengths assessment identified my top strengths, providing a data-driven lens through which I understand how I lead and collaborate most effectively. My top themes inform my approach to team dynamics and personal growth."
+          photos={[
+            { type:'image', label:'Team activity or group collaboration', path:null, thumb:null, placeholder:true, note:'A photo showing you working with a team or in a collaborative setting' },
+          ]}
+        >
+          <ArtifactGallery items={[ARTIFACTS.leadership[2]]}/>
+        </SectionBlock>
+
+        <SectionBlock
+          label="Reflection 01 · General Leadership"
+          title="Leadership Reflection"
+          text="This reflection explores my development as a leader, drawing on specific experiences in student organizations, group projects, and mentorship. I discuss how my leadership style has evolved and what I have learned about motivating and guiding others."
+          photos={[
+            { type:'image', label:'Leadership role or event photo', path:null, thumb:null, placeholder:true, note:'A photo from a leadership role — presenting, organizing, mentoring, etc.' },
+          ]}
+        >
+          <ArtifactGallery items={[ARTIFACTS.leadership[0]]}/>
+        </SectionBlock>
+
+        <SectionBlock
+          label="Reflection 02 · Community Engagement"
+          title="ISA / ASA Experience"
+          text="This artifact documents my involvement with the International Students Association (ISA) and the African Students Association (ASA). Through these roles, I developed cross-cultural leadership skills and deepened my commitment to building inclusive communities."
+          photos={[
+            { type:'image', label:'ISA event photo', path:null, thumb:null, placeholder:true, note:'Upload a photo from an ISA meeting, event, or activity' },
+            { type:'image', label:'ASA community event', path:null, thumb:null, placeholder:true, note:'Upload a photo from an ASA gathering or community event' },
+          ]}
+        >
+          <ArtifactGallery items={[ARTIFACTS.leadership[1]]}/>
+        </SectionBlock>
+
+        <SectionBlock
+          label="Additional Leadership"
+          title="Roles and Initiatives"
+          text="Placeholder for additional leadership experiences, club officer roles, volunteer initiatives, or community service projects undertaken during the honors journey."
+          photos={[
+            { type:'image', label:'Community or volunteer photo', path:null, thumb:null, placeholder:true, note:'A photo from a volunteer activity, club event, or community initiative' },
+          ]}
+        >
+          <PlaceholderSlot label="Additional Leadership Artifact" note="Document a role, initiative, or experience to be added"/>
+        </SectionBlock>
+      </div>
+    </div>
+  );
+}
+
+// ── Intercultural Engagement page ────────────────────────────────
+function InterculturalPage({ handleClick }) {
+  return (
+    <div className="honors-page">
+      <header className="honors-page__topbar">
+        <span className="honors-page__breadcrumb">// Intercultural Engagement · Joel Tchouke</span>
+        <button className="honors-page__exit-btn" onClick={handleClick}>← SCENE</button>
+      </header>
+      <div className="honors-page__content honors-page__content--rich">
+        <p className="honors-page__eyebrow">Competency Area</p>
+        <h1 className="honors-page__title">INTERCULTURAL<br/>ENGAGEMENT.</h1>
+        <hr className="honors-page__rule"/>
+        <p className="honors-page__description">
+          Engaging with diverse cultures enriches every dimension of personal and
+          professional life. I have actively sought out experiences that challenge
+          my worldview, expose me to different perspectives, and build the cross-cultural
+          competencies needed to thrive in a global environment.
+        </p>
+
+        <SectionBlock
+          label="Primary Reflection"
+          title="Intercultural Experience Reflection"
+          text="This reflection documents a significant intercultural experience and examines how it changed my understanding of cultural difference, privilege, and global citizenship. It explores both the discomfort and the growth that accompany genuine cross-cultural engagement."
+          photos={[
+            { type:'image', label:'Cultural event or engagement photo', path:null, thumb:null, placeholder:true, note:'A photo from a cultural event, festival, or intercultural exchange' },
+            { type:'image', label:'Community gathering or celebration', path:null, thumb:null, placeholder:true, note:'A photo from a diverse community gathering, celebration, or shared experience' },
+          ]}
+        >
+          <ArtifactGallery items={ARTIFACTS.intercultural}/>
+        </SectionBlock>
+
+        <SectionBlock
+          label="Cultural Immersion"
+          title="Study Abroad or International Experience"
+          text="Placeholder for a study abroad program, international travel, or immersive cultural exchange that broadened my global perspective and built intercultural communication skills."
+          photos={[
+            { type:'image', label:'Travel or international experience', path:null, thumb:null, placeholder:true, note:'A photo from international travel, study abroad, or cultural immersion' },
+          ]}
+        >
+          <PlaceholderSlot label="Study Abroad Documentation" note="Artifact pending travel or program completion"/>
+        </SectionBlock>
+
+        <SectionBlock
+          label="Language and Communication"
+          title="Language Learning Journey"
+          text="Placeholder for documenting progress in learning an additional language and the cultural insights that accompany that process."
+        >
+          <PlaceholderSlot label="Language Learning Artifact" note="Certificate, journal entry, or reflection to be added"/>
+        </SectionBlock>
+      </div>
+    </div>
+  );
+}
+
+// ── About Me page ─────────────────────────────────────────────────
+function AboutMePage({ handleClick }) {
+  return (
+    <div className="honors-page">
+      <header className="honors-page__topbar">
+        <span className="honors-page__breadcrumb">// About Me · Joel Tchouke</span>
+        <button className="honors-page__exit-btn" onClick={handleClick}>← SCENE</button>
+      </header>
+      <div className="honors-page__content honors-page__content--rich">
+        <p className="honors-page__eyebrow">Portfolio Introduction</p>
+        <h1 className="honors-page__title">ABOUT<br/>ME.</h1>
+        <hr className="honors-page__rule"/>
+
+        <div className="hp-about-grid">
+          <div className="hp-about-photo">
+            <div className="hp-about-photo__placeholder">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(240,240,240,0.15)" strokeWidth="1.5">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+              </svg>
+            </div>
+            <div className="hp-about-photo__label">Professional Photo</div>
+          </div>
+          <div className="hp-stat-row">
+            <div className="hp-stat">
+              <span className="hp-stat__key">Name</span>
+              <span className="hp-stat__val">Joel Tchouke</span>
+            </div>
+            <div className="hp-stat">
+              <span className="hp-stat__key">Major</span>
+              <span className="hp-stat__val">Computer Engineering</span>
+            </div>
+            <div className="hp-stat">
+              <span className="hp-stat__key">Minor / Concentration</span>
+              <span className="hp-stat__val hp-stat__val--placeholder">To be determined</span>
+            </div>
+            <div className="hp-stat">
+              <span className="hp-stat__key">University</span>
+              <span className="hp-stat__val">University of Central Arkansas</span>
+            </div>
+            <div className="hp-stat">
+              <span className="hp-stat__key">Program</span>
+              <span className="hp-stat__val">UCA Honors Program</span>
+            </div>
+          </div>
+        </div>
+
+        <SectionBlock
+          label="Future Goals"
+          title="Career and Life Vision"
+          text="I aim to build a career at the intersection of engineering and innovation — developing systems and products that solve meaningful real-world problems. Long term, I envision founding or leading an initiative that leverages technology for positive social impact, particularly in underserved communities."
+        />
+
+        <SectionBlock
+          label="Interests and Hobbies"
+          title="Beyond the Classroom"
+          text="Outside of academics and engineering, I am passionate about music production, fitness, and exploring the ways creative disciplines intersect with technical ones. I enjoy building personal projects, engaging with science and philosophy, and serving my local community through mentorship."
+        />
+
+        <SectionBlock
+          label="Photo Gallery"
+          title="Personal Photos"
+          text="A professional headshot and additional personal photos will be added to complete this section of the portfolio."
+        >
+          <PlaceholderSlot label="Professional Headshot" note="High-resolution photo to be uploaded"/>
+          <div style={{ height: 8 }}/>
+          <PlaceholderSlot label="Campus or Activity Photos" note="2–3 photos showing campus involvement to be added"/>
+        </SectionBlock>
+      </div>
+    </div>
+  );
+}
+
+// ── Gallery card ─────────────────────────────────────────────────
+function GalleryCard({ item, onOpen }) {
+  return (
+    <div
+      className={`gal-card${item.placeholder ? ' gal-card--placeholder' : ''}`}
+      onClick={item.placeholder ? undefined : onOpen}
+    >
+      <div className="gal-card__thumb">
+        {item.type === 'image' && item.thumb ? (
+          <img src={item.thumb} alt={item.label}/>
+        ) : item.type === 'pdf' && !item.placeholder ? (
+          <div className="gal-card__icon-thumb"><PDFIcon/><span className="gal-card__ext">PDF</span></div>
+        ) : item.type === 'video' && !item.placeholder ? (
+          <div className="gal-card__icon-thumb"><VideoIcon/><span className="gal-card__ext">VIDEO</span></div>
+        ) : (
+          <div className="gal-card__blank-thumb"><span className="gal-card__blank-icon">+</span></div>
+        )}
+        {!item.placeholder && <div className="gal-card__reveal"><span>OPEN</span></div>}
+      </div>
+      <div className="gal-card__footer">
+        <span className="gal-card__label">{item.label}</span>
+        <span className={`gal-card__cat gal-card__cat--${item.category}`}>{item.category}</span>
+      </div>
+      {item.placeholder && item.note && (
+        <div className="gal-card__note">{item.note}</div>
+      )}
+    </div>
+  );
+}
+
+// ── Gallery page ──────────────────────────────────────────────────
+const GAL_CATS = ['all', 'photos', 'events', 'documents', 'certificates', 'projects'];
+
+function GalleryPage({ handleClick }) {
+  const [activeCat, setActiveCat] = useState('all');
+  const [lbItems,   setLbItems]   = useState(null);
+  const [lbStart,   setLbStart]   = useState(0);
+
+  const filtered = activeCat === 'all'
+    ? GALLERY_ITEMS
+    : GALLERY_ITEMS.filter(item => item.category === activeCat);
+
+  const openItem = (item) => {
+    if (item.placeholder) return;
+    const realItems = filtered.filter(i => !i.placeholder);
+    setLbItems(realItems);
+    setLbStart(Math.max(realItems.indexOf(item), 0));
+  };
+
+  const realCount    = filtered.filter(i => !i.placeholder).length;
+  const pendingCount = filtered.filter(i => i.placeholder).length;
+
+  return (
+    <div className="honors-page">
+      <header className="honors-page__topbar">
+        <span className="honors-page__breadcrumb">// Gallery · Joel Tchouke</span>
+        <button className="honors-page__exit-btn" onClick={handleClick}>← SCENE</button>
+      </header>
+
+      <div className="gal-page">
+        <div className="gal-header">
+          <p className="gal-eyebrow">Visual Archive</p>
+          <h1 className="gal-title">GALLERY.</h1>
+          <hr className="gal-rule"/>
+          <div className="gal-tabs">
+            {GAL_CATS.map(cat => (
+              <button
+                key={cat}
+                className={`gal-tab${activeCat === cat ? ' gal-tab--active' : ''}`}
+                onClick={() => setActiveCat(cat)}
+              >
+                {cat.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <p className="gal-count">{realCount} items · {pendingCount} pending</p>
+        </div>
+
+        <div className="gal-masonry">
+          {filtered.map((item, i) => (
+            <GalleryCard key={`${item.category}-${i}`} item={item} onOpen={() => openItem(item)}/>
+          ))}
+        </div>
+      </div>
+
+      {lbItems && (
+        <Lightbox items={lbItems} startIndex={lbStart} onClose={() => setLbItems(null)}/>
+      )}
+    </div>
+  );
+}
 
 // ── Mobile gate ───────────────────────────────────────────────────
 function MobileGate({ onNavigate }) {
@@ -371,6 +870,8 @@ function SceneThree({ onNavigate }) {
   const [mission,setMission]       = useState(false);
   const [hovered,setHovered]       = useState(null);
   const [mousePos,setMousePos]     = useState({x:0,y:0});
+  const [aboutMe,setAboutMe]       = useState(false);
+  const [gallery,setGallery]       = useState(false);
 
   useEffect(() => {
     if (targetFocus==='books' && onNavigate) { onNavigate('about',{fromHonors:true}); setTargetFocus('origin'); }
@@ -400,6 +901,7 @@ function SceneThree({ onNavigate }) {
             <button className="scene-nav-btn" onClick={()=>setWelcome(v=>!v)}>WELCOME</button>
             <button className="scene-nav-btn" onClick={()=>setMission(v=>!v)}>MISSION</button>
             <button className="scene-nav-btn" onClick={()=>setHelpClick(v=>!v)}>HELP</button>
+            <button className="scene-nav-btn" onClick={()=>setAboutMe(v=>!v)}>ABOUT ME</button>
             {onNavigate && <button className="scene-nav-btn scene-nav-btn--back" onClick={()=>onNavigate('main')}>← MAIN</button>}
             <span className="scene-topbar__bracket">]</span>
           </nav>
@@ -407,11 +909,13 @@ function SceneThree({ onNavigate }) {
 
         {targetFocus!=='origin' && <button className="scene-exit-btn" onClick={()=>setTargetFocus('origin')}>← BACK</button>}
 
-        {helpClick            && <HelpView handleClick={()=>setHelpClick(v=>!v)}/>}
-        {clicked==='frame0'   && <Honors        handleClick={close}/>}
-        {clicked==='frame1'   && <Research      handleClick={close}/>}
-        {clicked==='frame2'   && <Leadership    handleClick={close}/>}
-        {clicked==='frame3'   && <Intercultural handleClick={close}/>}
+        {helpClick            && <HelpView         handleClick={()=>setHelpClick(v=>!v)}/>}
+        {clicked==='frame0'   && <HonorsPage       handleClick={close}/>}
+        {clicked==='frame1'   && <ResearchPage     handleClick={close}/>}
+        {clicked==='frame2'   && <LeadershipPage   handleClick={close}/>}
+        {clicked==='frame3'   && <InterculturalPage handleClick={close}/>}
+        {aboutMe              && <AboutMePage      handleClick={()=>setAboutMe(false)}/>}
+        {gallery              && <GalleryPage      handleClick={()=>setGallery(false)}/>}
 
         {intro   && <GeneralPopUP header="Introduction"     description="Welcome to my honors portfolio. My name is Joel Tchouke, and I am passionate about growing as a leader and using my skills to make a meaningful impact in the world. Through my journey as an honors student, I have worked to combine my knowledge of engineering with a strong desire to serve others and solve real-world problems." click={()=>setIntro(v=>!v)}/>}
         {welcome && <GeneralPopUP header="Welcome"          description="Hello and welcome. I'm Joel Tchouke, and this portfolio is a reflection of my journey, growth, and accomplishments. Here you'll find projects, experiences, and insights that showcase my passion for engineering, leadership, and making a positive impact." click={()=>setWelcome(v=>!v)}/>}
@@ -419,7 +923,7 @@ function SceneThree({ onNavigate }) {
 
         <Canvas dpr={[1,1.5]} performance={{min:0.5}} gl={{antialias:true,powerPreference:'high-performance'}}>
           <Suspense fallback={null}>
-            <Scene setClicked={setClicked} setHovered={setHovered}/>
+            <Scene setClicked={setClicked} setHovered={setHovered} setGallery={setGallery}/>
             <AnimatedText/>
           </Suspense>
         </Canvas>
