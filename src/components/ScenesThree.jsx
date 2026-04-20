@@ -12,9 +12,9 @@ import { OrbitControls, useGLTF, Text, useProgress } from "@react-three/drei";
 import "../css/honorScene.css";
 import { useSpring, animated } from "@react-spring/three";
 import JoelImg from "../img/joelG.PNG";
-import headshot from "../img/headshot1.JPG";
 import * as THREE from "three";
 import finder from "../img/finder.png";
+// All other images are loaded lazily via useLazyImages / GALLERY_ITEMS.lazy
 
 const FrameFocusContext = createContext();
 
@@ -40,6 +40,12 @@ const ARTIFACTS = {
       type: "pdf",
       label: "Why Honors — 375",
       path: "/Experiences/honors375.pdf",
+      thumb: null,
+    },
+    {
+      type: "pdf",
+      label: "Why Honors — 475 (Synthesis Essay)",
+      path: "/Experiences/Why Honors 475.pdf",
       thumb: null,
     },
   ],
@@ -107,178 +113,96 @@ const ARTIFACTS = {
 
 // ══════════════════════════════════════════════════════════════════
 //  GALLERY — master visual archive
-//  To add a real file: set path/thumb and placeholder:false
-//  Leave placeholder:true + note until the file is ready
+//  Images use lazy:()=>import("path") — they are only downloaded
+//  when the Gallery page opens, keeping initial load lightweight.
+//  PDFs keep path: string (static assets, no webpack bundling).
 // ══════════════════════════════════════════════════════════════════
 const GALLERY_ITEMS = [
   // ── Photos ────────────────────────────────────────────────────────
-  {
-    type: "image",
-    category: "photos",
-    label: "Portrait",
-    path: JoelImg,
-    thumb: JoelImg,
-    placeholder: false,
-  },
-  {
-    type: "image",
-    category: "photos",
-    label: "Professional Headshot",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Upload a high-resolution professional headshot",
-  },
-  {
-    type: "image",
-    category: "photos",
-    label: "Campus Life",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Campus activity photos — events, classes, daily life",
-  },
+  { type:"image", category:"photos", label:"Portrait",              lazy:()=>import("../img/joelG.PNG"),        placeholder:false },
+  { type:"image", category:"photos", label:"Professional Headshot", lazy:()=>import("../img/JoelT.png"),        placeholder:false },
+  { type:"image", category:"photos", label:"Studio Headshot",       lazy:()=>import("../img/JoelT2.jpg"),       placeholder:false },
+  { type:"image", category:"photos", label:"Close-Up Portrait",     lazy:()=>import("../img/JoelT3.jpg"),       placeholder:false },
+  { type:"image", category:"photos", label:"Campus Portrait",       lazy:()=>import("../img/3.jpg"),            placeholder:false },
+  { type:"image", category:"photos", label:"Street Portrait",       lazy:()=>import("../img/headshot1.JPG"),    placeholder:false },
+  { type:"image", category:"photos", label:"Reflective Moment",     lazy:()=>import("../img/IMG_1409.JPG"),     placeholder:false },
+  { type:"image", category:"photos", label:"Guitar Performance",    lazy:()=>import("../img/about1.jpeg"),      placeholder:false },
+  // Personal album series
+  { type:"image", category:"photos", label:"Personal Album",        lazy:()=>import("../img/Image.jfif"),       placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 1",   lazy:()=>import("../img/Image (1).jfif"),   placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 2",   lazy:()=>import("../img/Image (2).jfif"),   placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 3",   lazy:()=>import("../img/Image (3).jfif"),   placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 4",   lazy:()=>import("../img/Image (4).jfif"),   placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 5",   lazy:()=>import("../img/Image (5).jfif"),   placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 6",   lazy:()=>import("../img/Image (6).jfif"),   placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 7",   lazy:()=>import("../img/Image (7).jfif"),   placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 8",   lazy:()=>import("../img/Image (8).jfif"),   placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 9",   lazy:()=>import("../img/Image (9).jfif"),   placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 10",  lazy:()=>import("../img/Image (10).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 11",  lazy:()=>import("../img/Image (11).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 12",  lazy:()=>import("../img/Image (12).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 13",  lazy:()=>import("../img/Image (13).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 14",  lazy:()=>import("../img/Image (14).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 15",  lazy:()=>import("../img/Image (15).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 16",  lazy:()=>import("../img/Image (16).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 17",  lazy:()=>import("../img/Image (17).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 18",  lazy:()=>import("../img/Image (18).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 19",  lazy:()=>import("../img/Image (19).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 20",  lazy:()=>import("../img/Image (20).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 21",  lazy:()=>import("../img/Image (21).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 22",  lazy:()=>import("../img/Image (22).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 23",  lazy:()=>import("../img/Image (23).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 24",  lazy:()=>import("../img/Image (24).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 25",  lazy:()=>import("../img/Image (25).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 26",  lazy:()=>import("../img/Image (26).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 27",  lazy:()=>import("../img/Image (27).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 28",  lazy:()=>import("../img/Image (28).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 29",  lazy:()=>import("../img/Image (29).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 30",  lazy:()=>import("../img/Image (30).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 31",  lazy:()=>import("../img/Image (31).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 32",  lazy:()=>import("../img/Image (32).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 33",  lazy:()=>import("../img/Image (33).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 34",  lazy:()=>import("../img/Image (34).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 35",  lazy:()=>import("../img/Image (35).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 36",  lazy:()=>import("../img/Image (36).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 37",  lazy:()=>import("../img/Image (37).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 38",  lazy:()=>import("../img/Image (38).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 39",  lazy:()=>import("../img/Image (39).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 40",  lazy:()=>import("../img/Image (40).jfif"),  placeholder:false },
+  { type:"image", category:"photos", label:"Personal Album · 41",  lazy:()=>import("../img/Image (41).jfif"),  placeholder:false },
   // ── Events ────────────────────────────────────────────────────────
-  {
-    type: "image",
-    category: "events",
-    label: "ISA / ASA Event",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Photos from ISA or ASA meetings and events",
-  },
-  {
-    type: "image",
-    category: "events",
-    label: "Honors Ceremony",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Honors induction or awards ceremony",
-  },
-  {
-    type: "image",
-    category: "events",
-    label: "Volunteer Activity",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Community service or volunteer event photos",
-  },
+  { type:"image", category:"events", label:"Cultural Stage Performance",         lazy:()=>import("../img/2.JPG"),         placeholder:false },
+  { type:"image", category:"events", label:"Cameroonian Heritage Day",           lazy:()=>import("../img/6.jpg"),         placeholder:false },
+  { type:"image", category:"events", label:"Cameroonian Heritage Day II",        lazy:()=>import("../img/7.jpg"),         placeholder:false },
+  { type:"image", category:"events", label:"NSBE Annual Convention 2026",        lazy:()=>import("../img/IMG_6921.jpeg"), placeholder:false },
+  { type:"image", category:"events", label:"IEEE Rising Stars — Group",          lazy:()=>import("../img/IMG_0755.jpeg"), placeholder:false },
+  { type:"image", category:"events", label:"IEEE Rising Stars — Ceremony",       lazy:()=>import("../img/IMG_0773.jpeg"), placeholder:false },
+  { type:"image", category:"events", label:"IEEE Rising Stars — Conference",     lazy:()=>import("../img/IMG_4537.jpeg"), placeholder:false },
+  { type:"image", category:"events", label:"IEEE Conference Networking",         lazy:()=>import("../img/IMG_2360.jpeg"), placeholder:false },
+  { type:"image", category:"events", label:"Organization Milestone Event",       lazy:()=>import("../img/IMG_8706.jpeg"), placeholder:false },
+  { type:"image", category:"events", label:"Professional Conference",            lazy:()=>import("../img/IMG_9236.jpeg"), placeholder:false },
+  { type:"image", category:"events", label:"Las Vegas — IEEE Rising Stars Trip", lazy:()=>import("../img/IMG_0630.jpeg"), placeholder:false },
+  { type:"image", category:"events", label:"Cenote Snorkeling — Mexico",         lazy:()=>import("../img/1.JPG"),         placeholder:false },
+  { type:"image", category:"events", label:"Tulum — Mayan Ruins",                lazy:()=>import("../img/4.jpg"),         placeholder:false },
+  { type:"image", category:"events", label:"Mayan Ruins — White Sands",          lazy:()=>import("../img/5.jpg"),         placeholder:false },
+  { type:"image", category:"events", label:"Horseback Riding — Tropical Forest", lazy:()=>import("../img/8.JPG"),         placeholder:false },
   // ── Documents ─────────────────────────────────────────────────────
-  {
-    type: "pdf",
-    category: "documents",
-    label: "Why Honors — 201",
-    path: "/Experiences/honors201.pdf",
-    thumb: null,
-    placeholder: false,
-  },
-  {
-    type: "pdf",
-    category: "documents",
-    label: "Why Honors — 375",
-    path: "/Experiences/honors375.pdf",
-    thumb: null,
-    placeholder: false,
-  },
-  {
-    type: "pdf",
-    category: "documents",
-    label: "Research Reflection",
-    path: "/Experiences/Research/Research.pdf",
-    thumb: null,
-    placeholder: false,
-  },
-  {
-    type: "pdf",
-    category: "documents",
-    label: "Leadership Reflection",
-    path: "/Experiences/Leadership/Leadership2.pdf",
-    thumb: null,
-    placeholder: false,
-  },
-  {
-    type: "pdf",
-    category: "documents",
-    label: "ISA / ASA Reflection",
-    path: "/Experiences/Leadership/Leadership.pdf",
-    thumb: null,
-    placeholder: false,
-  },
-  {
-    type: "pdf",
-    category: "documents",
-    label: "Intercultural Reflection",
-    path: "/Experiences/Intercultural/Intercultural.pdf",
-    thumb: null,
-    placeholder: false,
-  },
-  {
-    type: "pdf",
-    category: "documents",
-    label: "HONR 475 Synthesis Essay",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Due at program exit — add when complete",
-  },
+  { type:"pdf", category:"documents", label:"Why Honors — 201",             path:"/Experiences/honors201.pdf",                   thumb:null, placeholder:false },
+  { type:"pdf", category:"documents", label:"Why Honors — 375",             path:"/Experiences/honors375.pdf",                   thumb:null, placeholder:false },
+  { type:"pdf", category:"documents", label:"Why Honors — 475 (Synthesis)", path:"/Experiences/Why Honors 475.pdf",              thumb:null, placeholder:false },
+  { type:"pdf", category:"documents", label:"Research Reflection",          path:"/Experiences/Research/Research.pdf",           thumb:null, placeholder:false },
+  { type:"pdf", category:"documents", label:"Leadership Reflection",        path:"/Experiences/Leadership/Leadership2.pdf",      thumb:null, placeholder:false },
+  { type:"pdf", category:"documents", label:"ISA / ASA Reflection",         path:"/Experiences/Leadership/Leadership.pdf",       thumb:null, placeholder:false },
+  { type:"pdf", category:"documents", label:"Intercultural Reflection",     path:"/Experiences/Intercultural/Intercultural.pdf", thumb:null, placeholder:false },
   // ── Certificates ──────────────────────────────────────────────────
-  {
-    type: "image",
-    category: "certificates",
-    label: "StrengthsFinder Report",
-    path: finder,
-    thumb: finder,
-    placeholder: false,
-  },
-  {
-    type: "image",
-    category: "certificates",
-    label: "Academic Award",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Upload certificates, awards, or recognitions",
-  },
-  {
-    type: "image",
-    category: "certificates",
-    label: "Honors Recognition",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Honors program completion or achievement certificate",
-  },
+  { type:"image", category:"certificates", label:"StrengthsFinder Report", path:finder, thumb:finder, placeholder:false },
+  { type:"image", category:"certificates", label:"Academic Award",          path:null, thumb:null, placeholder:true, note:"Upload certificates, awards, or recognitions" },
+  { type:"image", category:"certificates", label:"Honors Recognition",      path:null, thumb:null, placeholder:true, note:"Honors program completion or achievement certificate" },
   // ── Projects ──────────────────────────────────────────────────────
-  {
-    type: "image",
-    category: "projects",
-    label: "Project Screenshot",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Engineering project screenshots or mockups",
-  },
-  {
-    type: "video",
-    category: "projects",
-    label: "Project Demo Video",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Demo recording or YouTube embed link",
-  },
-  {
-    type: "pdf",
-    category: "projects",
-    label: "Technical Report",
-    path: null,
-    thumb: null,
-    placeholder: true,
-    note: "Research paper, lab report, or capstone document",
-  },
+  { type:"image", category:"projects", label:"Embedded Systems — Breadboard",    lazy:()=>import("../img/IMG_1214.jpeg"), placeholder:false },
+  { type:"image", category:"projects", label:"Senior Capstone — Control System", lazy:()=>import("../img/IMG_1479.jpeg"), placeholder:false },
+  { type:"video", category:"projects", label:"Project Demo Video",                path:null, thumb:null, placeholder:true, note:"Demo recording or YouTube embed link" },
+  { type:"pdf",   category:"projects", label:"Technical Report",                  path:null, thumb:null, placeholder:true, note:"Research paper, lab report, or capstone document" },
 ];
 
 // ── Scene loader ──────────────────────────────────────────────────
@@ -618,6 +542,44 @@ function PlaceholderSlot({ label, note }) {
   );
 }
 
+// ── Lazy image hook ────────────────────────────────────────────────
+// Dynamically imports a named set of images only when the component
+// mounts (i.e. when the user opens that section). This avoids
+// downloading all photos before the page content even renders.
+function useLazyImages(importMap) {
+  const [imgs, setImgs] = useState({});
+  useEffect(() => {
+    let alive = true;
+    Promise.all(
+      Object.entries(importMap).map(([key, fn]) =>
+        fn()
+          .then((m) => [key, m.default])
+          .catch(() => [key, null])
+      )
+    ).then((pairs) => {
+      if (alive) setImgs(Object.fromEntries(pairs));
+    });
+    return () => {
+      alive = false;
+    };
+    // importMap is a stable object literal defined once per render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return imgs;
+}
+
+// Build a photo item; shows as a skeleton placeholder until src resolves
+function lp(src, label) {
+  return {
+    type: "image",
+    label,
+    path: src || null,
+    thumb: src || null,
+    placeholder: !src,
+    note: !src ? "Loading…" : undefined,
+  };
+}
+
 // ── Photo strip ───────────────────────────────────────────────────
 function PhotoStrip({ items }) {
   const [lbItems, setLbItems] = useState(null);
@@ -645,6 +607,7 @@ function PhotoStrip({ items }) {
                   src={item.thumb || item.path}
                   alt={item.label}
                   className="photo-strip__img"
+                  loading="lazy"
                 />
               ) : (
                 <div className="photo-strip__blank">
@@ -1034,6 +997,12 @@ function DetailPage({ title, eyebrow, description, artifactKey, handleClick }) {
 
 // ── Honors Program page ───────────────────────────────────────────
 function HonorsPage({ handleClick }) {
+  const imgs = useLazyImages({
+    joelT:       () => import("../img/JoelT.png"),
+    joelT2:      () => import("../img/JoelT2.jpg"),
+    portrait3:   () => import("../img/3.jpg"),
+    portrait1409:() => import("../img/IMG_1409.JPG"),
+  });
   return (
     <div className="honors-page">
       <header className="honors-page__topbar">
@@ -1044,47 +1013,34 @@ function HonorsPage({ handleClick }) {
           ← SCENE
         </button>
       </header>
+
       <div className="honors-page__content honors-page__content--rich">
         <p className="honors-page__eyebrow">Competency Portfolio</p>
+
         <h1 className="honors-page__title">
           HONORS
           <br />
           PROGRAM.
         </h1>
+
         <hr className="honors-page__rule" />
+
         <p className="honors-page__description">
-          The UCA Honors Program challenges students to develop academic
-          excellence, civic responsibility, and personal growth. Through core
-          courses, reflective writing, and co-curricular engagement, I have
-          worked to deepen my competencies in research, leadership, and
-          intercultural awareness.
+          The Honors Program at Minnesota State University, Mankato has challenged me to grow beyond technical coursework by developing my ability to reflect, connect ideas across disciplines, and engage with broader social and cultural perspectives. Through honors courses, writing, and experiential learning, I have strengthened my skills in critical thinking, leadership, and self-awareness.
         </p>
 
         <SectionBlock
           label="HONR 475 · Capstone Synthesis"
           title="Synthesis Essay"
-          text="The HONR 475 capstone asks honors students to synthesize the cumulative knowledge, growth, and experiences gathered throughout the entire honors journey. This essay draws connections across disciplines and reflects on how the honors program has shaped my academic and personal identity."
+          text="The HONR 475 capstone synthesis essay represents the culmination of my honors experience. In this work, I reflect on my academic, professional, and personal growth, connecting my experiences in engineering, leadership, and intercultural engagement. The essay highlights how my perspective has evolved over time and how I plan to apply these lessons moving forward."
         >
-          <PlaceholderSlot
-            label="HONR 475 Synthesis Essay"
-            note="Artifact pending completion — due at program exit"
-          />
+          <ArtifactGallery items={[ARTIFACTS.honors[2]]} />
         </SectionBlock>
 
         <SectionBlock
           label="HONR 375 · Interdisciplinary Studies"
           title="Why Honors — Junior Reflection"
-          text="HONR 375 deepened my interdisciplinary thinking, pushing me to connect engineering principles with fields like ethics, social science, and the humanities. The reflection below documents my growth midway through the honors experience."
-          photos={[
-            {
-              type: "image",
-              label: "Honors seminar or class photo",
-              path: null,
-              thumb: null,
-              placeholder: true,
-              note: "Upload a photo from an honors class, seminar, or related event",
-            },
-          ]}
+          text="In HONR 375, I began to more intentionally connect my technical background in engineering with broader societal and interdisciplinary perspectives. This reflection captures how my understanding of the Honors Program evolved, as I moved from focusing on achievement to focusing on growth, impact, and the ability to think beyond a single discipline."
         >
           <ArtifactGallery items={[ARTIFACTS.honors[1]]} />
         </SectionBlock>
@@ -1092,16 +1048,10 @@ function HonorsPage({ handleClick }) {
         <SectionBlock
           label="HONR 201 · First Year Experience"
           title="Why Honors — Initial Essay"
-          text="Written during my first year, this essay captures my initial motivations for joining the Honors Program and the goals I set for myself as a new honors student. It serves as a baseline for measuring growth across subsequent years."
+          text="This essay was written during my first year in the Honors Program and reflects my initial motivations for joining. At the time, I was focused on academic achievement and personal development. Looking back, this essay provides a clear starting point that allows me to see how my goals, mindset, and understanding of the program have evolved over time."
           photos={[
-            {
-              type: "image",
-              label: "First year / campus arrival photo",
-              path: null,
-              thumb: null,
-              placeholder: true,
-              note: "Upload a photo from your first year on campus or at orientation",
-            },
+            lp(imgs.portrait3,    "Campus Portrait"),
+            lp(imgs.portrait1409, "Street Portrait"),
           ]}
         >
           <ArtifactGallery items={[ARTIFACTS.honors[0]]} />
@@ -1110,9 +1060,20 @@ function HonorsPage({ handleClick }) {
     </div>
   );
 }
-
 // ── Research & Scholarly Activity page ───────────────────────────
 function ResearchPage({ handleClick }) {
+  const imgs = useLazyImages({
+    micro:      () => import("../img/IMG_1214.jpeg"),
+    industrial: () => import("../img/IMG_1479.jpeg"),
+    ieee755:    () => import("../img/IMG_0755.jpeg"),
+    ieee773:    () => import("../img/IMG_0773.jpeg"),
+    ieee4537:   () => import("../img/IMG_4537.jpeg"),
+    ieee2360:   () => import("../img/IMG_2360.jpeg"),
+    lasVegas:   () => import("../img/IMG_0630.jpeg"),
+    ncur :        () => import("../img/image.png"),
+    ncurConf:     () => import("../img/Image (42).jfif"),
+    seniorDesign:    () => import("../img/IMG_0444.JPG"),
+  });
   return (
     <div className="honors-page">
       <header className="honors-page__topbar">
@@ -1148,6 +1109,7 @@ function ResearchPage({ handleClick }) {
           label="Power Cell Research"
           title="Embedded Power Optimization Research"
           text="As a research assistant, I worked on improving the power efficiency of a robotic LEGO-based system. I designed and implemented circuitry using the ATtiny85 microcontroller, integrating a rechargeable battery system, battery level monitoring, and low-power sleep functionality. This experience strengthened my understanding of embedded systems, PCB design using KiCad, and energy-efficient system design."
+          photos={[ lp(imgs.micro, "Embedded Systems — Breadboard & LCD") ]}
         >
           <ArtifactGallery items={[ARTIFACTS.research[0]]} />
         </SectionBlock>
@@ -1156,6 +1118,9 @@ function ResearchPage({ handleClick }) {
           label="Senior Capstone"
           title="Poly Exposure Control System Rebuild"
           text="This project involved redesigning and modernizing an industrial control system. My team and I worked on PLC programming, HMI development, electrical panel redesign, and full system integration. I contributed to improving system reliability, usability, and safety while working within real-world engineering constraints, bridging the gap between academic knowledge and applied industry engineering."
+          photos={[ lp(imgs.industrial, "Industrial Control System Equipment"),
+            lp(imgs.seniorDesign, "Senior Design — Team Photo")
+           ]}
         >
           <ArtifactGallery items={[ARTIFACTS.research[1]]} />
         </SectionBlock>
@@ -1167,6 +1132,29 @@ function ResearchPage({ handleClick }) {
         >
           <ArtifactGallery items={[ARTIFACTS.research[2]]} />
         </SectionBlock>
+
+        <SectionBlock
+          label="IEEE Rising Stars Conference"
+          title="Professional Development & Scholarly Engagement"
+          text="Attending the IEEE Rising Stars Conference was a pivotal moment in my research and professional journey. I networked with fellow engineers, attended technical sessions, and represented my institution at a nationally recognized conference for emerging engineering leaders."
+          photos={[
+            lp(imgs.ieee755,  "IEEE Rising Stars — Group Photo"),
+            lp(imgs.ieee773,  "IEEE Rising Stars — Award Ceremony"),
+            lp(imgs.ieee4537, "IEEE Rising Stars — Conference Banner"),
+            lp(imgs.ieee2360, "Conference Networking"),
+            lp(imgs.lasVegas, "Las Vegas — Conference City"),
+          ]}
+        />
+
+        <SectionBlock
+          label="NCUR · National Conference on Undergraduate Research"
+          title="Undergraduate Research Presentation"
+          text="Presenting at NCUR was a defining milestone in my scholarly journey. I had the opportunity to share original research with peers and faculty from institutions across the country, sharpening my ability to communicate technical work to a broad academic audience and affirming my identity as an undergraduate researcher."
+          photos={[
+              lp(imgs.ncur, "NCUR — Presentation"),
+              lp(imgs.ncurConf, "NCUR — Conference"),
+          ]}
+        />
       </div>
     </div>
   );
@@ -1174,6 +1162,16 @@ function ResearchPage({ handleClick }) {
 
 // ── Leadership page ───────────────────────────────────────────────
 function LeadershipPage({ handleClick }) {
+  const imgs = useLazyImages({
+    nsbe:      () => import("../img/IMG_6921.jpeg"),
+    event8706: () => import("../img/IMG_8706.jpeg"),
+    event9236: () => import("../img/IMG_9236.jpeg"),
+    camFlag6:  () => import("../img/6.jpg"),
+    camFlag7:  () => import("../img/7.jpg"),
+    stagePerf: () => import("../img/2.JPG"),
+    mavPass1:   () => import("../img/Image (43).jfif"),
+    mavPass2:   () => import("../img/Image (44).jfif"),
+  });
   return (
     <div className="honors-page">
       <header className="honors-page__topbar">
@@ -1212,6 +1210,11 @@ function LeadershipPage({ handleClick }) {
           label="Technical & Organizational Leadership"
           title="Student Organizations and Leadership Roles"
           text="I have taken on leadership roles across multiple student organizations, including serving as President of the Cybersecurity Association and Vice President roles in other campus organizations. In these positions, I have led teams, organized events, and created opportunities for student engagement while developing my ability to manage responsibilities and lead with accountability."
+          photos={[
+            lp(imgs.nsbe,      "NSBE Annual Convention 2026"),
+            lp(imgs.event8706, "Organization Milestone Event"),
+            lp(imgs.event9236, "Professional Conference"),
+          ]}
         >
           <ArtifactGallery items={[ARTIFACTS.leadership[0]]} />
         </SectionBlock>
@@ -1220,6 +1223,12 @@ function LeadershipPage({ handleClick }) {
           label="Instructional Leadership"
           title="MavPASS and Peer Mentorship"
           text="As a MavPASS leader and tutor, I guided students through challenging engineering concepts, helping them build confidence and improve academically. This experience strengthened my communication skills and taught me how to adapt my teaching style to different learning needs, reinforcing leadership through service and mentorship."
+          photos={
+            [
+              lp(imgs.mavPass1, "MavPass team training"),
+              lp(imgs.mavPass2, "End of semester MavPass recognition"),
+            ]
+          }
         >
           <ArtifactGallery items={[ARTIFACTS.leadership[2]]} />
         </SectionBlock>
@@ -1228,6 +1237,11 @@ function LeadershipPage({ handleClick }) {
           label="Community & Cultural Leadership"
           title="International and Cultural Engagement Leadership"
           text="Through my involvement in organizations such as the International Student Association and African Student Association, I contributed to building inclusive communities and supporting students from diverse backgrounds. These experiences helped me develop cross-cultural leadership skills and a deeper understanding of community building."
+          photos={[
+            lp(imgs.camFlag6,  "Cameroonian Heritage Day"),
+            lp(imgs.camFlag7,  "Cultural Flag Event"),
+            lp(imgs.stagePerf, "ISA/ASA Stage Performance"),
+          ]}
         >
           <ArtifactGallery items={[ARTIFACTS.leadership[1]]} />
         </SectionBlock>
@@ -1238,6 +1252,15 @@ function LeadershipPage({ handleClick }) {
 
 // ── Intercultural Engagement page ────────────────────────────────
 function InterculturalPage({ handleClick }) {
+  const imgs = useLazyImages({
+    cenote:    () => import("../img/1.JPG"),
+    tulum4:    () => import("../img/4.jpg"),
+    tulum5:    () => import("../img/5.jpg"),
+    horseback: () => import("../img/8.JPG"),
+    camFlag6:  () => import("../img/6.jpg"),
+    internationalEvent:  () => import("../img/Image (28).jfif"),
+    stagePerf: () => import("../img/2.JPG"),
+  });
   return (
     <div className="honors-page">
       <header className="honors-page__topbar">
@@ -1271,6 +1294,12 @@ function InterculturalPage({ handleClick }) {
           label="Study Abroad & Language"
           title="Cultural and Language Experience"
           text="Through my experience in the Intensive English Program, I developed a deeper understanding of the relationship between language and culture. This experience highlighted how communication shapes identity and access, while also exposing the challenges and growth that come with adapting to new cultural environments."
+          photos={[
+            lp(imgs.cenote,    "Cenote Snorkeling — Mexico"),
+            lp(imgs.tulum4,    "Tulum — Mayan Ruins with Friends"),
+            lp(imgs.tulum5,    "Mayan Ruins — White Sands"),
+            lp(imgs.horseback, "Horseback Riding — Tropical Forest"),
+          ]}
         >
           <ArtifactGallery items={[ARTIFACTS.intercultural[1]]} />
         </SectionBlock>
@@ -1279,6 +1308,11 @@ function InterculturalPage({ handleClick }) {
           label="Maverick Global Ambassador"
           title="Intercultural Leadership and Representation"
           text="As a Maverick Global Ambassador, I engaged with students from diverse cultural backgrounds and helped create an inclusive environment on campus. This role strengthened my ability to communicate across cultures, reflect on my own identity, and contribute to meaningful intercultural dialogue."
+          photos={[
+            lp(imgs.camFlag6,  "Cameroonian Heritage Day — Campus Event"),
+            lp(imgs.internationalEvent, "International Festival — Cultural Booth"),
+            lp(imgs.stagePerf, "ISA/ASA Cultural Stage Performance"),
+          ]}
         >
           <ArtifactGallery items={[ARTIFACTS.intercultural[0]]} />
         </SectionBlock>
@@ -1289,6 +1323,15 @@ function InterculturalPage({ handleClick }) {
 
 // ── About Me page ─────────────────────────────────────────────────
 function AboutMePage({ handleClick }) {
+  const imgs = useLazyImages({
+    headshot: () => import("../img/headshot1.JPG"),
+    joelT:    () => import("../img/JoelT.png"),
+    joelT2:   () => import("../img/JoelT2.jpg"),
+    joelT3:   () => import("../img/JoelT3.jpg"),
+    guitar:   () => import("../img/about1.jpeg"),
+    micro:    () => import("../img/IMG_1214.jpeg"),
+    nsbe:     () => import("../img/IMG_6921.jpeg"),
+  });
   return (
     <div className="honors-page">
       <header className="honors-page__topbar">
@@ -1311,9 +1354,10 @@ function AboutMePage({ handleClick }) {
         <div className="hp-about-grid">
           <div className="hp-about-photo">
             <img
-              src={headshot}
+              src={imgs.headshot || ""}
               alt="Joel Tchouke"
               className="hp-about-photo__img"
+              loading="lazy"
             />
           </div>
 
@@ -1366,18 +1410,16 @@ function AboutMePage({ handleClick }) {
         <SectionBlock
           label="Photo Gallery"
           title="Moments That Represent Me"
-          text="This section highlights the people, projects, and experiences that have shaped my college journey. It will include a professional headshot along with photos from engineering projects, leadership roles, presentations, and campus involvement."
-        >
-          <PlaceholderSlot
-            label="Professional Headshot"
-            note="High-resolution headshot to be added"
-          />
-          <div style={{ height: 8 }} />
-          <PlaceholderSlot
-            label="Project and Leadership Photos"
-            note="Photos from engineering work, presentations, and campus involvement"
-          />
-        </SectionBlock>
+          text="This section highlights the people, projects, and experiences that have shaped my college journey — from engineering work and leadership events to personal passions and international travel."
+          photos={[
+            lp(imgs.joelT,  "Professional Headshot"),
+            lp(imgs.joelT2, "Studio Portrait"),
+            lp(imgs.joelT3, "Close-Up Portrait"),
+            lp(imgs.guitar, "Guitar Performance"),
+            lp(imgs.micro,  "Embedded Systems Work"),
+            lp(imgs.nsbe,   "NSBE Convention 2026"),
+          ]}
+        />
       </div>
     </div>
   );
@@ -1391,7 +1433,7 @@ function GalleryCard({ item, onOpen }) {
     >
       <div className="gal-card__thumb">
         {item.type === "image" && item.thumb ? (
-          <img src={item.thumb} alt={item.label} />
+          <img src={item.thumb} alt={item.label} loading="lazy" />
         ) : item.type === "pdf" && !item.placeholder ? (
           <div className="gal-card__icon-thumb">
             <PDFIcon />
@@ -1440,21 +1482,47 @@ function GalleryPage({ handleClick }) {
   const [activeCat, setActiveCat] = useState("all");
   const [lbItems, setLbItems] = useState(null);
   const [lbStart, setLbStart] = useState(0);
+  const [paths, setPaths] = useState({});
+
+  // Lazily resolve all image imports when the Gallery page opens
+  useEffect(() => {
+    let alive = true;
+    GALLERY_ITEMS.forEach((item, i) => {
+      if (item.lazy && !item.placeholder) {
+        item
+          .lazy()
+          .then((m) => {
+            if (alive) setPaths((p) => ({ ...p, [i]: m.default }));
+          })
+          .catch(() => {});
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Merge resolved paths back into items
+  const items = GALLERY_ITEMS.map((item, i) =>
+    item.lazy
+      ? { ...item, path: paths[i] ?? null, thumb: paths[i] ?? null }
+      : item
+  );
 
   const filtered =
     activeCat === "all"
-      ? GALLERY_ITEMS
-      : GALLERY_ITEMS.filter((item) => item.category === activeCat);
+      ? items
+      : items.filter((item) => item.category === activeCat);
 
   const openItem = (item) => {
-    if (item.placeholder) return;
-    const realItems = filtered.filter((i) => !i.placeholder);
+    if (item.placeholder || !item.path) return;
+    const realItems = filtered.filter((i) => !i.placeholder && i.path);
     setLbItems(realItems);
     setLbStart(Math.max(realItems.indexOf(item), 0));
   };
 
-  const realCount = filtered.filter((i) => !i.placeholder).length;
-  const pendingCount = filtered.filter((i) => i.placeholder).length;
+  const realCount = filtered.filter((i) => !i.placeholder && i.path).length;
+  const pendingCount = filtered.filter((i) => i.placeholder || !i.path).length;
 
   return (
     <div className="honors-page">

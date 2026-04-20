@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la *.jfif)",
+      "Bash(sort -k5 -n)",
+      "Bash(ls -lt *.jpeg *.jpg *.JPG *.PNG *.png)",
+      "Bash(ls -lt *.jfif)",
+      "Bash(npx react-scripts *)"
+    ]
+  }
+}
