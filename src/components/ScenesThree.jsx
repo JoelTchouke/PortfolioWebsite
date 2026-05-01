@@ -896,32 +896,7 @@ function Scene({ setClicked, setHovered, setGallery }) {
 
 // ── AnimatedText ──────────────────────────────────────────────────
 function AnimatedText() {
-  const [spring, api] = useSpring(() => ({
-    positionY: -3,
-    scale: 0.5,
-    opacity: 0,
-    config: { mass: 1, tension: 180, friction: 16 },
-  }));
-  useEffect(() => {
-    let a = true;
-    (async () => {
-      await api.start({ positionY: 1, scale: 1.5, opacity: 1 });
-      if (!a) return;
-      await new Promise((r) => setTimeout(r, 3000));
-      if (!a) return;
-      await api.start({ positionY: 10, opacity: 0 });
-    })();
-    return () => {
-      a = false;
-    };
-  }, [api]);
-  return (
-    <animated.group position-y={spring.positionY} scale={spring.scale}>
-      <Text fontSize={5.5} color="#b41c10" position={[0, -0.5, -3]}>
-        {"𝔍𝔬𝔢𝔩"}
-      </Text>
-    </animated.group>
-  );
+  return null;
 }
 
 // ── Modals ────────────────────────────────────────────────────────
@@ -1799,9 +1774,9 @@ function SceneThree({ onNavigate }) {
         )}
 
         <Canvas
-          dpr={[1, 1.5]}
-          performance={{ min: 0.5 }}
-          gl={{ antialias: true, powerPreference: "high-performance" }}
+          dpr={[1, 1.2]}
+          performance={{ min: 0.25, max: 0.75 }}
+          gl={{ antialias: false, powerPreference: "high-performance", precision: "lowp" }}
         >
           <Suspense fallback={null}>
             <Scene
